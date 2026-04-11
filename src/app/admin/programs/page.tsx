@@ -23,6 +23,7 @@ export default async function ProgramManagement() {
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex items-center justify-between">
+        <div>
           <h1 className="text-4xl font-black text-foreground tracking-tighter">Academic <span className="text-emerald-500">Programs</span></h1>
           <p className="text-muted-foreground font-medium">Manage syllabus structures and degree paths.</p>
         </div>

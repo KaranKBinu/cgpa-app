@@ -11,6 +11,7 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex items-center justify-between mb-8">
+        <div>
           <h1 className="text-4xl font-black text-foreground tracking-tighter">System <span className="text-emerald-500">Overview</span></h1>
           <p className="text-muted-foreground font-medium">Real-time statistics and administrative metrics.</p>
         </div>

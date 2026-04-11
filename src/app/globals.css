@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@config "../../tailwind.config.js";
-
 :root {
   --background: 255 255 255;
   --foreground: 5 5 5;
