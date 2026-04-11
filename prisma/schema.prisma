@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Syllabus Data (Pre-filled)
+model Program {
+  id          String             @id @default(cuid())
+  name        String
+  code        String             @unique
+  scheme      String?            @default("Revision 2021")
+  semesters   SyllabusSemester[]
+  calculations Calculation[]
+}
+
+model SyllabusSemester {
+  id          String            @id @default(cuid())
+  name        String            // e.g., "Semester I", "Summer Internship I"
+  number      Int               // For sorting
+  programId   String
+  program     Program           @relation(fields: [programId], references: [id], onDelete: Cascade)
+  subjects    SyllabusSubject[]
+}
+
+model SyllabusSubject {
+  id          String           @id @default(cuid())
+  code        String
+  name        String
+  credits     Float
+  category    String?
+  semesterId  String
+  semester    SyllabusSemester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+}
+
+// User Results
+model Calculation {
+  id          String         @id @default(cuid())
+  label       String         @default("My CGPA")
+  cgpa        Float          @default(0)
+  programId   String?
+  program     Program?       @relation(fields: [programId], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  semesters   UserSemester[]
+}
+
+model UserSemester {
+  id              String         @id @default(cuid())
+  name            String         // e.g., "Semester I"
+  number          Int
+  sgpa            Float          @default(0)
+  credits         Float          @default(0)
+  calculationId   String
+  calculation     Calculation    @relation(fields: [calculationId], references: [id], onDelete: Cascade)
+  subjects        UserSubject[]
+}
+
+model UserSubject {
+  id              String       @id @default(cuid())
+  code            String?
+  name            String
+  credits         Float
+  grade           String       // S, A, B, C, D, E, F
+  points          Float        // Grade points
+  userSemesterId  String
+  userSemester    UserSemester @relation(fields: [userSemesterId], references: [id], onDelete: Cascade)
+}
