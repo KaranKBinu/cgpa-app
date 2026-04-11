@@ -198,9 +198,9 @@ export default function Calculator({ program }: { program: Program }) {
   return (
     <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans">
       {/* Sidebar Navigation */}
-      <aside className="w-16 lg:w-64 border-r-2 border-standard flex flex-col bg-card/30 z-[70]">
+      <aside className="w-16 lg:w-64 border-r-2 border-border flex flex-col bg-card/30 z-[70]">
         <Tooltip content="PolyCGPA Home" position="right" variant="emerald" className="w-auto">
-          <div className="p-4 lg:p-6 border-b-2 border-standard flex items-center justify-center lg:justify-start gap-3 bg-white/[0.02]">
+          <div className="p-4 lg:p-6 border-b-2 border-border flex items-center justify-center lg:justify-start gap-3 bg-white/[0.02]">
             <div className="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center font-black text-black shadow-[0_0_20px_rgba(16,185,129,0.4)]">P</div>
             <span className="hidden lg:block font-black tracking-tighter text-2xl">Poly<span className="text-primary italic">CGPA</span></span>
           </div>
@@ -467,7 +467,7 @@ export default function Calculator({ program }: { program: Program }) {
                             "h-8 w-8 lg:h-7 lg:w-7 rounded-lg flex items-center justify-center border transition-all hover:scale-110 active:scale-90 shadow-lg",
                             exclusions[sub.id] === 'not-published'
                               ? "bg-gradient-to-br from-amber-400 to-amber-600 border-amber-400/50 text-black shadow-amber-500/40"
-                              : "border-standard text-muted-foreground hover:text-amber-400/80 hover:border-amber-400/30 hover:bg-amber-400/5"
+                              : "border-border text-muted-foreground hover:text-amber-400/80 hover:border-amber-400/30 hover:bg-amber-400/5"
                           )}
                         >
                           <Plus className="h-4 w-4 rotate-45" />
@@ -480,7 +480,7 @@ export default function Calculator({ program }: { program: Program }) {
                             "h-8 w-8 lg:h-7 lg:w-7 rounded-lg flex items-center justify-center border transition-all hover:scale-110 active:scale-90 shadow-lg",
                             exclusions[sub.id] === 'not-taken'
                               ? "bg-gradient-to-br from-red-500 to-red-700 border-red-500/50 text-black shadow-red-500/40"
-                              : "border-standard text-muted-foreground hover:text-red-500/80 hover:border-red-500/30 hover:bg-red-500/5"
+                              : "border-border text-muted-foreground hover:text-red-500/80 hover:border-red-500/30 hover:bg-red-500/5"
                           )}
                         >
                           <X className="h-4 w-4" />
