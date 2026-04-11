@@ -26,7 +26,7 @@ export default async function CalculatePage({ params }: { params: Promise<{ code
   }
 
   return (
-    <div className="min-h-screen py-12 px-6">
+    <div className="min-h-screen px-6">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 space-y-4">
           <Link href="/" className="inline-flex items-center gap-1 text-sm font-medium text-white/40 hover:text-white transition-colors">
@@ -38,7 +38,7 @@ export default async function CalculatePage({ params }: { params: Promise<{ code
                 {program.name}
               </h1>
               <div className="flex items-center gap-4">
-                <span className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold">
+                <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-primary text-xs font-bold">
                   {program.code}
                 </span>
                 <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 text-xs font-bold">

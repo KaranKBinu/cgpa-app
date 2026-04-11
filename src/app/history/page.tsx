@@ -3,9 +3,20 @@ import { format } from "date-fns";
 import { Trash2, Calculator as CalcIcon, Calendar, ArrowRight, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { deleteCalculation } from "../actions";
+import { auth } from "@/lib/auth";
 
 export default async function HistoryPage() {
+  const session = await auth();
+  const userId = session?.user ? (session.user as any).id : null;
+  const role = session?.user ? (session.user as any).role : "STUDENT";
+
+  let where = {};
+  if (role === "STUDENT") {
+    where = { userId: userId };
+  }
+
   const calculations = await prisma.calculation.findMany({
+    where,
     orderBy: { createdAt: 'desc' },
     include: {
       program: true,
@@ -22,17 +33,17 @@ export default async function HistoryPage() {
                <span className="px-4 py-1.5 rounded-full bg-emerald-500/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] border border-emerald-500/20 shadow-xl shadow-emerald-500/5">Archived Records</span>
                <div className="h-px w-24 bg-gradient-to-r from-emerald-500/30 to-transparent" />
             </div>
-            <h1 className="text-5xl lg:text-7xl font-black text-white tracking-tighter leading-none">Your <span className="gradient-text">Journey</span></h1>
-            <p className="text-muted text-lg font-medium tracking-tight">System-wide log of your academic computations and milestones.</p>
+            <h1 className="text-4xl lg:text-7xl font-black text-white tracking-tighter leading-none">Your <span className="gradient-text">Journey</span></h1>
+            <p className="text-muted text-sm lg:text-lg font-medium tracking-tight">System-wide log of your academic computations and milestones.</p>
           </div>
           
-          <div className="flex items-center gap-6 p-6 rounded-[2rem] bg-surface border border-standard shadow-2xl">
-             <div className="h-16 w-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-primary border border-emerald-500/20">
-                <BarChart3 className="h-8 w-8" />
+          <div className="flex items-center gap-4 lg:gap-6 p-4 lg:p-6 rounded-[1.5rem] lg:rounded-[2rem] bg-surface border border-standard shadow-2xl w-full lg:w-auto">
+             <div className="h-12 w-12 lg:h-16 lg:w-16 rounded-xl lg:rounded-2xl bg-emerald-500/10 flex items-center justify-center text-primary border border-emerald-500/20">
+                <BarChart3 className="h-6 w-6 lg:h-8 lg:w-8" />
              </div>
              <div>
-                <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mb-1">Stored Sessions</p>
-                <p className="text-3xl font-black text-white leading-none">{calculations.length}</p>
+                <p className="text-[8px] lg:text-[10px] font-black text-muted uppercase tracking-[0.3em] mb-1">Stored Sessions</p>
+                <p className="text-2xl lg:text-3xl font-black text-white leading-none">{calculations.length}</p>
              </div>
           </div>
         </div>
@@ -45,7 +56,7 @@ export default async function HistoryPage() {
             </div>
             <h3 className="text-3xl font-black text-white mb-4">No records found</h3>
             <p className="text-muted text-lg font-medium max-w-sm mx-auto mb-10">Your academic archive is currently empty. Initialize a new matrix to begin tracking.</p>
-            <Link href="/" className="inline-flex items-center gap-4 px-10 py-5 bg-primary hover:bg-emerald-400 text-black rounded-[1.5rem] text-sm font-black uppercase tracking-[0.2em] transition-all shadow-4xl shadow-emerald-600/30 active:scale-95 group">
+            <Link href="/" className="btn-primary h-14 px-10 rounded-[1.5rem] group">
                Start Analysis <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
             </Link>
           </div>
@@ -89,11 +100,11 @@ export default async function HistoryPage() {
                          "use server";
                          await deleteCalculation(calc.id);
                       }}>
-                         <button type="submit" className="h-14 w-14 flex items-center justify-center rounded-2xl bg-red-500/5 text-red-500/20 hover:bg-red-500/20 hover:text-red-500 transition-all border border-transparent hover:border-red-500/20 active:scale-95">
+                         <button type="submit" className="btn-danger">
                             <Trash2 className="h-6 w-6" />
                          </button>
                       </form>
-                      <Link href={`/calculate/${calc.program?.code}`} className="h-14 w-14 flex items-center justify-center rounded-2xl bg-white/5 text-muted hover:bg-white/10 hover:text-white transition-all border border-standard active:scale-95">
+                      <Link href={`/calculate/${calc.program?.code}`} className="btn-secondary h-14 w-14 p-0 rounded-2xl">
                          <ArrowRight className="h-6 w-6" />
                       </Link>
                     </div>

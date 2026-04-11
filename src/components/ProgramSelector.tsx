@@ -14,8 +14,8 @@ interface Program {
 export default function ProgramSelector({ programs }: { programs: Program[] }) {
   const [search, setSearch] = useState('');
 
-  const filteredPrograms = programs.filter(p => 
-    p.name.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredPrograms = programs.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.code.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -63,7 +63,7 @@ export default function ProgramSelector({ programs }: { programs: Program[] }) {
             </motion.div>
           ))}
         </AnimatePresence>
-        
+
         {filteredPrograms.length === 0 && (
           <div className="py-12 text-center text-white/30 italic">
             No programs found matching your search.

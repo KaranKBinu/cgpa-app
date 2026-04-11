@@ -21,12 +21,13 @@ model Program {
 }
 
 model SyllabusSemester {
-  id          String            @id @default(cuid())
-  name        String            // e.g., "Semester I", "Summer Internship I"
-  number      Int               // For sorting
-  programId   String
-  program     Program           @relation(fields: [programId], references: [id], onDelete: Cascade)
-  subjects    SyllabusSubject[]
+  id            String            @id @default(cuid())
+  name          String            // e.g., "Semester I", "Summer Internship I"
+  number        Int               // For sorting
+  isInternship  Boolean           @default(false)
+  programId     String
+  program       Program           @relation(fields: [programId], references: [id], onDelete: Cascade)
+  subjects      SyllabusSubject[]
 }
 
 model SyllabusSubject {
@@ -39,6 +40,23 @@ model SyllabusSubject {
   semester    SyllabusSemester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
 }
 
+enum Role {
+  STUDENT
+  TEACHER
+  SUPERUSER
+}
+
+model User {
+  id            String        @id @default(cuid())
+  name          String?
+  email         String?       @unique
+  password      String?
+  role          Role          @default(STUDENT)
+  calculations  Calculation[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
 // User Results
 model Calculation {
   id          String         @id @default(cuid())
@@ -46,6 +64,8 @@ model Calculation {
   cgpa        Float          @default(0)
   programId   String?
   program     Program?       @relation(fields: [programId], references: [id])
+  userId      String?
+  user        User?          @relation(fields: [userId], references: [id])
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   semesters   UserSemester[]
@@ -71,4 +91,11 @@ model UserSubject {
   points          Float        // Grade points
   userSemesterId  String
   userSemester    UserSemester @relation(fields: [userSemesterId], references: [id], onDelete: Cascade)
+}
+
+model Configuration {
+  id        String   @id @default("global")
+  appName   String   @default("PolyCGPA")
+  revision  String   @default("Revision 2021")
+  updatedAt DateTime @updatedAt
 }
