@@ -46,10 +46,10 @@ export default function LoginPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-[2rem] shadow-2xl">
+        <div className="bg-card/50 backdrop-blur-xl border border-border/50 p-8 rounded-[2rem] shadow-2xl">
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-black font-outfit text-white mb-2">Welcome Back</h1>
-            <p className="text-white/40 text-sm font-bold uppercase tracking-widest">Sign in to your account</p>
+            <h1 className="text-3xl font-black font-outfit text-foreground mb-2">Welcome Back</h1>
+            <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Sign in to your account</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -61,14 +61,14 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Email Address</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-4">Email Address</label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-emerald-500 transition-colors" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
+                  className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 pl-12 pr-4 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
                   placeholder="name@example.com"
                   required
                 />
@@ -76,14 +76,14 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Password</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-4">Password</label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-emerald-500 transition-colors" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
+                  className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 pl-12 pr-4 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
                   placeholder="••••••••"
                   required
                 />
@@ -106,7 +106,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-8 text-center text-white/40 text-sm font-medium">
+          <p className="mt-8 text-center text-muted-foreground text-sm font-medium">
             Don't have an account?{" "}
             <Link href="/auth/register" className="text-emerald-500 hover:text-emerald-400 font-bold transition-colors">
               Create one for free

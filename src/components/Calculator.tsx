@@ -196,9 +196,9 @@ export default function Calculator({ program }: { program: Program }) {
   const currentSemRes = results.semResults.find(r => r.id === expandedSem);
 
   return (
-    <div className="flex h-screen bg-black text-white overflow-hidden font-sans">
+    <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans">
       {/* Sidebar Navigation */}
-      <aside className="w-16 lg:w-64 border-r-2 border-standard flex flex-col bg-black z-[70]">
+      <aside className="w-16 lg:w-64 border-r-2 border-standard flex flex-col bg-card/30 z-[70]">
         <Tooltip content="PolyCGPA Home" position="right" variant="emerald" className="w-auto">
           <div className="p-4 lg:p-6 border-b-2 border-standard flex items-center justify-center lg:justify-start gap-3 bg-white/[0.02]">
             <div className="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center font-black text-black shadow-[0_0_20px_rgba(16,185,129,0.4)]">P</div>
@@ -207,7 +207,7 @@ export default function Calculator({ program }: { program: Program }) {
         </Tooltip>
 
         <nav className="flex-1 overflow-y-auto p-2 lg:p-4 space-y-3 custom-scrollbar">
-          <div className="hidden lg:block px-4 py-3 text-[11px] font-black text-white/40 uppercase tracking-[0.25em] mb-2 border-b border-white/5">Semesters</div>
+          <div className="hidden lg:block px-4 py-3 text-[11px] font-black text-muted-foreground uppercase tracking-[0.25em] mb-2 border-b border-border/50">Semesters</div>
           {groupedSemesters.map((sem) => {
             const res = results.semResults.find(r => r.id === sem.id);
             const isActive = sem.id === expandedSem;
@@ -219,27 +219,26 @@ export default function Calculator({ program }: { program: Program }) {
                   "w-full flex items-center justify-center lg:justify-between p-4 rounded-3xl transition-all group border-2 outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 active:scale-95",
                   isActive
                     ? "bg-emerald-500 border-emerald-500 text-black shadow-[0_15px_40px_-10px_rgba(16,185,129,0.5)]"
-                    : "bg-[#0a0a0a] border-white/5 text-white/30 hover:border-white/20 hover:text-white"
+                    : "bg-card/50 border-border/50 text-muted-foreground hover:border-border hover:text-foreground"
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <div className={cn("h-2.5 w-2.5 rounded-full transition-all", isActive ? "bg-black" : "bg-white/10 group-hover:bg-primary")} />
+                  <div className={cn("h-2.5 w-2.5 rounded-full transition-all", isActive ? "bg-primary-foreground" : "bg-card/80 group-hover:bg-primary")} />
                   <span className="hidden lg:block font-black text-sm uppercase tracking-tighter">{(sem as any).displayName}</span>
                 </div>
-                {res && res.sgpa > 0 && <span className={cn("hidden lg:block text-xs font-black px-2 py-0.5 rounded-md", isActive ? "bg-black/10 text-black/80" : "bg-primary/10 text-primary")}>{res.sgpa.toFixed(2)}</span>}
-                <div className="lg:hidden font-black text-[10px]">{sem.number}</div>
+                {res && res.sgpa > 0 && <span className={cn("hidden lg:block text-xs font-black px-2 py-0.5 rounded-md", isActive ? "bg-primary-foreground/10 text-primary-foreground" : "bg-primary/10 text-primary")}>{res.sgpa.toFixed(2)}</span>}
               </button>
             )
           })}
         </nav>
 
-        <div className="p-2 lg:p-4 border-t border-standard bg-white/[0.01]">
+        <div className="p-2 lg:p-4 border-t border-border bg-card/50">
           <Tooltip content="View History" position="right" variant="emerald" className="lg:hidden">
-            <Link href="/history" className="flex items-center justify-center lg:justify-start gap-3 p-3 rounded-xl text-muted hover:bg-white/5 hover:text-white transition-all">
+            <Link href="/history" className="flex items-center justify-center lg:justify-start gap-3 p-3 rounded-xl text-muted-foreground hover:bg-card/50 hover:text-foreground transition-all">
               <History className="h-5 w-5" />
             </Link>
           </Tooltip>
-          <Link href="/history" className="hidden lg:flex items-center justify-start gap-3 p-3 rounded-xl text-muted hover:bg-white/5 hover:text-white transition-all">
+          <Link href="/history" className="hidden lg:flex items-center justify-start gap-3 p-3 rounded-xl text-muted-foreground hover:bg-card/50 hover:text-foreground transition-all">
             <History className="h-5 w-5" />
             <span className="font-bold text-sm">History</span>
           </Link>
@@ -247,9 +246,9 @@ export default function Calculator({ program }: { program: Program }) {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto bg-surface-raised custom-scrollbar animate-fade-in relative">
+      <main className="flex-1 overflow-y-auto bg-background custom-scrollbar animate-fade-in relative">
         {/* Official Report Header (Print Only) */}
-        <div className="print-only p-8 border-b-4 border-black mb-10">
+        <div className="print-only p-8 border-b-4 border-border mb-10">
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-3xl font-black uppercase tracking-tighter">PolyCGPA Official Report</h1>
@@ -262,32 +261,32 @@ export default function Calculator({ program }: { program: Program }) {
           </div>
           <div className="grid grid-cols-2 gap-10">
             <div>
-              <p className="text-[10px] font-black uppercase text-muted mb-1">Bachelor / Diploma Program</p>
+              <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">Bachelor / Diploma Program</p>
               <p className="text-lg font-black">{program.name}</p>
               <p className="text-sm font-bold opacity-60">{program.code}</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] font-black uppercase text-muted mb-1">Calculation Status</p>
+              <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">Calculation Status</p>
               <p className="text-lg font-black text-primary uppercase">Official Result</p>
               <p className="text-xs font-bold opacity-60 tracking-widest">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
           </div>
         </div>
 
-        <header className="h-auto min-h-20 border-b border-standard flex flex-col md:flex-row items-center justify-between px-4 lg:px-8 py-4 bg-transparent z-50 gap-4">
+        <header className="h-auto min-h-20 border-b border-border flex flex-col md:flex-row items-center justify-between px-4 lg:px-8 py-4 bg-transparent z-50 gap-4">
           <div className="flex items-center gap-4 lg:gap-6">
             <div>
-              <h1 className="text-sm lg:text-lg font-black tracking-tight leading-tight">{program.name} <span className="text-muted block lg:inline font-mono text-[10px] lg:text-sm">{program.code}</span></h1>
+              <h1 className="text-sm lg:text-lg font-black tracking-tight leading-tight">{program.name} <span className="text-muted-foreground block lg:inline font-mono text-[10px] lg:text-sm">{program.code}</span></h1>
             </div>
-            <div className="h-8 w-px bg-white/5 hidden lg:block" />
+            <div className="h-8 w-px bg-border hidden lg:block" />
             <div className="flex items-center gap-4">
               <div className="flex flex-col">
-                <span className="text-[8px] lg:text-[9px] font-black text-muted uppercase">Global CGPA</span>
+                <span className="text-[8px] lg:text-[9px] font-black text-muted-foreground uppercase">Global CGPA</span>
                 <span className="text-base lg:text-xl font-black text-primary">{results.cgpa.toFixed(2)}</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-[8px] lg:text-[9px] font-black text-muted uppercase">Percentage</span>
-                <span className="text-base lg:text-xl font-black text-white/80">{results.totalPercentage.toFixed(1)}%</span>
+                <span className="text-[8px] lg:text-[9px] font-black text-muted-foreground uppercase">Percentage</span>
+                <span className="text-base lg:text-xl font-black text-foreground/80">{results.totalPercentage.toFixed(1)}%</span>
               </div>
             </div>
           </div>
@@ -313,33 +312,33 @@ export default function Calculator({ program }: { program: Program }) {
           <div className="max-w-5xl mx-auto space-y-8 lg:space-y-12">
 
             {/* Minimalist Curricular Apex HUD */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-12 border-b-2 border-white/5 relative">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-12 border-b-2 border-border/50 relative">
               <div className="flex items-center gap-6">
                 <div className="h-12 w-1.5 bg-primary rounded-full shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
                 <div className="space-y-1">
                   <div className="flex items-center gap-3">
-                    <span className="text-4xl font-black tracking-tighter text-white uppercase">{currentSem?.name}</span>
+                    <span className="text-4xl font-black tracking-tighter text-foreground uppercase">{currentSem?.name}</span>
                     <div className="px-3 py-1 rounded-lg bg-primary/10 border border-primary/20 flex items-center gap-2">
                       <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
                       <span className="text-[9px] font-black uppercase text-primary tracking-widest leading-none">Live</span>
                     </div>
                   </div>
-                  <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Academic Core Matrix</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">Academic Core Matrix</p>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-4 lg:gap-8">
                 {currentSemRes && currentSemRes.sgpa > 0 && (
-                  <div className="flex items-center bg-white/[0.03] border border-white/10 rounded-3xl p-2 pr-6 gap-6 shadow-2xl backdrop-blur-md">
-                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-black border border-white/5">
+                  <div className="flex items-center bg-card/50 border border-border rounded-3xl p-2 pr-6 gap-6 shadow-2xl backdrop-blur-md">
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-background border border-border">
                       <div className="text-left">
                         <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-1">SGPA</p>
-                        <p className="text-3xl font-black text-white tracking-tighter leading-none">{currentSemRes.sgpa.toFixed(2)}</p>
+                        <p className="text-3xl font-black text-foreground tracking-tighter leading-none">{currentSemRes.sgpa.toFixed(2)}</p>
                       </div>
-                      <div className="h-8 w-px bg-white/10" />
+                      <div className="h-8 w-px bg-border" />
                       <div className="text-right">
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Equiv.</p>
-                        <p className="text-3xl font-black text-white tracking-tighter leading-none">{currentSemRes.percentage.toFixed(1)}%</p>
+                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">Equiv.</p>
+                        <p className="text-3xl font-black text-foreground tracking-tighter leading-none">{currentSemRes.percentage.toFixed(1)}%</p>
                       </div>
                     </div>
                     
@@ -360,7 +359,7 @@ export default function Calculator({ program }: { program: Program }) {
           {/* Input Dashboard */}
           <div className="grid grid-cols-1 gap-1">
             {/* Header row - Hidden on mobile */}
-            <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3 text-[10px] font-black text-muted uppercase tracking-widest border-b border-white/5">
+            <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest border-b border-border/50">
               <div className="col-span-1">CODE</div>
               <div className="col-span-1 text-center">CR</div>
               <div className="col-span-6">COURSE DESCRIPTION</div>
@@ -377,15 +376,15 @@ export default function Calculator({ program }: { program: Program }) {
                 <div key={sub.id} className={cn(
                   "flex flex-col lg:grid lg:grid-cols-12 gap-6 p-6 lg:px-8 lg:py-6 items-start lg:items-center group transition-all rounded-3xl mb-4 border-2 shadow-xl",
                   exclusions[sub.id]
-                    ? "bg-white/[0.01] border-white/5 opacity-30 grayscale"
-                    : "bg-white/[0.03] border-white/5 hover:border-primary/40 hover:bg-white/[0.05]"
+                    ? "bg-card/30 border-border/50 opacity-30 grayscale"
+                    : "bg-card/50 border-border/50 hover:border-primary/40 hover:bg-card/80"
                 )}>
-                  <div className="w-full flex justify-between items-center lg:col-span-1 border-b lg:border-none border-white/10 pb-3 lg:pb-0">
+                  <div className="w-full flex justify-between items-center lg:col-span-1 border-b lg:border-none border-border pb-3 lg:pb-0">
                     <div className="font-black text-xs text-primary/60 tracking-tighter">{(sub as any).isCustom ? 'ELECTIVE' : (sub.code || 'CORE')}</div>
                     <div className="lg:hidden text-center">
                       {(sub as any).isCustom ? (
                         <div className="flex items-center gap-2">
-                          <span className="text-[9px] font-black text-white/40">CR:</span>
+                          <span className="text-[9px] font-black text-muted-foreground">CR:</span>
                           <input
                             type="number"
                             value={sub.credits}
@@ -397,11 +396,11 @@ export default function Calculator({ program }: { program: Program }) {
                                 setCustomSubjects(prev => ({ ...prev, [expandedSem!]: newCustom }));
                               }
                             }}
-                            className="w-10 bg-white/5 font-black text-[11px] text-white border border-white/20 rounded text-center py-0.5"
+                            className="w-10 bg-card/80 font-black text-[11px] text-foreground border border-border rounded text-center py-0.5"
                           />
                         </div>
                       ) : (
-                        <span className="px-3 py-1 rounded-full bg-white/10 text-[11px] font-black text-white border border-white/20">{sub.credits} CREDITS</span>
+                        <span className="px-3 py-1 rounded-full bg-card/80 text-[11px] font-black text-foreground border border-border">{sub.credits} CREDITS</span>
                       )}
                     </div>
                   </div>
@@ -418,10 +417,10 @@ export default function Calculator({ program }: { program: Program }) {
                             setCustomSubjects(prev => ({ ...prev, [expandedSem!]: newCustom }));
                           }
                         }}
-                        className="w-12 bg-white/5 font-black text-[11px] text-white border-2 border-white/20 rounded-lg text-center py-1 outline-none focus:border-primary focus:bg-black focus:ring-4 focus:ring-primary/20 transition-all"
+                        className="w-12 bg-card/80 font-black text-[11px] text-foreground border-2 border-border rounded-lg text-center py-1 outline-none focus:border-primary focus:bg-background focus:ring-4 focus:ring-primary/20 transition-all"
                       />
                     ) : (
-                      <span className="px-3 py-1 rounded-full bg-white/10 text-[11px] font-black text-white border border-white/20">{sub.credits}</span>
+                      <span className="px-3 py-1 rounded-full bg-card/80 text-[11px] font-black text-foreground border border-border">{sub.credits}</span>
                     )}
                   </div>
                   <div className="w-full lg:col-span-6">
@@ -436,28 +435,28 @@ export default function Calculator({ program }: { program: Program }) {
                             setCustomSubjects(prev => ({ ...prev, [expandedSem!]: newCustom }));
                           }
                         }}
-                        className="w-full bg-transparent font-black text-base lg:text-lg tracking-tighter text-primary border-b-2 border-primary/20 focus:border-primary focus:bg-white/5 outline-none py-1 px-2 rounded-t-lg transition-all"
+                        className="w-full bg-transparent font-black text-base lg:text-lg tracking-tighter text-primary border-b-2 border-primary/20 focus:border-primary focus:bg-card/50 outline-none py-1 px-2 rounded-t-lg transition-all"
                         placeholder="Enter Course Title..."
                       />
                     ) : (
-                      <p className="font-black text-base lg:text-lg tracking-tighter text-white leading-tight">{sub.name}</p>
+                      <p className="font-black text-base lg:text-lg tracking-tighter text-foreground leading-tight">{sub.name}</p>
                     )}
                   </div>
-                  <div className="w-full lg:col-span-4 flex flex-row-reverse lg:flex-row justify-between lg:justify-end items-center gap-6 pt-4 lg:pt-0 border-t lg:border-none border-white/10">
+                  <div className="w-full lg:col-span-4 flex flex-row-reverse lg:flex-row justify-between lg:justify-end items-center gap-6 pt-4 lg:pt-0 border-t lg:border-none border-border">
                     <select
                       disabled={!!exclusions[sub.id]}
                       value={grades[sub.id] || ''}
                       onChange={(e) => setGrades(prev => ({ ...prev, [sub.id]: e.target.value as Grade }))}
                       className={cn(
-                        "w-full lg:w-40 bg-black border-2 rounded-2xl py-3 px-4 text-sm font-black text-center appearance-none cursor-pointer outline-none transition-all",
+                        "w-full lg:w-40 bg-background border-2 rounded-2xl py-3 px-4 text-sm font-black text-center appearance-none cursor-pointer outline-none transition-all",
                         grades[sub.id]
                           ? "border-primary text-primary shadow-[0_0_20px_rgba(16,185,129,0.3)] focus:ring-4 focus:ring-primary/20"
-                          : "border-white/10 text-white/30 hover:border-white/40 hover:text-white focus:border-primary focus:text-white focus:ring-4 focus:ring-primary/20"
+                          : "border-border text-muted-foreground hover:border-border hover:text-foreground focus:border-primary focus:text-foreground focus:ring-4 focus:ring-primary/20"
                       )}
                     >
-                      <option value="" disabled className="bg-black">SELECT GRADE</option>
+                      <option value="" disabled className="bg-background">SELECT GRADE</option>
                       {Object.keys(GRADE_POINTS).map(g => (
-                        <option key={g} value={g} className="bg-black text-white font-black">{g}</option>
+                        <option key={g} value={g} className="bg-background text-foreground font-black">{g}</option>
                       ))}
                     </select>
                     <div className="flex items-center gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
@@ -468,7 +467,7 @@ export default function Calculator({ program }: { program: Program }) {
                             "h-8 w-8 lg:h-7 lg:w-7 rounded-lg flex items-center justify-center border transition-all hover:scale-110 active:scale-90 shadow-lg",
                             exclusions[sub.id] === 'not-published'
                               ? "bg-gradient-to-br from-amber-400 to-amber-600 border-amber-400/50 text-black shadow-amber-500/40"
-                              : "border-standard text-white/20 hover:text-amber-400/80 hover:border-amber-400/30 hover:bg-amber-400/5"
+                              : "border-standard text-muted-foreground hover:text-amber-400/80 hover:border-amber-400/30 hover:bg-amber-400/5"
                           )}
                         >
                           <Plus className="h-4 w-4 rotate-45" />
@@ -481,7 +480,7 @@ export default function Calculator({ program }: { program: Program }) {
                             "h-8 w-8 lg:h-7 lg:w-7 rounded-lg flex items-center justify-center border transition-all hover:scale-110 active:scale-90 shadow-lg",
                             exclusions[sub.id] === 'not-taken'
                               ? "bg-gradient-to-br from-red-500 to-red-700 border-red-500/50 text-black shadow-red-500/40"
-                              : "border-standard text-white/20 hover:text-red-500/80 hover:border-red-500/30 hover:bg-red-500/5"
+                              : "border-standard text-muted-foreground hover:text-red-500/80 hover:border-red-500/30 hover:bg-red-500/5"
                           )}
                         >
                           <X className="h-4 w-4" />

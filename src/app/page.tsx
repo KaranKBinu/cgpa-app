@@ -19,10 +19,10 @@ export default async function Home() {
           <Sparkles className="h-3 w-3" />
           The Ultimate SGPA/CGPA Companion
         </div>
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-4 text-white">
+        <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-4 text-foreground">
           Calculate with <span className="gradient-text">Precision.</span>
         </h1>
-        <p className="text-lg text-muted leading-relaxed font-medium">
+        <p className="text-lg text-muted-foreground leading-relaxed font-medium">
           Select your program to get started. We have the complete Revision 2021 database pre-loaded for all Kerala Polytechnic courses.
         </p>
       </div>
@@ -30,20 +30,20 @@ export default async function Home() {
       <ProgramSelector programs={programs} />
 
       <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full">
-        <div className="dashboard-card p-6 space-y-3">
+        <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3">
           <div className="text-primary font-black uppercase text-[10px] tracking-widest">01. Discovery</div>
-          <h3 className="text-lg font-bold">Select Program</h3>
-          <p className="text-sm text-muted">Find your specific diploma course from our extensive database of 43+ programs.</p>
+          <h3 className="text-lg font-bold text-foreground">Select Program</h3>
+          <p className="text-sm text-muted-foreground">Find your specific diploma course from our extensive database of 43+ programs.</p>
         </div>
-        <div className="dashboard-card p-6 space-y-3">
+        <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3">
           <div className="text-primary font-black uppercase text-[10px] tracking-widest">02. Computation</div>
-          <h3 className="text-lg font-bold">Enter Grades</h3>
-          <p className="text-sm text-muted">Simply select your grades for each subject. Credits and weights are handled automatically.</p>
+          <h3 className="text-lg font-bold text-foreground">Enter Grades</h3>
+          <p className="text-sm text-muted-foreground">Simply select your grades for each subject. Credits and weights are handled automatically.</p>
         </div>
-        <div className="dashboard-card p-6 space-y-3">
+        <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3">
           <div className="text-primary font-black uppercase text-[10px] tracking-widest">03. Outcome</div>
-          <h3 className="text-lg font-bold">Get Result</h3>
-          <p className="text-sm text-muted">View your SGPA and CGPA instantly with detailed subject breakdown and analysis.</p>
+          <h3 className="text-lg font-bold text-foreground">Get Result</h3>
+          <p className="text-sm text-muted-foreground">View your SGPA and CGPA instantly with detailed subject breakdown and analysis.</p>
         </div>
       </div>
     </div>

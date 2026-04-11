@@ -7,12 +7,12 @@ export default async function SettingsPage() {
   return (
     <div className="max-w-4xl animate-fade-in">
       <div className="mb-12">
-        <h1 className="text-4xl font-black text-white tracking-tighter mb-2">Platform <span className="text-emerald-500">Settings</span></h1>
-        <p className="text-white/40 font-medium">Global configurations for the PolyCGPA system.</p>
+        <h1 className="text-4xl font-black text-foreground tracking-tighter mb-2">Platform <span className="text-emerald-500">Settings</span></h1>
+        <p className="text-muted-foreground font-medium">Global configurations for the PolyCGPA system.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-8">
-        <div className="bg-white/5 border border-white/10 p-10 rounded-[2.5rem] relative overflow-hidden">
+        <div className="bg-card/50 border border-border/50 p-10 rounded-[2.5rem] relative overflow-hidden">
           <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
              <Settings className="h-40 w-40" />
           </div>
@@ -27,11 +27,11 @@ export default async function SettingsPage() {
                </h3>
                
                <div className="space-y-2">
-                 <label className="text-[10px] font-black uppercase text-white/40 tracking-widest ml-4">Application Name</label>
+                 <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-4">Application Name</label>
                  <input 
                    name="appName"
                    defaultValue={config.appName}
-                   className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-6 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold"
+                   className="w-full bg-background border border-border/50 rounded-2xl py-4 px-6 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold"
                    required
                  />
                </div>
@@ -43,14 +43,14 @@ export default async function SettingsPage() {
                </h3>
                
                <div className="space-y-2">
-                 <label className="text-[10px] font-black uppercase text-white/40 tracking-widest ml-4">Default Revision / Scheme</label>
+                 <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-4">Default Revision / Scheme</label>
                  <input 
                    name="revision"
                    defaultValue={config.revision}
-                   className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-6 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold"
+                   className="w-full bg-background border border-border/50 rounded-2xl py-4 px-6 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold"
                    required
                  />
-                 <p className="text-[10px] text-white/20 ml-4 font-medium uppercase tracking-tight italic mt-2">This value will be displayed as the primary data source tag in the header.</p>
+                 <p className="text-[10px] text-muted-foreground ml-4 font-medium uppercase tracking-tight italic mt-2">This value will be displayed as the primary data source tag in the header.</p>
                </div>
             </div>
 
@@ -61,14 +61,14 @@ export default async function SettingsPage() {
           </form>
         </div>
 
-        <div className="p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 flex items-center justify-between">
+        <div className="p-10 rounded-[2.5rem] bg-card/30 border border-border/50 flex items-center justify-between">
            <div className="flex items-center gap-6">
-              <div className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center text-white/20">
+              <div className="h-14 w-14 rounded-2xl bg-card/80 flex items-center justify-center text-muted-foreground">
                  <Smartphone className="h-6 w-6" />
               </div>
               <div>
-                 <p className="text-white font-black text-lg">Mobile Optimization</p>
-                 <p className="text-white/30 text-sm font-medium">Responsive scaling is currently handled by the adaptive grid engine.</p>
+                 <p className="text-foreground font-black text-lg">Mobile Optimization</p>
+                 <p className="text-muted-foreground text-sm font-medium">Responsive scaling is currently handled by the adaptive grid engine.</p>
               </div>
            </div>
            <div className="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />

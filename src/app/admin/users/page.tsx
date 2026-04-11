@@ -11,39 +11,39 @@ export default async function UserManagement() {
   return (
     <div className="space-y-8 animate-fade-in">
       <div>
-        <h1 className="text-4xl font-black text-white tracking-tighter">User <span className="text-emerald-500">Management</span></h1>
-        <p className="text-white/40 font-medium">Control access levels and manage system identities.</p>
+        <h1 className="text-4xl font-black text-foreground tracking-tighter">User <span className="text-emerald-500">Management</span></h1>
+        <p className="text-muted-foreground font-medium">Control access levels and manage system identities.</p>
       </div>
 
-      <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden">
+      <div className="bg-card/50 border border-border/50 rounded-[2.5rem] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/10">
-                <th className="px-8 py-6 text-[10px] font-black text-white/40 uppercase tracking-widest">User</th>
-                <th className="px-8 py-6 text-[10px] font-black text-white/40 uppercase tracking-widest">Role</th>
-                <th className="px-8 py-6 text-[10px] font-black text-white/40 uppercase tracking-widest">Joined</th>
-                <th className="px-8 py-6 text-[10px] font-black text-white/40 uppercase tracking-widest text-right">Actions</th>
+              <tr className="border-b border-border/50">
+                <th className="px-8 py-6 text-[10px] font-black text-muted-foreground uppercase tracking-widest">User</th>
+                <th className="px-8 py-6 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Role</th>
+                <th className="px-8 py-6 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Joined</th>
+                <th className="px-8 py-6 text-[10px] font-black text-muted-foreground uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
-                  <td className="px-8 py-6 text-white font-bold h-20">
+                <tr key={user.id} className="border-b border-border/50 hover:bg-card/80 transition-colors group">
+                  <td className="px-8 py-6 text-foreground font-bold h-20">
                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/20 group-hover:text-emerald-500 group-hover:bg-emerald-500/10 transition-all">
+                        <div className="h-10 w-10 rounded-xl bg-card/80 flex items-center justify-center text-muted-foreground group-hover:text-emerald-500 group-hover:bg-emerald-500/10 transition-all">
                            <UserIcon className="h-5 w-5" />
                         </div>
                         <div className="flex flex-col">
                            <span>{user.name || "Unnamed User"}</span>
-                           <span className="text-white/30 text-xs font-medium">{user.email}</span>
+                           <span className="text-muted-foreground text-xs font-medium">{user.email}</span>
                         </div>
                      </div>
                   </td>
                   <td className="px-8 py-6">
                     <RoleBadge role={user.role} />
                   </td>
-                  <td className="px-8 py-6 text-white/40 text-xs font-bold">
+                  <td className="px-8 py-6 text-muted-foreground text-xs font-bold">
                     {user.createdAt.toLocaleDateString()}
                   </td>
                   <td className="px-8 py-6 text-right">
@@ -57,7 +57,7 @@ export default async function UserManagement() {
                       <select 
                         name="role" 
                         defaultValue={user.role}
-                        className="bg-black border border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-emerald-500/50"
+                        className="bg-background border border-border/50 rounded-lg px-3 py-1.5 text-xs font-bold text-foreground focus:outline-none focus:border-emerald-500/50"
                       >
                         <option value="STUDENT">Student</option>
                         <option value="TEACHER">Teacher</option>
