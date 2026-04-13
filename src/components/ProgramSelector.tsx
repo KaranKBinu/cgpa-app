@@ -47,7 +47,7 @@ export default function ProgramSelector({ programs }: { programs: Program[] }) {
             >
               <Link
                 href={`/calculate/${program.code}`}
-                className="flex items-center justify-between p-4 bg-card/50 hover:bg-card/80 border border-border/50 rounded-xl transition-all group hover:scale-[1.01] hover:border-emerald-500/30"
+                className="flex items-center justify-between p-4 selection-pane group hover:scale-[1.01]"
               >
                 <div className="flex items-center gap-4">
                   <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-primary-foreground transition-all">

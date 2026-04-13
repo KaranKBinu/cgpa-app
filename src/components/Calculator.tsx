@@ -211,24 +211,22 @@ export default function Calculator({ program }: { program: Program }) {
           {groupedSemesters.map((sem) => {
             const res = results.semResults.find(r => r.id === sem.id);
             const isActive = sem.id === expandedSem;
-            return (
-              <button
-                key={sem.id}
-                onClick={() => setExpandedSem(sem.id)}
-                className={cn(
-                  "w-full flex items-center justify-center lg:justify-between p-4 rounded-3xl transition-all group border-2 outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 active:scale-95",
-                  isActive
-                    ? "bg-emerald-500 border-emerald-500 text-black shadow-[0_15px_40px_-10px_rgba(16,185,129,0.5)]"
-                    : "bg-card/50 border-border/50 text-muted-foreground hover:border-border hover:text-foreground"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={cn("h-2.5 w-2.5 rounded-full transition-all", isActive ? "bg-primary-foreground" : "bg-card/80 group-hover:bg-primary")} />
-                  <span className="hidden lg:block font-black text-sm uppercase tracking-tighter">{(sem as any).displayName}</span>
-                </div>
-                {res && res.sgpa > 0 && <span className={cn("hidden lg:block text-xs font-black px-2 py-0.5 rounded-md", isActive ? "bg-primary-foreground/10 text-primary-foreground" : "bg-primary/10 text-primary")}>{res.sgpa.toFixed(2)}</span>}
-              </button>
-            )
+             return (
+               <button
+                 key={sem.id}
+                 onClick={() => setExpandedSem(sem.id)}
+                 className={cn(
+                   "w-full flex items-center justify-center lg:justify-between p-4 px-2 lg:px-5 transition-all outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 active:scale-95",
+                   isActive ? "selection-pane-active" : "selection-pane group"
+                 )}
+               >
+                 <div className="flex items-center gap-3">
+                   <div className={cn("h-2.5 w-2.5 rounded-full transition-all", isActive ? "bg-black/40" : "bg-primary/20 group-hover:bg-primary")} />
+                   <span className={cn("hidden lg:block font-black text-sm uppercase tracking-tighter", isActive ? "text-black" : "text-foreground")}>{(sem as any).displayName}</span>
+                 </div>
+                 {res && res.sgpa > 0 && <span className={cn("hidden lg:block text-xs font-black px-2 py-0.5 rounded-md", isActive ? "bg-black/10 text-black" : "bg-primary/10 text-primary")}>{res.sgpa.toFixed(2)}</span>}
+               </button>
+             )
           })}
         </nav>
 
@@ -413,22 +411,23 @@ export default function Calculator({ program }: { program: Program }) {
                     )}
                   </div>
                   <div className="w-full lg:col-span-4 flex flex-row-reverse lg:flex-row justify-between lg:justify-end items-center gap-6 pt-4 lg:pt-0 border-t lg:border-none border-border">
-                    <select
-                      disabled={!!exclusions[sub.id]}
-                      value={grades[sub.id] || ''}
-                      onChange={(e) => setGrades(prev => ({ ...prev, [sub.id]: e.target.value as Grade }))}
-                      className={cn(
-                        "w-full lg:w-40 bg-background border-2 rounded-2xl py-3 px-4 text-sm font-black text-center appearance-none cursor-pointer outline-none transition-all",
-                        grades[sub.id]
-                          ? "border-primary text-primary shadow-[0_0_20px_rgba(16,185,129,0.3)] focus:ring-4 focus:ring-primary/20"
-                          : "border-border text-muted-foreground hover:border-border hover:text-foreground focus:border-primary focus:text-foreground focus:ring-4 focus:ring-primary/20"
-                      )}
-                    >
-                      <option value="" disabled className="bg-background">SELECT GRADE</option>
-                      {Object.keys(GRADE_POINTS).map(g => (
-                        <option key={g} value={g} className="bg-background text-foreground font-black">{g}</option>
-                      ))}
-                    </select>
+                    <div className="relative group/sel w-full lg:w-40">
+                      <select
+                        disabled={!!exclusions[sub.id]}
+                        value={grades[sub.id] || ''}
+                        onChange={(e) => setGrades(prev => ({ ...prev, [sub.id]: e.target.value as Grade }))}
+                        className={cn(
+                          "custom-select pr-10",
+                          grades[sub.id] && "border-primary text-primary shadow-[0_0_20px_rgba(16,185,129,0.3)] shadow-emerald-500/10"
+                        )}
+                      >
+                        <option value="" disabled className="bg-background">GRADE</option>
+                        {Object.keys(GRADE_POINTS).map(g => (
+                          <option key={g} value={g} className="bg-background text-foreground font-black">{g}</option>
+                        ))}
+                      </select>
+                      <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none group-hover/sel:text-primary transition-all rotate-90" />
+                    </div>
                     <div className="flex items-center gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
                       <Tooltip content="Not Published" position="top">
                         <button
