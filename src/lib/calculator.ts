@@ -51,10 +51,25 @@ export function calculateCGPA(semesters: { sgpa: number; totalCredits: number }[
 }
 
 export function groupSemesters<T extends { id: string; name: string; subjects: any[] }>(semesters: T[]) {
-  return semesters.map((sem, index) => ({
-    ...sem,
-    originalIds: [sem.id],
-    number: index + 1,
-    displayName: `S${index + 1}`
-  }));
+  return semesters.map((sem, index) => {
+    // Deduplicate subjects within the semester
+    const uniqueSubjects: any[] = [];
+    const seen = new Set<string>();
+
+    sem.subjects.forEach(sub => {
+      const key = `${sub.code || ''}-${sub.name}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueSubjects.push(sub);
+      }
+    });
+
+    return {
+      ...sem,
+      subjects: uniqueSubjects,
+      originalIds: [sem.id],
+      number: index + 1,
+      displayName: `S${index + 1}`
+    };
+  });
 }

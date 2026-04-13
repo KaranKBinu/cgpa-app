@@ -8,7 +8,7 @@ import {
   LayoutDashboard, History, Settings, LogOut, FileText, FileDown, ArrowRight
 } from 'lucide-react';
 import { calculateSGPA, calculateCGPA, groupSemesters, Grade, GRADE_POINTS } from '@/lib/calculator';
-import { saveCalculation } from '@/app/actions';
+import { saveCalculation, processTranscriptPdfs } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { Tooltip } from './Tooltip';
 import Link from 'next/link';
@@ -58,6 +58,8 @@ export default function Calculator({ program, historicalData }: {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [studentName, setStudentName] = useState("");
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [isProcessingPdf, setIsProcessingPdf] = useState(false);
+  const [pdfPassword, setPdfPassword] = useState("13032004");
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -80,22 +82,30 @@ export default function Calculator({ program, historicalData }: {
           histManual[activeSem.id] = { sgpa: histSem.sgpa, credits: histSem.credits };
         }
 
-          histSem.subjects.forEach((sub: any) => {
-          if (sub.code) {
-             const original = activeSem.subjects.find((s: Subject) => s.code === sub.code);
-             if (original) {
-               histGrades[original.id] = sub.grade as Grade;
-             }
+        histSem.subjects.forEach((sub: any) => {
+          const subCodeTrimmed = sub.code?.trim() || "";
+          const subNameTrimmed = sub.name?.trim().toLowerCase() || "";
+
+          // Try to match with an official subject in the current semester
+          const original = activeSem.subjects.find((s: Subject) => 
+            (s.code && s.code.trim() === subCodeTrimmed) || 
+            (s.name.trim().toLowerCase() === subNameTrimmed)
+          );
+
+          if (original) {
+            histGrades[original.id] = sub.grade as Grade;
           } else {
-             if (!histCustom[activeSem.id]) histCustom[activeSem.id] = [];
-             const customId = `cst-${Math.random().toString(36).substring(2, 11)}`;
-             histCustom[activeSem.id].push({
-               id: customId,
-               name: sub.name,
-               credits: sub.credits,
-               isCustom: true
-             });
-             histGrades[customId] = sub.grade as Grade;
+            // It was a custom or elective subject, restore it
+            if (!histCustom[activeSem.id]) histCustom[activeSem.id] = [];
+            const customId = `hist-${Math.random().toString(36).substring(2, 11)}`;
+            histCustom[activeSem.id].push({
+              id: customId,
+              code: sub.code,
+              name: sub.name,
+              credits: sub.credits,
+              isCustom: true
+            });
+            histGrades[customId] = sub.grade as Grade;
           }
         });
       });
@@ -135,6 +145,7 @@ export default function Calculator({ program, historicalData }: {
           id: sem.id, name: sem.name, sgpa: manualEntry.sgpa,
           percentage: manualEntry.sgpa > 0 ? (manualEntry.sgpa - 0.5) * 10 : 0,
           totalCredits: manualEntry.credits, earnedCredits: manualEntry.credits,
+          attemptedCredits: manualEntry.credits,
           isComplete: true, isManual: true
         };
       }
@@ -143,15 +154,27 @@ export default function Calculator({ program, historicalData }: {
         .filter(sub => (grades[sub.id] || exclusions[sub.id] === 'not-published') && exclusions[sub.id] !== 'not-taken')
         .map(sub => ({ credits: sub.credits, grade: (exclusions[sub.id] === 'not-published' ? 'F' : grades[sub.id]) as any }));
       const sgpa = calculateSGPA(semGrades);
+      const attemptedCredits = semGrades.reduce((a, s) => a + s.credits, 0);
       const totalCredits = allSubjectsInSem
         .filter(s => exclusions[s.id] !== 'not-taken')
         .reduce((a, s) => a + s.credits, 0);
       const earnedCredits = allSubjectsInSem
         .filter(s => grades[s.id] && grades[s.id] !== 'F' && !exclusions[s.id])
         .reduce((a, s) => a + s.credits, 0);
-      return { id: sem.id, name: sem.name, sgpa, percentage: sgpa > 0 ? (sgpa - 0.5) * 10 : 0, totalCredits, earnedCredits, isComplete: semGrades.length === allSubjectsInSem.filter(s => exclusions[s.id] !== 'not-taken').length, isManual: false };
+      
+      return { 
+        id: sem.id, 
+        name: sem.name, 
+        sgpa, 
+        percentage: sgpa > 0 ? (sgpa - 0.5) * 10 : 0, 
+        totalCredits, 
+        earnedCredits, 
+        attemptedCredits,
+        isComplete: semGrades.length === allSubjectsInSem.filter(s => exclusions[s.id] !== 'not-taken').length, 
+        isManual: false 
+      };
     });
-    const cgpa = calculateCGPA(semResults.filter(s => s.sgpa > 0));
+    const cgpa = calculateCGPA(semResults.filter(s => s.sgpa > 0).map(s => ({ sgpa: s.sgpa, totalCredits: s.attemptedCredits })));
     const totalPercentage = cgpa > 0 ? (cgpa - 0.5) * 10 : 0;
     return { semResults, cgpa, totalPercentage };
   }, [groupedSemesters, grades, exclusions, customSubjects, manualSgpas]);
@@ -263,9 +286,9 @@ export default function Calculator({ program, historicalData }: {
       : (session?.user?.name || `Results for ${program.code}`);
 
     const semestersToSave = groupedSemesters.map(sem => {
-      const res = results.semResults.find(r => r.id === sem.id)!;
+      const res = (results.semResults as any[]).find(r => r.id === sem.id)!;
       return {
-        id: sem.id, name: sem.name, number: sem.number, sgpa: res.sgpa, credits: res.earnedCredits, isManual: res.isManual,
+        id: sem.id, name: sem.name, number: sem.number, sgpa: res.sgpa, credits: res.attemptedCredits, isManual: res.isManual,
         subjects: [...sem.subjects, ...(customSubjects[sem.id] || [])]
           .filter(s => grades[s.id] || exclusions[s.id] === 'not-published')
           .map(s => {
@@ -298,6 +321,102 @@ export default function Calculator({ program, historicalData }: {
     }
     else {
       setSaveStatus('error');
+    }
+  };
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsProcessingPdf(true);
+    const fileData: { name: string, data: string }[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const base64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const result = reader.result as string;
+                resolve(result.split(',')[1]); // Remove data:application/pdf;base64,
+            };
+            reader.readAsDataURL(file);
+        });
+        fileData.push({ name: file.name, data: base64 });
+    }
+
+    const res = await processTranscriptPdfs(fileData, pdfPassword);
+    setIsProcessingPdf(false);
+
+    if (res.success && res.results) {
+        const newGrades = { ...grades };
+        const newCustomSubjects = { ...customSubjects };
+        const newExclusions = { ...exclusions };
+
+        res.results.forEach((result) => {
+            if ('error' in result) {
+                console.error(`Error in ${result.fileName}: ${result.error}`);
+                return;
+            }
+
+            const sem = groupedSemesters.find(s => s.number === result.semester);
+            if (!sem) return;
+
+            const matchedOriginalIds = new Set<string>();
+
+            result.subjects.forEach((sub) => {
+                const subCodeTrimmed = sub.code?.trim() || "";
+                const subNameTrimmed = sub.name?.trim().toLowerCase() || "";
+
+                // Try to find in official subjects first
+                const original = sem.subjects.find((s) => 
+                    (s.code && s.code.trim() === subCodeTrimmed) || 
+                    (s.name.trim().toLowerCase() === subNameTrimmed)
+                );
+
+                if (original) {
+                    newGrades[original.id] = sub.grade as Grade;
+                    newExclusions[original.id] = null; // Ensure it's visible
+                    matchedOriginalIds.add(original.id);
+                } else {
+                    // Check if it already exists in custom subjects
+                    if (!newCustomSubjects[sem.id]) newCustomSubjects[sem.id] = [];
+                    
+                    const existingCustomIdx = newCustomSubjects[sem.id].findIndex(s => 
+                        (s.code && s.code.trim() === subCodeTrimmed) || 
+                        (s.name.trim().toLowerCase() === subNameTrimmed)
+                    );
+                    
+                    if (existingCustomIdx !== -1) {
+                        const existingId = newCustomSubjects[sem.id][existingCustomIdx].id;
+                        newGrades[existingId] = sub.grade as Grade;
+                        newExclusions[existingId] = null;
+                    } else {
+                        // New custom subject
+                        const customId = `pdf-${Math.random().toString(36).substring(2, 11)}`;
+                        newCustomSubjects[sem.id].push({
+                            id: customId,
+                            code: sub.code,
+                            name: sub.name,
+                            credits: 4, // Default for unknown theory
+                            isCustom: true
+                        });
+                        newGrades[customId] = sub.grade as Grade;
+                        newExclusions[customId] = null;
+                    }
+                }
+            });
+
+            // Automatically hide official subjects NOT found in the PDF for this semester
+            sem.subjects.forEach(s => {
+                if (!matchedOriginalIds.has(s.id)) {
+                    newExclusions[s.id] = 'not-taken';
+                }
+            });
+        });
+
+        setGrades(newGrades);
+        setCustomSubjects(newCustomSubjects);
+        setExclusions(newExclusions);
     }
   };
 
@@ -361,6 +480,35 @@ export default function Calculator({ program, historicalData }: {
 
             <div className="flex items-center gap-3 lg:gap-6">
               <div className="flex items-center gap-3 border-r border-border pr-3 lg:pr-6">
+                <input 
+                  type="file" 
+                  multiple 
+                  accept=".pdf" 
+                  className="hidden" 
+                  id="pdf-upload" 
+                  onChange={handlePdfUpload} 
+                />
+                
+                <Tooltip content={isProcessingPdf ? "Processing..." : "Auto-fill results from PDF Marksheets"} position="bottom">
+                  <button
+                    onClick={() => document.getElementById('pdf-upload')?.click()}
+                    disabled={isProcessingPdf}
+                    className={cn(
+                      "hidden lg:flex px-4 py-2.5 rounded-2xl transition-all items-center gap-2 text-[10px] font-black uppercase tracking-widest border-2",
+                      isProcessingPdf 
+                        ? "bg-primary/20 border-primary/30 text-primary animate-pulse" 
+                        : "bg-card border-border/50 text-muted-foreground hover:text-foreground hover:border-border"
+                    )}
+                  >
+                    {isProcessingPdf ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <FileText className="h-3 w-3" />
+                    )}
+                    <span>{isProcessingPdf ? "Parsing..." : "Auto-Fill"}</span>
+                  </button>
+                </Tooltip>
+
                 <div className="flex flex-col items-end">
                   <span className="text-[7px] lg:text-[9px] font-black text-muted-foreground uppercase">CGPA</span>
                   <span className="text-sm lg:text-xl font-black text-primary">{results.cgpa.toFixed(2)}</span>
@@ -419,6 +567,13 @@ export default function Calculator({ program, historicalData }: {
                 </button>
               )
             })}
+            
+            <button
+              onClick={() => document.getElementById('pdf-upload')?.click()}
+              className="flex-none px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase"
+            >
+              {isProcessingPdf ? <Loader2 className="h-3 w-3 animate-spin" /> : "Fill PDF"}
+            </button>
           </div>
         </header>
 
@@ -579,7 +734,25 @@ export default function Calculator({ program, historicalData }: {
                       : "bg-card/50 border-border/50 hover:border-primary/40 hover:bg-card/80"
                   )}>
                   <div className="w-full flex justify-between items-center lg:col-span-1 border-b lg:border-none border-border pb-3 lg:pb-0">
-                    <div className="font-black text-xs text-primary/60 tracking-tighter">{(sub as any).isCustom ? 'ELECTIVE' : (sub.code || 'CORE')}</div>
+                    <div className="font-black text-xs text-primary/60 tracking-tighter">
+                      {(sub as any).isCustom ? (
+                        <input
+                          value={sub.code || ''}
+                          placeholder="CODE"
+                          onChange={(e) => {
+                            const newCustom = [...(customSubjects[expandedSem!] || [])];
+                            const idx = newCustom.findIndex(s => s.id === sub.id);
+                            if (idx !== -1) {
+                              newCustom[idx] = { ...newCustom[idx], code: e.target.value.toUpperCase() };
+                              setCustomSubjects(prev => ({ ...prev, [expandedSem!]: newCustom }));
+                            }
+                          }}
+                          className="w-full bg-transparent outline-none border-none focus:text-primary uppercase"
+                        />
+                      ) : (
+                        sub.code || 'CORE'
+                      )}
+                    </div>
                     <div className="lg:hidden text-center">
                       {(sub as any).isCustom ? (
                         <div className="flex items-center gap-2">
@@ -655,7 +828,7 @@ export default function Calculator({ program, historicalData }: {
                       className={cn(
                         "w-full lg:w-32 h-10 rounded-full border-2 text-[10px] font-black tracking-widest text-center cursor-pointer outline-none appearance-none transition-all",
                         grades[sub.id]
-                          ? "border-primary bg-primary text-white lg:text-black dark:text-white"
+                          ? "border-primary bg-primary text-primary-foreground"
                           : "border-border/50 bg-option-pane text-foreground/80 hover:text-foreground hover:border-border hover:shadow-lg",
                         exclusions[sub.id] && "opacity-20 cursor-not-allowed"
                       )}
