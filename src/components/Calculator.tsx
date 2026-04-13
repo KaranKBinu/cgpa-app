@@ -292,10 +292,6 @@ export default function Calculator({ program }: { program: Program }) {
                 <div className="space-y-1">
                   <div className="flex items-center gap-3">
                     <span className="text-4xl font-black tracking-tighter text-foreground uppercase">{currentSem?.name}</span>
-                    <div className="px-3 py-1 rounded-lg bg-primary/10 border border-primary/20 flex items-center gap-2">
-                      <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                      <span className="text-[9px] font-black uppercase text-primary tracking-widest leading-none">Live</span>
-                    </div>
                   </div>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">Academic Core Matrix</p>
                 </div>
