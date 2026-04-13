@@ -57,9 +57,9 @@ export default function Calculator({ program, historicalData }: {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [studentName, setStudentName] = useState("");
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [isProcessingPdf, setIsProcessingPdf] = useState(false);
-  const [pdfPassword, setPdfPassword] = useState("13032004");
+  const [pdfPassword, setPdfPassword] = useState("");
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -491,7 +491,7 @@ export default function Calculator({ program, historicalData }: {
                 
                 <Tooltip content={isProcessingPdf ? "Processing..." : "Auto-fill results from PDF Marksheets"} position="bottom">
                   <button
-                    onClick={() => document.getElementById('pdf-upload')?.click()}
+                    onClick={() => setIsPdfModalOpen(true)}
                     disabled={isProcessingPdf}
                     className={cn(
                       "hidden lg:flex px-4 py-2.5 rounded-2xl transition-all items-center gap-2 text-[10px] font-black uppercase tracking-widest border-2",
@@ -569,7 +569,7 @@ export default function Calculator({ program, historicalData }: {
             })}
             
             <button
-              onClick={() => document.getElementById('pdf-upload')?.click()}
+              onClick={() => setIsPdfModalOpen(true)}
               className="flex-none px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase"
             >
               {isProcessingPdf ? <Loader2 className="h-3 w-3 animate-spin" /> : "Fill PDF"}
@@ -1002,6 +1002,69 @@ export default function Calculator({ program, historicalData }: {
                       Cancel
                     </button>
                   </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+
+      {/* PDF Password Modal */}
+      <AnimatePresence>
+        {isPdfModalOpen && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsPdfModalOpen(false)}
+              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-md bg-card border border-border shadow-2xl rounded-[2.5rem] p-10 overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-8">
+                <button onClick={() => setIsPdfModalOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">
+                  <X />
+                </button>
+              </div>
+
+              <div className="mb-8">
+                <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 mb-6">
+                  <FileText className="h-8 w-8" />
+                </div>
+                <h2 className="text-3xl font-black text-foreground tracking-tighter mb-2">Import Transcripts</h2>
+                <p className="text-muted-foreground text-sm font-medium">Enter the password used to open your Kerala Polytechnic PDF marksheets.</p>
+              </div>
+
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1">PDF Password</label>
+                  <input
+                    type="password"
+                    value={pdfPassword}
+                    onChange={(e) => setPdfPassword(e.target.value)}
+                    placeholder="Enter PDF password..."
+                    className="w-full h-14 bg-background border border-border/50 rounded-2xl px-6 font-bold focus:border-primary transition-all text-center"
+                    autoFocus
+                  />
+                </div>
+
+                <div className="pt-4 flex flex-col gap-3">
+                  <button
+                    onClick={() => {
+                        setIsPdfModalOpen(false);
+                        document.getElementById('pdf-upload')?.click();
+                    }}
+                    className="btn-primary w-full h-14 group"
+                  >
+                    Select Files <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  <p className="text-[9px] text-center font-bold text-muted-foreground/50 uppercase tracking-widest">Supports multiple semesters at once</p>
                 </div>
               </div>
             </motion.div>
