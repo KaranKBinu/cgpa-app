@@ -1,12 +1,24 @@
 import prisma from "@/lib/prisma";
 import ProgramSelector from "@/components/ProgramSelector";
+import RecentCalculatorLink from "@/components/RecentCalculatorLink";
 import { Sparkles } from "lucide-react";
+import { auth } from "@/lib/auth";
 
 export default async function Home() {
-  const programs = await prisma.program.findMany({
-    orderBy: { name: 'asc' },
-    select: { id: true, name: true, code: true }
-  });
+  const session = await auth();
+  const userId = session?.user ? (session.user as any).id : null;
+
+  const [programs, latestCalculation] = await Promise.all([
+    prisma.program.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, code: true }
+    }),
+    userId ? prisma.calculation.findFirst({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: { program: true }
+    }) : Promise.resolve(null)
+  ]);
 
   return (
     <div className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center px-6 py-20 relative overflow-hidden">
@@ -28,6 +40,8 @@ export default async function Home() {
       </div>
 
       <ProgramSelector programs={programs} />
+
+      <RecentCalculatorLink programs={programs} latestCalculation={latestCalculation} />
 
       <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full">
         <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3">

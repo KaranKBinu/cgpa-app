@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { auth, signOut } from "@/lib/auth";
 import { getSettings } from "./actions";
+import Footer from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
@@ -107,11 +108,7 @@ export default async function RootLayout({
             {children}
           </main>
 
-          <footer className="mt-20 border-t border-border/50 bg-background/80 py-10 backdrop-blur-sm">
-            <div className="mx-auto max-w-7xl px-6 text-center">
-              <p className="text-sm text-muted-foreground">© 2026 PolyCGPA. Built for Kerala Polytechnic Students.</p>
-            </div>
-          </footer>
+          <Footer />
           </SessionProvider>
         </ThemeProvider>
       </body>

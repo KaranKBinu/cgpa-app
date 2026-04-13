@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { auth } from "@/lib/auth";
 
 export async function saveCalculation(data: {
+  id?: string;
   programId: string;
   label: string;
   cgpa: number;
@@ -27,6 +28,37 @@ export async function saveCalculation(data: {
   const userId = session?.user ? (session.user as any).id : null;
 
   try {
+    if (data.id) {
+       // Update existing: We delete relations and recreate to handle complex structure changes easily
+       await (prisma as any).calculation.update({
+         where: { id: data.id },
+         data: {
+           label: data.label,
+           cgpa: data.cgpa,
+           semesters: {
+             deleteMany: {},
+             create: data.semesters.map(sem => ({
+               name: sem.name,
+               number: sem.number,
+               sgpa: sem.sgpa,
+               credits: sem.credits,
+               subjects: {
+                 create: sem.subjects.map(sub => ({
+                   name: sub.name,
+                   credits: sub.credits,
+                   grade: sub.grade,
+                   points: sub.points,
+                   code: sub.code
+                 }))
+               }
+             }))
+           }
+         }
+       });
+       revalidatePath('/history');
+       return { success: true, id: data.id };
+    }
+
     const result = await (prisma as any).calculation.create({
       data: {
         programId: data.programId,
