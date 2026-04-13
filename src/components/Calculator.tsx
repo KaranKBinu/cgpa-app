@@ -247,32 +247,6 @@ export default function Calculator({ program }: { program: Program }) {
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto bg-background custom-scrollbar animate-fade-in relative">
-        {/* Official Report Header (Print Only) */}
-        <div className="print-only p-8 border-b-4 border-border mb-10">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-3xl font-black uppercase tracking-tighter">PolyCGPA Official Report</h1>
-              <p className="text-sm font-bold opacity-60 uppercase tracking-widest">Academic Achievement Summary</p>
-            </div>
-            <div className="text-right">
-              <p className="text-xs font-black uppercase">Syllabus Data</p>
-              <p className="text-primary font-black uppercase">REV2021 Standard</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-10">
-            <div>
-              <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">Bachelor / Diploma Program</p>
-              <p className="text-lg font-black">{program.name}</p>
-              <p className="text-sm font-bold opacity-60">{program.code}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">Calculation Status</p>
-              <p className="text-lg font-black text-primary uppercase">Official Result</p>
-              <p className="text-xs font-bold opacity-60 tracking-widest">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-            </div>
-          </div>
-        </div>
-
         <header className="h-auto min-h-20 border-b border-border flex flex-col md:flex-row items-center justify-between px-4 lg:px-8 py-4 bg-transparent z-50 gap-4">
           <div className="flex items-center gap-4 lg:gap-6">
             <div>
@@ -341,9 +315,9 @@ export default function Calculator({ program }: { program: Program }) {
                         <p className="text-3xl font-black text-foreground tracking-tighter leading-none">{currentSemRes.percentage.toFixed(1)}%</p>
                       </div>
                     </div>
-                    
+
                     <Tooltip content="Download Transcript" variant="emerald">
-                      <button 
+                      <button
                         onClick={downloadAsPDF}
                         className="h-12 w-12 rounded-2xl flex items-center justify-center bg-emerald-500 text-black hover:scale-110 active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
                       >

@@ -50,37 +50,10 @@ export function calculateCGPA(semesters: { sgpa: number; totalCredits: number }[
   return totalCredits > 0 ? weightedPoints / totalCredits : 0;
 }
 
-export function groupSemesters<T extends { id: string; name: string; subjects: any[], isInternship?: boolean }>(semesters: T[]) {
-  const result: (T & { originalIds: string[] })[] = [];
-  let pendingInternshipSubjects: any[] = [];
-  let pendingInternshipIds: string[] = [];
-
-  semesters.forEach((sem) => {
-    const isInternship = sem.isInternship || sem.name.toLowerCase().includes('internship');
-    if (isInternship) {
-      pendingInternshipSubjects.push(...sem.subjects);
-      pendingInternshipIds.push(sem.id);
-    } else {
-      result.push({
-        ...sem,
-        name: pendingInternshipSubjects.length > 0 ? `${sem.name} + Internship` : sem.name,
-        subjects: [...pendingInternshipSubjects, ...sem.subjects],
-        originalIds: [...pendingInternshipIds, sem.id]
-      });
-      pendingInternshipSubjects = [];
-      pendingInternshipIds = [];
-    }
-  });
-
-  if (pendingInternshipSubjects.length > 0 && result.length > 0) {
-    const last = result[result.length - 1];
-    last.name = `${last.name} + Internship`;
-    last.subjects.push(...(pendingInternshipSubjects as any));
-    last.originalIds.push(...pendingInternshipIds);
-  }
-
-  return result.map((sem, index) => ({
+export function groupSemesters<T extends { id: string; name: string; subjects: any[] }>(semesters: T[]) {
+  return semesters.map((sem, index) => ({
     ...sem,
+    originalIds: [sem.id],
     number: index + 1,
     displayName: `S${index + 1}`
   }));
