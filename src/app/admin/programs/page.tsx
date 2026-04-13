@@ -67,7 +67,7 @@ export default async function ProgramManagement() {
                 </form>
               </div>
               <Link href={`/calculate/${program.code}`} className="h-12 px-6 rounded-xl bg-card/80 hover:bg-card transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground">
-                View Calculation <ArrowRight className="h-4 w-4" />
+                View Program <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>

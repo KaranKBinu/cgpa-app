@@ -49,6 +49,8 @@ export default function Calculator({ program }: { program: Program }) {
   const [customSubjects, setCustomSubjects] = useState<Record<string, Subject[]>>({});
   const [manualSgpas, setManualSgpas] = useState<Record<string, { sgpa: number, credits: number } | null>>({});
   const [expandedSem, setExpandedSem] = useState<string | null>(groupedSemesters[0]?.id || null);
+  const [expandedGradeId, setExpandedGradeId] = useState<string | null>(null);
+  const [dropdownDirection, setDropdownDirection] = useState<'up' | 'down'>('down');
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const { data: session } = useSession();
@@ -211,30 +213,32 @@ export default function Calculator({ program }: { program: Program }) {
           {groupedSemesters.map((sem) => {
             const res = results.semResults.find(r => r.id === sem.id);
             const isActive = sem.id === expandedSem;
-             return (
-               <button
-                 key={sem.id}
-                 onClick={() => setExpandedSem(sem.id)}
-                 className={cn(
-                   "w-full flex items-center justify-center lg:justify-between p-4 px-2 lg:px-5 transition-all outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 active:scale-95",
-                   isActive ? "selection-pane-active" : "selection-pane group"
-                 )}
-               >
-                 <div className="flex items-center gap-3">
-                   <div className={cn("h-2.5 w-2.5 rounded-full transition-all", isActive ? "bg-black/40" : "bg-primary/20 group-hover:bg-primary")} />
-                   <span className={cn("hidden lg:block font-black text-sm uppercase tracking-tighter", isActive ? "text-black" : "text-foreground")}>{(sem as any).displayName}</span>
-                 </div>
-                 {res && res.sgpa > 0 && <span className={cn("hidden lg:block text-xs font-black px-2 py-0.5 rounded-md", isActive ? "bg-black/10 text-black" : "bg-primary/10 text-primary")}>{res.sgpa.toFixed(2)}</span>}
-               </button>
-             )
+            return (
+              <button
+                key={sem.id}
+                onClick={() => setExpandedSem(sem.id)}
+                className={cn(
+                  "w-full flex items-center justify-center lg:justify-between p-4 rounded-3xl transition-all group border-2 outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 active:scale-95",
+                  isActive
+                    ? "bg-emerald-500 border-emerald-500 text-black shadow-[0_15px_40px_-10px_rgba(16,185,129,0.5)]"
+                    : "bg-card/50 border-border/50 text-muted-foreground hover:border-border hover:text-foreground"
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={cn("h-2.5 w-2.5 rounded-full transition-all", isActive ? "bg-primary-foreground" : "bg-card/80 group-hover:bg-primary")} />
+                  <span className="hidden lg:block font-black text-sm uppercase tracking-tighter">{(sem as any).displayName}</span>
+                </div>
+                {res && res.sgpa > 0 && <span className={cn("hidden lg:block text-xs font-black px-2 py-0.5 rounded-md", isActive ? "bg-primary-foreground/10 text-primary-foreground" : "bg-primary/10 text-primary")}>{res.sgpa.toFixed(2)}</span>}
+              </button>
+            )
           })}
         </nav>
 
         <div className="p-2 lg:p-4 border-t border-border bg-card/50">
           <Tooltip content="View History" position="right" variant="emerald" className="lg:hidden">
-            <Link href="/history" className="flex items-center justify-center lg:justify-start gap-3 p-3 rounded-xl text-muted-foreground hover:bg-card/50 hover:text-foreground transition-all">
-              <History className="h-5 w-5" />
-            </Link>
+              <Link href={`/calculate/${program.code}`} className="h-12 px-6 rounded-xl bg-card/80 hover:bg-card transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground">
+                View Program <ArrowRight className="h-4 w-4" />
+              </Link>
           </Tooltip>
           <Link href="/history" className="hidden lg:flex items-center justify-start gap-3 p-3 rounded-xl text-muted-foreground hover:bg-card/50 hover:text-foreground transition-all">
             <History className="h-5 w-5" />
@@ -411,22 +415,68 @@ export default function Calculator({ program }: { program: Program }) {
                     )}
                   </div>
                   <div className="w-full lg:col-span-4 flex flex-row-reverse lg:flex-row justify-between lg:justify-end items-center gap-6 pt-4 lg:pt-0 border-t lg:border-none border-border">
-                    <div className="relative group/sel w-full lg:w-40">
-                      <select
+                    {/* Custom Grade Dropdown */}
+                    <div className="relative w-full lg:w-40">
+                      <button
                         disabled={!!exclusions[sub.id]}
-                        value={grades[sub.id] || ''}
-                        onChange={(e) => setGrades(prev => ({ ...prev, [sub.id]: e.target.value as Grade }))}
+                        onClick={(e) => {
+                           if (expandedGradeId === sub.id) {
+                             setExpandedGradeId(null);
+                           } else {
+                             const rect = e.currentTarget.getBoundingClientRect();
+                             const spaceBelow = window.innerHeight - rect.bottom;
+                             setDropdownDirection(spaceBelow < 250 ? 'up' : 'down');
+                             setExpandedGradeId(sub.id);
+                           }
+                        }}
                         className={cn(
-                          "custom-select pr-10",
-                          grades[sub.id] && "border-primary text-primary shadow-[0_0_20px_rgba(16,185,129,0.3)] shadow-emerald-500/10"
+                          "w-full h-12 rounded-2xl border-2 flex items-center justify-between px-4 text-xs font-black transition-all outline-none",
+                          grades[sub.id]
+                            ? "border-primary bg-primary/5 text-primary shadow-[0_0_20px_rgba(16,185,129,0.1)]"
+                            : "border-border/50 text-muted-foreground hover:border-border hover:bg-card",
+                          exclusions[sub.id] && "opacity-50 cursor-not-allowed"
                         )}
                       >
-                        <option value="" disabled className="bg-background">GRADE</option>
-                        {Object.keys(GRADE_POINTS).map(g => (
-                          <option key={g} value={g} className="bg-background text-foreground font-black">{g}</option>
-                        ))}
-                      </select>
-                      <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none group-hover/sel:text-primary transition-all rotate-90" />
+                        <span className="uppercase tracking-widest">{grades[sub.id] || 'SELECT GRADE'}</span>
+                        <ChevronRight className={cn("h-4 w-4 transition-transform", expandedGradeId === sub.id ? "rotate-90" : "rotate-0")} />
+                      </button>
+
+                      <AnimatePresence>
+                        {expandedGradeId === sub.id && (
+                          <>
+                            <div className="fixed inset-0 z-[100]" onClick={() => setExpandedGradeId(null)} />
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.95, y: dropdownDirection === 'down' ? 10 : -10 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95, y: dropdownDirection === 'down' ? 10 : -10 }}
+                              className={cn(
+                                "absolute left-0 right-0 z-[101] p-2 bg-card border border-border/50 rounded-2xl shadow-2xl backdrop-blur-xl",
+                                dropdownDirection === 'up' ? "bottom-full mb-2" : "top-full mt-2"
+                              )}
+                            >
+                              <div className="grid grid-cols-4 gap-1">
+                                {Object.keys(GRADE_POINTS).map((g) => (
+                                  <button
+                                    key={g}
+                                    onClick={() => {
+                                      setGrades(prev => ({ ...prev, [sub.id]: g as Grade }));
+                                      setExpandedGradeId(null);
+                                    }}
+                                    className={cn(
+                                      "h-10 rounded-xl flex items-center justify-center font-black text-xs transition-all",
+                                      grades[sub.id] === g
+                                        ? "bg-primary text-black"
+                                        : "hover:bg-primary/10 text-foreground"
+                                    )}
+                                  >
+                                    {g}
+                                  </button>
+                                ))}
+                              </div>
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
                     </div>
                     <div className="flex items-center gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
                       <Tooltip content="Not Published" position="top">
