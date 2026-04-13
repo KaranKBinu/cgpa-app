@@ -16,6 +16,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { cn } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
+import { SyllabusSemester, SyllabusSubject } from '@prisma/client';
 
 interface Subject {
   id: string;
@@ -79,9 +80,9 @@ export default function Calculator({ program, historicalData }: {
           histManual[activeSem.id] = { sgpa: histSem.sgpa, credits: histSem.credits };
         }
 
-        histSem.subjects.forEach((sub: any) => {
+          histSem.subjects.forEach((sub: any) => {
           if (sub.code) {
-             const original = activeSem.subjects.find(s => s.code === sub.code);
+             const original = activeSem.subjects.find((s: Subject) => s.code === sub.code);
              if (original) {
                histGrades[original.id] = sub.grade as Grade;
              }
@@ -705,7 +706,7 @@ export default function Calculator({ program, historicalData }: {
                 <button
                   onClick={() => {
                     const newGrades = { ...grades };
-                    currentSem?.subjects.forEach(s => delete newGrades[s.id]);
+                    currentSem?.subjects.forEach((s: Subject) => delete newGrades[s.id]);
                     setGrades(newGrades);
                   }}
                   className="h-14 lg:h-12 px-6 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all bg-red-500/5 text-red-500 border border-red-500/10 hover:bg-red-500 hover:text-white active:scale-95 group/reset"
@@ -723,12 +724,12 @@ export default function Calculator({ program, historicalData }: {
                   <Plus className="h-4 w-4 transition-transform group-hover/add:rotate-90" /> Add Row
                 </button>
 
-                {Object.keys(exclusions).filter(k => (currentSem?.subjects.some(s => s.id === k) || customSubjects[expandedSem!]?.some(s => s.id === k)) && exclusions[k]).length > 0 && (
+                {Object.keys(exclusions).filter(k => (currentSem?.subjects.some((s: Subject) => s.id === k) || customSubjects[expandedSem!]?.some((s: Subject) => s.id === k)) && exclusions[k]).length > 0 && (
                   <button
                     onClick={() => setExclusions({})}
                     className="h-14 lg:h-12 px-6 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all bg-card border-2 border-border hover:border-primary hover:text-primary active:scale-95"
                   >
-                    <CheckCircle2 className="h-4 w-4" /> Restore {Object.keys(exclusions).filter(k => (currentSem?.subjects.some(s => s.id === k) || customSubjects[expandedSem!]?.some(s => s.id === k)) && exclusions[k]).length}
+                    <CheckCircle2 className="h-4 w-4" /> Restore {Object.keys(exclusions).filter(k => (currentSem?.subjects.some((s: Subject) => s.id === k) || customSubjects[expandedSem!]?.some((s: Subject) => s.id === k)) && exclusions[k]).length}
                   </button>
                 )}
               </div>
