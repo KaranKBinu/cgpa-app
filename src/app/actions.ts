@@ -352,12 +352,16 @@ export async function processTranscriptPdfs(files: { name: string, data: string 
         subjects
       });
 
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+    } catch (error: any) {
+      const errorMessage = error.message || String(error);
+      const isPasswordError = errorMessage.toLowerCase().includes('password') || 
+                              error.name === 'PasswordException';
+      
       console.error(`Error processing ${file.name}:`, errorMessage);
       results.push({
         fileName: file.name,
-        error: errorMessage
+        error: errorMessage,
+        isPasswordRequired: isPasswordError
       });
     }
   }

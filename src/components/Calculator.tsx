@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronRight, Save, BarChart3, Calculator as CalcIcon,
-  Trash2, CheckCircle2, Loader2, Plus, X, Download,
+  Trash2, CheckCircle2, Loader2, Plus, X, Download, Check,
   LayoutDashboard, History, Settings, LogOut, FileText, FileDown, ArrowRight
 } from 'lucide-react';
 import { calculateSGPA, calculateCGPA, groupSemesters, Grade, GRADE_POINTS } from '@/lib/calculator';
@@ -61,6 +61,9 @@ export default function Calculator({ program, historicalData }: {
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [isProcessingPdf, setIsProcessingPdf] = useState(false);
   const [pdfPassword, setPdfPassword] = useState("");
+  const [pdfErrorMessage, setPdfErrorMessage] = useState<string | null>(null);
+  const [pendingFiles, setPendingFiles] = useState<{ name: string, data: string }[]>([]);
+  const [useSamePassword, setUseSamePassword] = useState(true);
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -325,30 +328,34 @@ export default function Calculator({ program, historicalData }: {
     }
   };
 
-  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
+  const processFiles = async (filesToProcess: { name: string, data: string }[], password?: string) => {
     setIsProcessingPdf(true);
-    const fileData: { name: string, data: string }[] = [];
-
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const base64 = await new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const result = reader.result as string;
-                resolve(result.split(',')[1]); // Remove data:application/pdf;base64,
-            };
-            reader.readAsDataURL(file);
-        });
-        fileData.push({ name: file.name, data: base64 });
-    }
-
-    const res = await processTranscriptPdfs(fileData, pdfPassword);
+    setPdfErrorMessage(null);
+    
+    const filesBatch = useSamePassword ? filesToProcess : [filesToProcess[0]];
+    const res = await processTranscriptPdfs(filesBatch, password);
     setIsProcessingPdf(false);
 
     if (res.success && res.results) {
+        const passwordRequired = res.results.some((r: any) => r.isPasswordRequired);
+        
+        if (passwordRequired) {
+            setPendingFiles(filesToProcess);
+            setIsPdfModalOpen(true);
+            if (password) setPdfErrorMessage("Incorrect password. Please try again.");
+            return;
+        }
+
+        // Handle successful processing of the batch
+        if (!useSamePassword && filesToProcess.length > 1) {
+            // One by one mode: remove the processed file and keep modal open for next
+            const remaining = filesToProcess.slice(1);
+            setPendingFiles(remaining);
+            setPdfPassword("");
+            setIsPdfModalOpen(true);
+            // We still need to apply the results of the current file
+        }
+
         const newGrades = { ...grades };
         const newCustomSubjects = { ...customSubjects };
         const newExclusions = { ...exclusions };
@@ -418,7 +425,35 @@ export default function Calculator({ program, historicalData }: {
         setGrades(newGrades);
         setCustomSubjects(newCustomSubjects);
         setExclusions(newExclusions);
+        
+        if (useSamePassword || filesToProcess.length === 1) {
+            setPendingFiles([]);
+            setPdfPassword("");
+            setIsPdfModalOpen(false); // Close it if finished
+        }
     }
+  };
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileData: { name: string, data: string }[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const base64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const result = reader.result as string;
+                resolve(result.split(',')[1]); // Remove data:application/pdf;base64,
+            };
+            reader.readAsDataURL(file);
+        });
+        fileData.push({ name: file.name, data: base64 });
+    }
+
+    await processFiles(fileData);
   };
 
   const currentSem = groupedSemesters.find(s => s.id === expandedSem);
@@ -492,7 +527,7 @@ export default function Calculator({ program, historicalData }: {
                 
                 <Tooltip content={isProcessingPdf ? "Processing..." : "Auto-fill results from PDF Marksheets"} position="bottom">
                   <button
-                    onClick={() => setIsPdfModalOpen(true)}
+                    onClick={() => document.getElementById('pdf-upload')?.click()}
                     disabled={isProcessingPdf}
                     className={cn(
                       "hidden lg:flex px-4 py-2.5 rounded-2xl transition-all items-center gap-2 text-[10px] font-black uppercase tracking-widest border-2",
@@ -570,7 +605,7 @@ export default function Calculator({ program, historicalData }: {
             })}
             
             <button
-              onClick={() => setIsPdfModalOpen(true)}
+              onClick={() => document.getElementById('pdf-upload')?.click()}
               className="flex-none px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase"
             >
               {isProcessingPdf ? <Loader2 className="h-3 w-3 animate-spin" /> : "Fill PDF"}
@@ -1039,7 +1074,11 @@ export default function Calculator({ program, historicalData }: {
                   <FileText className="h-8 w-8" />
                 </div>
                 <h2 className="text-3xl font-black text-foreground tracking-tighter mb-2">Import Transcripts</h2>
-                <p className="text-muted-foreground text-sm font-medium">Enter the password used to open your Kerala Polytechnic PDF marksheets.</p>
+                <p className="text-muted-foreground text-sm font-medium">
+                  {!useSamePassword && pendingFiles.length > 0
+                    ? `Enter password for "${pendingFiles[0].name}"`
+                    : "Enter the password used to open your Kerala Polytechnic PDF marksheets."}
+                </p>
               </div>
 
               <div className="space-y-6">
@@ -1048,24 +1087,52 @@ export default function Calculator({ program, historicalData }: {
                   <input
                     type="password"
                     value={pdfPassword}
-                    onChange={(e) => setPdfPassword(e.target.value)}
+                    onChange={(e) => {
+                        setPdfPassword(e.target.value);
+                        setPdfErrorMessage(null);
+                    }}
                     placeholder="Enter PDF password..."
-                    className="w-full h-14 bg-background border border-border/50 rounded-2xl px-6 font-bold focus:border-primary transition-all text-center"
+                    className={cn(
+                      "w-full h-14 bg-background border rounded-2xl px-6 font-bold focus:border-primary transition-all text-center",
+                      pdfErrorMessage ? "border-red-500" : "border-border/50"
+                    )}
                     autoFocus
                   />
+                  {pdfErrorMessage && (
+                    <p className="text-[10px] font-bold text-red-500 text-center uppercase tracking-widest">{pdfErrorMessage}</p>
+                  )}
                 </div>
+
+                {pendingFiles.length > 1 && (
+                  <div className="flex items-center justify-center gap-3 py-2 cursor-pointer group" onClick={() => setUseSamePassword(!useSamePassword)}>
+                    <div className={cn(
+                      "h-5 w-5 rounded-lg border-2 flex items-center justify-center transition-all duration-200",
+                      useSamePassword 
+                        ? "bg-emerald-500 border-emerald-500 shadow-lg shadow-emerald-500/20" 
+                        : "border-border/50 group-hover:border-emerald-500/50"
+                    )}>
+                      {useSamePassword && <Check className="h-3.5 w-3.5 text-white stroke-[4]" />}
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Use same password for all PDFs</span>
+                  </div>
+                )}
 
                 <div className="pt-4 flex flex-col gap-3">
                   <button
-                    onClick={() => {
-                        setIsPdfModalOpen(false);
-                        document.getElementById('pdf-upload')?.click();
-                    }}
+                    disabled={isProcessingPdf}
+                    onClick={() => processFiles(pendingFiles, pdfPassword)}
                     className="btn-primary w-full h-14 group"
                   >
-                    Select Files <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    {isProcessingPdf ? <Loader2 className="animate-spin h-5 w-5" /> : (
+                        <>Process Files <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" /></>
+                    )}
                   </button>
-                  <p className="text-[9px] text-center font-bold text-muted-foreground/50 uppercase tracking-widest">Supports multiple semesters at once</p>
+                  <button
+                    onClick={() => setIsPdfModalOpen(false)}
+                    className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-all py-2"
+                  >
+                    Cancel
+                  </button>
                 </div>
               </div>
             </motion.div>
