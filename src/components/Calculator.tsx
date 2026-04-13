@@ -57,6 +57,7 @@ export default function Calculator({ program, historicalData }: {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [studentName, setStudentName] = useState("");
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [isProcessingPdf, setIsProcessingPdf] = useState(false);
   const [pdfPassword, setPdfPassword] = useState("");
