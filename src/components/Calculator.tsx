@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronRight, Save, BarChart3, Calculator as CalcIcon,
   Trash2, CheckCircle2, Loader2, Plus, X, Download, Check,
-  LayoutDashboard, History, Settings, LogOut, FileText, FileDown, ArrowRight
+  LayoutDashboard, History, Settings, LogOut, FileText, FileDown, ArrowRight,
+  Search
 } from 'lucide-react';
 import { calculateSGPA, calculateCGPA, groupSemesters, Grade, GRADE_POINTS } from '@/lib/calculator';
 import { saveCalculation, processTranscriptPdfs } from '@/app/actions';
@@ -24,6 +25,8 @@ interface Subject {
   name: string;
   credits: number;
   isCustom?: boolean;
+  isGroup?: boolean;
+  options?: Subject[];
 }
 
 interface Semester {
@@ -33,6 +36,7 @@ interface Semester {
   subjects: Subject[];
   isManual?: boolean;
   sgpa?: number;
+  displayName?: string;
 }
 
 interface Program {
@@ -42,10 +46,20 @@ interface Program {
   semesters: Semester[];
 }
 
-export default function Calculator({ program, historicalData }: { 
+export default function Calculator({ program, historicalData, globalOpenElectives = [] }: { 
   program: Program & { semesters: (SyllabusSemester & { subjects: SyllabusSubject[] })[] };
   historicalData?: any;
+  globalOpenElectives?: any[];
 }) {
+  const groupedOpenElectives = useMemo(() => {
+    const groups: Record<string, any[]> = {};
+    globalOpenElectives.forEach(sub => {
+      const progName = sub.semester?.program?.name || "Other";
+      if (!groups[progName]) groups[progName] = [];
+      groups[progName].push(sub);
+    });
+    return groups;
+  }, [globalOpenElectives]);
   const groupedSemesters = useMemo(() => groupSemesters(program.semesters), [program.semesters]);
 
   const [grades, setGrades] = useState<Record<string, Grade>>({});
@@ -57,8 +71,12 @@ export default function Calculator({ program, historicalData }: {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [studentName, setStudentName] = useState("");
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeSearchGroup, setActiveSearchGroup] = useState<string | null>(null);
   const [isProcessingPdf, setIsProcessingPdf] = useState(false);
   const [pdfPassword, setPdfPassword] = useState("");
   const [pdfErrorMessage, setPdfErrorMessage] = useState<string | null>(null);
@@ -76,6 +94,7 @@ export default function Calculator({ program, historicalData }: {
       const histExclusions: Record<string, 'not-published' | 'not-taken' | null> = {};
       const histCustom: Record<string, Subject[]> = {};
       const histManual: Record<string, { sgpa: number, credits: number } | null> = {};
+      const histSelected: Record<string, string> = {};
       
       historicalData.semesters.forEach((histSem: any) => {
         const activeSem = groupedSemesters.find(s => s.number === histSem.number);
@@ -90,16 +109,30 @@ export default function Calculator({ program, historicalData }: {
           const subCodeTrimmed = sub.code?.trim() || "";
           const subNameTrimmed = sub.name?.trim().toLowerCase() || "";
 
-          // Try to match with an official subject in the current semester
-          const original = activeSem.subjects.find((s: Subject) => 
-            (s.code && s.code.trim() === subCodeTrimmed) || 
-            (s.name.trim().toLowerCase() === subNameTrimmed)
-          );
+          // Try to match with an official subject or elective option
+          let foundSubjectId = "";
+          activeSem.subjects.forEach(s => {
+            if (s.isGroup) {
+              const opt = s.options?.find(o => 
+                (o.code && o.code.trim() === subCodeTrimmed) || 
+                (o.name.trim().toLowerCase() === subNameTrimmed)
+              );
+              if (opt) {
+                foundSubjectId = opt.id;
+                histSelected[s.id] = opt.id;
+              }
+            } else if (
+              (s.code && s.code.trim() === subCodeTrimmed) || 
+              (s.name.trim().toLowerCase() === subNameTrimmed)
+            ) {
+              foundSubjectId = s.id;
+            }
+          });
 
-          if (original) {
-            histGrades[original.id] = sub.grade as Grade;
+          if (foundSubjectId) {
+            histGrades[foundSubjectId] = sub.grade as Grade;
           } else {
-            // It was a custom or elective subject, restore it
+            // It was a custom subject, restore it
             if (!histCustom[activeSem.id]) histCustom[activeSem.id] = [];
             const customId = `hist-${Math.random().toString(36).substring(2, 11)}`;
             histCustom[activeSem.id].push({
@@ -117,6 +150,7 @@ export default function Calculator({ program, historicalData }: {
       setGrades(histGrades);
       setCustomSubjects(histCustom);
       setManualSgpas(histManual);
+      setSelectedOptions(histSelected);
       setStudentName(historicalData.label || "");
       setActiveSessionId(historicalData.id);
       return;
@@ -129,6 +163,7 @@ export default function Calculator({ program, historicalData }: {
         if (data.exclusions) setExclusions(data.exclusions);
         if (data.customSubjects) setCustomSubjects(data.customSubjects);
         if (data.manualSgpas) setManualSgpas(data.manualSgpas);
+        if (data.selectedOptions) setSelectedOptions(data.selectedOptions);
         if (data.studentName) setStudentName(data.studentName);
       } catch (e) {
         console.error('Failed to load local state', e);
@@ -137,9 +172,9 @@ export default function Calculator({ program, historicalData }: {
   }, [program.id, historicalData]);
 
   useEffect(() => {
-    const state = { grades, exclusions, customSubjects, manualSgpas, studentName };
+    const state = { grades, exclusions, customSubjects, manualSgpas, studentName, selectedOptions };
     localStorage.setItem(`poly-cgpa-${program.id}`, JSON.stringify(state));
-  }, [program.id, grades, exclusions, customSubjects, manualSgpas, studentName]);
+  }, [program.id, grades, exclusions, customSubjects, manualSgpas, studentName, selectedOptions]);
 
   const results = useMemo(() => {
     const semResults = groupedSemesters.map(sem => {
@@ -153,7 +188,21 @@ export default function Calculator({ program, historicalData }: {
           isComplete: true, isManual: true
         };
       }
-      const allSubjectsInSem = [...sem.subjects, ...(customSubjects[sem.id] || [])];
+
+      // Resolve elective groups to their selected options
+      const resolvedSubjects = sem.subjects.flatMap(sub => {
+        if (sub.isGroup) {
+          const selectedId = selectedOptions[sub.id];
+          // Search local options first, then global pool
+          const selectedOpt = sub.options?.find(o => o.id === selectedId) || 
+                              globalOpenElectives?.find(o => o.id === selectedId);
+          // If an option is selected, use it. Otherwise, keep the group as a placeholder
+          return selectedOpt ? [selectedOpt] : [sub];
+        }
+        return [sub];
+      });
+
+      const allSubjectsInSem = [...resolvedSubjects, ...(customSubjects[sem.id] || [])];
       const semGrades = allSubjectsInSem
         .filter(sub => (grades[sub.id] || exclusions[sub.id] === 'not-published') && exclusions[sub.id] !== 'not-taken')
         .map(sub => ({ credits: sub.credits, grade: (exclusions[sub.id] === 'not-published' ? 'F' : grades[sub.id]) as any }));
@@ -231,7 +280,15 @@ export default function Calculator({ program, historicalData }: {
       doc.setTextColor(80);
       doc.text(`SGPA: ${sem.sgpa.toFixed(2)} | Credits Earned: ${sem.earnedCredits}/${sem.totalCredits}`, 14, currentY + 6);
 
-      const semSubjects = [...curricularSem.subjects, ...(customSubjects[sem.id] || [])];
+      const resolved = curricularSem.subjects.flatMap(s => {
+        if (s.isGroup) {
+          const optId = selectedOptions[s.id];
+          const opt = s.options?.find(o => o.id === optId);
+          return opt ? [opt] : [];
+        }
+        return [s];
+      });
+      const semSubjects = [...resolved, ...(customSubjects[sem.id] || [])];
       const tableData = semSubjects
         .filter(s => (grades[s.id] || exclusions[s.id] === 'not-published') && exclusions[s.id] !== 'not-taken')
         .map(s => {
@@ -291,9 +348,20 @@ export default function Calculator({ program, historicalData }: {
 
     const semestersToSave = groupedSemesters.map(sem => {
       const res = (results.semResults as any[]).find(r => r.id === sem.id)!;
+      
+      const resolved = sem.subjects.flatMap(sub => {
+        if (sub.isGroup) {
+          const optId = selectedOptions[sub.id];
+          const opt = sub.options?.find(o => o.id === optId) || 
+                      globalOpenElectives?.find(o => o.id === optId);
+          return opt ? [opt] : [];
+        }
+        return [sub];
+      });
+
       return {
         id: sem.id, name: sem.name, number: sem.number, sgpa: res.sgpa, credits: res.attemptedCredits, isManual: res.isManual,
-        subjects: [...sem.subjects, ...(customSubjects[sem.id] || [])]
+        subjects: [...resolved, ...(customSubjects[sem.id] || [])]
           .filter(s => grades[s.id] || exclusions[s.id] === 'not-published')
           .map(s => {
             const isNP = exclusions[s.id] === 'not-published';
@@ -846,6 +914,62 @@ export default function Calculator({ program, historicalData }: {
                         className="w-full bg-transparent font-black text-base lg:text-lg tracking-tighter text-primary border-b-2 border-primary/20 focus:border-primary focus:bg-card/50 outline-none py-1 px-2 rounded-t-lg transition-all"
                         placeholder="Enter Course Title..."
                       />
+                    ) : sub.isGroup ? (
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest leading-none pl-1">
+                          {sub.category === 'Open Elective course' ? 'Inter-Departmental Selection' : 'Choose Elective Option'}
+                        </p>
+                        <div className="relative group/select">
+                          {sub.category === 'Open Elective course' ? (
+                            <button 
+                              onClick={() => {
+                                setActiveSearchGroup(sub.id);
+                                setIsSearchModalOpen(true);
+                              }}
+                              className={cn(
+                                "w-full bg-background/50 border-2 text-left text-foreground font-black text-sm lg:text-base rounded-2xl px-5 py-2.5 outline-none focus:ring-8 focus:ring-primary/10 transition-all flex items-center justify-between group/btn",
+                                selectedOptions[sub.id] ? "border-primary/40" : "border-border/50 text-muted-foreground italic"
+                              )}
+                            >
+                              <div className="flex flex-col">
+                                <span className={cn("transition-all truncate max-w-[200px] lg:max-w-[300px]", selectedOptions[sub.id] ? "text-foreground" : "text-muted-foreground")}>
+                                  {selectedOptions[sub.id] 
+                                    ? (globalOpenElectives.find(o => o.id === selectedOptions[sub.id])?.name || "Selected Subject")
+                                    : `Search in All Departments...`}
+                                </span>
+                                {selectedOptions[sub.id] && (
+                                  <span className="text-[10px] font-mono text-primary/60 tracking-widest leading-none">
+                                    {globalOpenElectives.find(o => o.id === selectedOptions[sub.id])?.code}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover/btn:bg-primary group-hover/btn:text-black transition-all">
+                                <Search className="h-4 w-4" />
+                              </div>
+                            </button>
+                          ) : (
+                            <>
+                              <select 
+                                value={selectedOptions[sub.id] || ""}
+                                onChange={(e) => {
+                                  const optId = e.target.value;
+                                  setSelectedOptions(prev => ({ ...prev, [sub.id]: optId }));
+                                }}
+                                className={cn(
+                                  "w-full bg-background/50 border-2 text-foreground font-black text-sm lg:text-base rounded-2xl px-5 py-3 outline-none focus:ring-8 focus:ring-primary/10 transition-all appearance-none cursor-pointer",
+                                  selectedOptions[sub.id] ? "border-primary/40 text-foreground" : "border-border/50 text-muted-foreground italic"
+                                )}
+                              >
+                                <option value="">Select from Group: {sub.name}...</option>
+                                {sub.options?.map(opt => (
+                                  <option key={opt.id} value={opt.id} className="bg-card text-foreground">{opt.name}</option>
+                                ))}
+                              </select>
+                              <ChevronRight className="absolute right-5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary pointer-events-none group-hover/select:translate-x-1 transition-transform" />
+                            </>
+                          )}
+                        </div>
+                      </div>
                     ) : (
                       <p className={cn(
                         "font-black text-base lg:text-lg tracking-tighter leading-tight transition-all",
@@ -858,18 +982,21 @@ export default function Calculator({ program, historicalData }: {
                   <div className="w-full lg:col-span-4 flex flex-row-reverse lg:flex-row justify-between lg:justify-end items-center gap-6 pt-4 lg:pt-0 border-t lg:border-none border-border">
                     {/* Standard High-Contrast Select */}
                     <select
-                      disabled={!!exclusions[sub.id]}
-                      value={grades[sub.id] || ''}
-                      onChange={(e) => setGrades(prev => ({ ...prev, [sub.id]: e.target.value as Grade }))}
+                      disabled={!!exclusions[sub.id] || (sub.isGroup && !selectedOptions[sub.id])}
+                      value={(sub.isGroup ? grades[selectedOptions[sub.id]] : grades[sub.id]) || ''}
+                      onChange={(e) => {
+                        const targetId = sub.isGroup ? selectedOptions[sub.id] : sub.id;
+                        if (targetId) setGrades(prev => ({ ...prev, [targetId]: e.target.value as Grade }));
+                      }}
                       className={cn(
                         "w-full lg:w-32 h-10 rounded-full border-2 text-[10px] font-black tracking-widest text-center cursor-pointer outline-none appearance-none transition-all",
-                        grades[sub.id]
-                          ? "border-primary bg-primary text-primary-foreground"
+                        (sub.isGroup ? grades[selectedOptions[sub.id]] : grades[sub.id])
+                          ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                           : "border-border/50 bg-option-pane text-foreground/80 hover:text-foreground hover:border-border hover:shadow-lg",
-                        exclusions[sub.id] && "opacity-20 cursor-not-allowed"
+                        (!!exclusions[sub.id] || (sub.isGroup && !selectedOptions[sub.id])) && "opacity-20 cursor-not-allowed"
                       )}
                     >
-                      <option value="" disabled className="bg-option-pane text-foreground/50">GRADE</option>
+                      <option value="" disabled className="bg-option-pane text-foreground/50">{sub.isGroup && !selectedOptions[sub.id] ? 'PICK OPTION' : 'GRADE'}</option>
                       {Object.keys(GRADE_POINTS).map(g => (
                         <option key={g} value={g} className="bg-option-pane text-foreground font-black">{g}</option>
                       ))}
@@ -1162,6 +1289,115 @@ export default function Calculator({ program, historicalData }: {
           scrollbar-width: none;
         }
       `}</style>
+      {/* Elective Search Modal */}
+      <AnimatePresence>
+        {isSearchModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-center justify-center p-4 lg:p-12"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-2xl bg-card border-2 border-border/50 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+            >
+              <div className="p-6 lg:p-8 border-b border-border/50 space-y-6 bg-gradient-to-br from-primary/5 to-transparent">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-2xl font-black tracking-tighter">Elective Search</h3>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Global Inter-Departmental Pool</p>
+                  </div>
+                  <button 
+                    onClick={() => {
+                        setIsSearchModalOpen(false);
+                        setSearchQuery("");
+                    }} 
+                    className="h-10 w-10 rounded-full hover:bg-red-500 hover:text-white flex items-center justify-center transition-all border border-border/50"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <div className="relative">
+                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-primary h-5 w-5" />
+                  <input 
+                    autoFocus
+                    placeholder="Search for subject, code or department..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full h-14 bg-background border-2 border-border/50 rounded-2xl pl-14 pr-6 font-bold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all text-lg shadow-inner"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-8 custom-scrollbar bg-option-pane/30">
+                {Object.keys(groupedOpenElectives).length === 0 ? (
+                    <div className="py-20 text-center space-y-4">
+                        <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary/40" />
+                        <p className="text-sm font-bold text-muted-foreground">Loading Elective Cache...</p>
+                    </div>
+                ) : (
+                    Object.entries(groupedOpenElectives).sort(([a], [b]) => a.localeCompare(b)).map(([progName, items]) => {
+                        const q = searchQuery.toLowerCase();
+                        const filtered = items.filter(it => {
+                            const progCode = it.semester?.program?.code?.toLowerCase() || "";
+                            return it.name.toLowerCase().includes(q) || 
+                                   it.code.toLowerCase().includes(q) ||
+                                   progName.toLowerCase().includes(q) ||
+                                   progCode.includes(q);
+                        });
+                        
+                        if (filtered.length === 0) return null;
+
+                        return (
+                            <div key={progName} className="space-y-3">
+                                <div className="flex items-center gap-3 px-2">
+                                    <div className="h-1 w-6 bg-primary/20 rounded-full" />
+                                    <h4 className="text-[10px] font-black text-primary/60 uppercase tracking-[0.2em]">{progName}</h4>
+                                </div>
+                                <div className="grid grid-cols-1 gap-2">
+                                    {filtered.map(item => (
+                                        <button
+                                            key={item.id}
+                                            onClick={() => {
+                                                if (activeSearchGroup) {
+                                                    setSelectedOptions(prev => ({ ...prev, [activeSearchGroup]: item.id }));
+                                                    setIsSearchModalOpen(false);
+                                                    setSearchQuery("");
+                                                }
+                                            }}
+                                            className="w-full text-left p-4 rounded-3xl bg-card border-2 border-transparent hover:border-primary/40 hover:bg-primary/5 transition-all group flex items-center justify-between"
+                                        >
+                                            <div>
+                                                <p className="font-black text-sm lg:text-base tracking-tight group-hover:text-primary transition-colors">{item.name}</p>
+                                                <p className="text-[10px] font-black text-muted-foreground/60 tracking-widest uppercase">{item.code}</p>
+                                            </div>
+                                            <div className="h-10 w-10 rounded-2xl bg-primary/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">
+                                                <CheckCircle2 className="h-5 w-5 text-primary" />
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })
+                )}
+                
+                {searchQuery && Object.values(groupedOpenElectives).every(items => 
+                    items.every(it => !it.name.toLowerCase().includes(searchQuery.toLowerCase()) && !it.code.toLowerCase().includes(searchQuery.toLowerCase()))
+                ) && (
+                    <div className="py-20 text-center text-muted-foreground">
+                        <FileText className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                        <p className="font-bold">No results found for "{searchQuery}"</p>
+                    </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

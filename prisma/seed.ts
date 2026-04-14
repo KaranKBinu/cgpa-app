@@ -38,16 +38,44 @@ async function main() {
                 name: semName,
                 number: i + 1,
                 programId: program.id,
-                subjects: {
-                    create: semSubjects.map(sub => ({
+            }
+        })
+
+        for (const sub of semSubjects) {
+            if (sub.isGroup) {
+                await prisma.syllabusSubject.create({
+                    data: {
+                        code: sub.code || 'GROUP',
+                        name: sub.name,
+                        credits: sub.credits || 0,
+                        category: sub.category,
+                        semesterId: semester.id,
+                        isGroup: true,
+                        options: {
+                            create: sub.options.map((opt: any) => ({
+                                code: opt.code || '',
+                                name: opt.name,
+                                credits: typeof opt.credits === 'number' ? opt.credits : 0,
+                                category: sub.category,
+                                semesterId: semester.id,
+                                isGroup: false
+                            }))
+                        }
+                    }
+                })
+            } else {
+                await prisma.syllabusSubject.create({
+                    data: {
                         code: sub.code || '',
                         name: sub.name,
                         credits: typeof sub.credits === 'number' ? sub.credits : 0,
-                        category: sub.category
-                    }))
-                }
+                        category: sub.category,
+                        semesterId: semester.id,
+                        isGroup: false
+                    }
+                })
             }
-        })
+        }
     }
   }
 

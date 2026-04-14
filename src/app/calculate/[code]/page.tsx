@@ -14,7 +14,7 @@ export default async function CalculatePage({
   const { code } = await params;
   const { session: sessionId } = await searchParams;
 
-  const [program, historicalData] = await Promise.all([
+  const [program, historicalData, allOpenElectives] = await Promise.all([
     prisma.program.findUnique({
       where: { code },
       include: {
@@ -22,7 +22,11 @@ export default async function CalculatePage({
           orderBy: { number: 'asc' },
           include: {
             subjects: {
-              orderBy: { name: 'asc' }
+              where: { parentId: null },
+              orderBy: { name: 'asc' },
+              include: {
+                options: true
+              }
             }
           }
         }
@@ -37,7 +41,25 @@ export default async function CalculatePage({
           }
         }
       }
-    }) : Promise.resolve(null)
+    }) : Promise.resolve(null),
+    prisma.syllabusSubject.findMany({
+      where: {
+        category: 'Open Elective course',
+        parentId: { not: null },
+        semester: {
+          program: {
+            code: { not: code }
+          }
+        }
+      },
+      include: {
+        semester: {
+          include: {
+            program: true
+          }
+        }
+      }
+    })
   ]);
 
   if (!program) {
@@ -46,7 +68,11 @@ export default async function CalculatePage({
 
   return (
     <div className="min-h-screen">
-      <Calculator program={program} historicalData={historicalData} />
+      <Calculator 
+        program={program} 
+        historicalData={historicalData} 
+        globalOpenElectives={allOpenElectives} 
+      />
     </div>
   );
 }

@@ -38,6 +38,12 @@ model SyllabusSubject {
   category    String?
   semesterId  String
   semester    SyllabusSemester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+
+  // Elective Groups support
+  isGroup     Boolean          @default(false)
+  parentId    String?
+  parent      SyllabusSubject? @relation("SubjectOptions", fields: [parentId], references: [id], onDelete: Cascade)
+  options     SyllabusSubject[] @relation("SubjectOptions")
 }
 
 enum Role {
