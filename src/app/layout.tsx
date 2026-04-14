@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import Link from "next/link";
-import { Home, History, LogOut, LayoutDashboard } from "lucide-react";
+import { Home, History, LogOut, LayoutDashboard, User as UserIcon } from "lucide-react";
 import "./globals.css";
 import React from "react";
 import { SessionProvider } from "next-auth/react";
@@ -60,6 +60,12 @@ export default async function RootLayout({
                   <History className="h-4 w-4 lg:h-5 lg:w-5 group-hover:scale-110 transition-transform" />
                   <span className="hidden sm:inline">History</span>
                 </Link>
+                {user && (
+                  <Link href="/profile" className="flex items-center gap-2 p-2 rounded-xl hover:text-emerald-500 hover:bg-emerald-500/5 transition-all group">
+                    <UserIcon className="h-4 w-4 lg:h-5 lg:w-5 group-hover:scale-110 transition-transform" />
+                    <span className="hidden sm:inline">Profile</span>
+                  </Link>
+                )}
 
                 <div className="w-px h-6 bg-border mx-1 hidden sm:block"></div>
                 

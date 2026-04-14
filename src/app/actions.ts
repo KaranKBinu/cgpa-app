@@ -422,3 +422,25 @@ export async function getPrograms() {
     return { success: false, programs: [] };
   }
 }
+
+export async function updateProfile(formData: FormData) {
+  const session = await auth();
+  const userId = session?.user ? (session.user as any).id : null;
+  if (!userId) return { error: "Unauthorized" };
+
+  const name = formData.get("name") as string;
+  const department = formData.get("department") as string;
+  const isLET = formData.get("isLET") === "true";
+
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { name, department, isLET }
+    });
+    revalidatePath("/profile");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to update profile" };
+  }
+}
