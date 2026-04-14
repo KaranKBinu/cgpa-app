@@ -79,7 +79,7 @@ export function groupSemesters<S, T extends { id: string; name: string; subjects
       ...sem,
       subjects: uniqueSubjects,
       originalIds: [sem.id],
-      number: index + 1,
+      number: (sem as any).number || index + 1,
       displayName
     };
   });

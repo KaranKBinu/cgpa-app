@@ -11,6 +11,10 @@ interface RecentItem {
     name: string;
     timestamp: number;
     sessionId?: string;
+    metadata?: {
+        cgpa: number;
+        semesters: number;
+    };
 }
 
 export default function RecentCalculatorLink({ 
@@ -55,11 +59,31 @@ export default function RecentCalculatorLink({
                         const hasCustomSubjects = Object.values(data.customSubjects || {}).some((subs: any) => subs && subs.length > 0);
                         
                         if (hasGrades || hasManual || hasCustomSubjects) {
+                            // Accurate metadata calculation for drafts
+                            const manualSemIds = Object.keys(data.manualSgpas || {}).filter(k => !!data.manualSgpas[k]);
+                            const gradesCount = Object.keys(data.grades || {}).length;
+                            const customCount = Object.values(data.customSubjects || {}).flat().length;
+                            
+                            // If it's an interactive draft, calculate how many semesters have grades or custom subjects
+                            const activeInteractiveSems = new Set<string>();
+                            if (gradesCount > 0 || customCount > 0) {
+                                Object.keys(data.customSubjects || {}).forEach(sid => {
+                                    if (data.customSubjects[sid]?.length > 0) activeInteractiveSems.add(sid);
+                                });
+                            }
+                            
+                            const totalActiveSems = new Set([...manualSemIds, ...activeInteractiveSems]);
+                            const semestersCount = Math.max(totalActiveSems.size, (gradesCount > 0 || customCount > 0) ? 1 : 0);
+
                             items.push({
                                 id: program.id,
                                 code: program.code,
                                 name: program.name,
-                                timestamp: Date.now() // Placeholder
+                                timestamp: data.updatedAt || 0,
+                                metadata: {
+                                    cgpa: 0, 
+                                    semesters: semestersCount
+                                }
                             });
                         }
                     } catch (e) {
@@ -70,6 +94,8 @@ export default function RecentCalculatorLink({
         }
         
         if (items.length > 0) {
+            // Sort by most recent
+            items.sort((a, b) => b.timestamp - a.timestamp);
             setLastProgram(items[0]);
         }
     }, [programs, latestCalculation]);
@@ -95,23 +121,27 @@ export default function RecentCalculatorLink({
                     </div>
                     
                     <div className="text-left overflow-hidden flex-1">
-                        <p className="text-[8px] lg:text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1 truncate">
+                        <p className="text-[10px] lg:text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1 truncate">
                             {isHistory ? "Resume Academic Journey" : "Continue Draft"}
                         </p>
-                        <h4 className="text-sm lg:text-lg font-black text-foreground tracking-tight group-hover:text-primary transition-colors truncate">
+                        <h4 className="text-base lg:text-xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors truncate">
                             {isHistory ? (latestCalculation.label || lastProgram.name) : lastProgram.name} 
-                            <span className="text-muted-foreground/30 ml-2 font-bold text-xs lg:text-sm">{lastProgram.code}</span>
+                            <span className="text-muted-foreground/30 ml-2 font-bold text-sm lg:text-base">{lastProgram.code}</span>
                         </h4>
                         
-                        {isHistory && (
+                        {(isHistory || lastProgram.metadata) && (
                             <div className="flex items-center gap-4 mt-1">
                                 <div className="flex items-center gap-1.5">
                                     <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                                    <span className="text-[10px] font-black text-foreground/70 uppercase tracking-tighter">CGPA: {latestCalculation.cgpa.toFixed(2)}</span>
+                                    <span className="text-[10px] font-black text-foreground/70 uppercase tracking-tighter">
+                                        CGPA: {isHistory ? latestCalculation.cgpa.toFixed(2) : (lastProgram.metadata?.cgpa?.toFixed(2) || "0.00")}
+                                    </span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
-                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter">{latestCalculation.semesters?.length || 0} Terms Recorded</span>
+                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter">
+                                        {isHistory ? (latestCalculation._count?.semesters || 0) : (lastProgram.metadata?.semesters || 0)} Terms Recorded
+                                    </span>
                                 </div>
                             </div>
                         )}

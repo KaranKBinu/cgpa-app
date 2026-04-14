@@ -16,7 +16,12 @@ export default async function Home() {
     userId ? prisma.calculation.findFirst({
       where: { userId },
       orderBy: { createdAt: 'desc' },
-      include: { program: true }
+      include: { 
+        program: true,
+        _count: {
+          select: { semesters: true }
+        }
+      }
     }) : Promise.resolve(null)
   ]);
 
