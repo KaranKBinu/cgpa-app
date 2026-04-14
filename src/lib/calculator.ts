@@ -50,16 +50,16 @@ export function calculateCGPA(semesters: { sgpa: number; totalCredits: number }[
   return totalCredits > 0 ? weightedPoints / totalCredits : 0;
 }
 
-export function groupSemesters<T extends { id: string; name: string; subjects: any[] }>(semesters: T[]) {
+export function groupSemesters<S, T extends { id: string; name: string; subjects: S[] }>(semesters: T[]) {
   return semesters.map((sem, index) => {
     // Deduplicate subjects within the semester
-    const uniqueSubjects: any[] = [];
+    const uniqueSubjects: S[] = [];
     const seen = new Set<string>();
 
     sem.subjects.forEach(sub => {
       // For elective groups, use the unique ID to prevent merging distinct slots
       // For standard subjects, remain strict with code-name pairs
-      const key = sub.isGroup ? sub.id : `${sub.code || ''}-${sub.name}`;
+      const key = (sub as any).isGroup ? (sub as any).id : `${(sub as any).code || ''}-${(sub as any).name}`;
       
       if (!seen.has(key)) {
         seen.add(key);

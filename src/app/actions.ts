@@ -29,16 +29,27 @@ export async function saveCalculation(data: {
   }[];
 }) {
   const session = await auth();
-  const userId = session?.user ? (session.user as any).id : null;
+  let userId = session?.user ? (session.user as any).id : null;
+  
+  if (userId) {
+    const userExists = await prisma.user.findUnique({ where: { id: userId } });
+    if (!userExists) {
+      return { success: false, error: "Session mismatch (DB Reset). Please logout and register again." };
+    }
+  }
 
   try {
+    console.log("Saving calculation for program:", data.programId, "with user:", userId);
+    
     if (data.id) {
+       console.log("Updating existing calculation:", data.id);
        // Update existing: We delete relations and recreate to handle complex structure changes easily
-       await (prisma as any).calculation.update({
+       await prisma.calculation.update({
          where: { id: data.id },
          data: {
            label: data.label,
            cgpa: data.cgpa,
+           userId: userId, // Ensure userId is also updated/maintained
            semesters: {
              deleteMany: {},
              create: data.semesters.map(sem => ({
@@ -60,15 +71,17 @@ export async function saveCalculation(data: {
          }
        });
        revalidatePath('/history');
+       console.log("Update successful");
        return { success: true, id: data.id };
     }
 
-    const result = await (prisma as any).calculation.create({
+    console.log("Creating new calculation");
+    const result = await prisma.calculation.create({
       data: {
         programId: data.programId,
         label: data.label,
         cgpa: data.cgpa,
-        userId: userId as any,
+        userId: userId,
         semesters: {
           create: data.semesters.map(sem => ({
             name: sem.name,
@@ -89,11 +102,12 @@ export async function saveCalculation(data: {
       }
     });
 
+    console.log("Creation successful, ID:", result.id);
     revalidatePath('/history');
     return { success: true, id: result.id };
-  } catch (error) {
-    console.error("Failed to save calculation:", error);
-    return { success: false, error: "Failed to save calculation" };
+  } catch (error: any) {
+    console.error("Failed to save calculation error detail:", error);
+    return { success: false, error: error.message || "Failed to save calculation" };
   }
 }
 
@@ -130,7 +144,7 @@ export async function registerUser(formData: FormData) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await (prisma as any).user.create({
+    await prisma.user.create({
       data: {
         name,
         email,

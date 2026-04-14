@@ -16,7 +16,7 @@ import Link from 'next/link';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { cn } from '@/lib/utils';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { SyllabusSemester, SyllabusSubject } from '@prisma/client';
 
 interface Subject {
@@ -24,6 +24,7 @@ interface Subject {
   code?: string;
   name: string;
   credits: number;
+  category?: string | null;
   isCustom?: boolean;
   isGroup?: boolean;
   options?: Subject[];
@@ -47,7 +48,7 @@ interface Program {
 }
 
 export default function Calculator({ program, historicalData, globalOpenElectives = [] }: { 
-  program: Program & { semesters: (SyllabusSemester & { subjects: SyllabusSubject[] })[] };
+  program: Program & { semesters: (SyllabusSemester & { subjects: (SyllabusSubject & { options?: SyllabusSubject[] })[] })[] };
   historicalData?: any;
   globalOpenElectives?: any[];
 }) {
@@ -85,6 +86,26 @@ export default function Calculator({ program, historicalData, globalOpenElective
   const { data: session } = useSession();
   const router = useRouter();
 
+  // Force Activity Points to 0 credits if found incorrectly (e.g. legacy data or edge cases)
+  useEffect(() => {
+    let changed = false;
+    const cleanedCustom = { ...customSubjects };
+    
+    Object.keys(cleanedCustom).forEach(semId => {
+      cleanedCustom[semId] = cleanedCustom[semId].map(sub => {
+        if (sub.name.toLowerCase().includes("activity") && sub.credits !== 0) {
+          changed = true;
+          return { ...sub, credits: 0 };
+        }
+        return sub;
+      });
+    });
+
+    if (changed) {
+      setCustomSubjects(cleanedCustom);
+    }
+  }, [customSubjects]);
+
   useEffect(() => {
     const saved = localStorage.getItem(`poly-cgpa-${program.id}`);
     
@@ -100,6 +121,8 @@ export default function Calculator({ program, historicalData, globalOpenElective
         const activeSem = groupedSemesters.find(s => s.number === histSem.number);
         if (!activeSem) return;
 
+        const matchedInThisSem = new Set<string>();
+
         // If it was a manual entry in history
         if (histSem.subjects.length === 0 && histSem.sgpa > 0) {
           histManual[activeSem.id] = { sgpa: histSem.sgpa, credits: histSem.credits };
@@ -107,23 +130,26 @@ export default function Calculator({ program, historicalData, globalOpenElective
 
         histSem.subjects.forEach((sub: any) => {
           const subCodeTrimmed = sub.code?.trim() || "";
-          const subNameTrimmed = sub.name?.trim().toLowerCase() || "";
+          const subNameNormalized = sub.name?.trim().toLowerCase().replace(/[^a-z0-9]/g, "") || "";
 
           // Try to match with an official subject or elective option
           let foundSubjectId = "";
+          let parentGroupId = "";
+
           activeSem.subjects.forEach(s => {
             if (s.isGroup) {
-              const opt = s.options?.find(o => 
+              const opt = s.options?.find((o: any) => 
                 (o.code && o.code.trim() === subCodeTrimmed) || 
-                (o.name.trim().toLowerCase() === subNameTrimmed)
+                (o.name.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === subNameNormalized)
               );
               if (opt) {
                 foundSubjectId = opt.id;
+                parentGroupId = s.id;
                 histSelected[s.id] = opt.id;
               }
             } else if (
               (s.code && s.code.trim() === subCodeTrimmed) || 
-              (s.name.trim().toLowerCase() === subNameTrimmed)
+              (s.name.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === subNameNormalized)
             ) {
               foundSubjectId = s.id;
             }
@@ -131,6 +157,13 @@ export default function Calculator({ program, historicalData, globalOpenElective
 
           if (foundSubjectId) {
             histGrades[foundSubjectId] = sub.grade as Grade;
+            matchedInThisSem.add(parentGroupId || foundSubjectId);
+            
+            // Handle PENDING grade (mapped to not-published)
+            if (sub.grade === 'PENDING' || sub.points === -1) {
+                histExclusions[foundSubjectId] = 'not-published';
+                histGrades[foundSubjectId] = '' as Grade;
+            }
           } else {
             // It was a custom subject, restore it
             if (!histCustom[activeSem.id]) histCustom[activeSem.id] = [];
@@ -142,13 +175,27 @@ export default function Calculator({ program, historicalData, globalOpenElective
               credits: sub.credits,
               isCustom: true
             });
-            histGrades[customId] = sub.grade as Grade;
+            
+            if (sub.grade === 'PENDING' || sub.points === -1) {
+                histExclusions[customId] = 'not-published';
+                histGrades[customId] = '' as Grade;
+            } else {
+                histGrades[customId] = sub.grade as Grade;
+            }
           }
+        });
+
+        // AUTO-EXCLUDE: Any official subject in this semester NOT found in the saved data should be hidden
+        activeSem.subjects.forEach(s => {
+            if (!matchedInThisSem.has(s.id)) {
+                histExclusions[s.id] = 'not-taken';
+            }
         });
       });
 
       setGrades(histGrades);
       setCustomSubjects(histCustom);
+      setExclusions(histExclusions);
       setManualSgpas(histManual);
       setSelectedOptions(histSelected);
       setStudentName(historicalData.label || "");
@@ -194,8 +241,8 @@ export default function Calculator({ program, historicalData, globalOpenElective
         if (sub.isGroup) {
           const selectedId = selectedOptions[sub.id];
           // Search local options first, then global pool
-          const selectedOpt = sub.options?.find(o => o.id === selectedId) || 
-                              globalOpenElectives?.find(o => o.id === selectedId);
+          const selectedOpt = sub.options?.find((o: any) => o.id === selectedId) || 
+                              globalOpenElectives?.find((o: any) => o.id === selectedId);
           // If an option is selected, use it. Otherwise, keep the group as a placeholder
           return selectedOpt ? [selectedOpt] : [sub];
         }
@@ -283,7 +330,7 @@ export default function Calculator({ program, historicalData, globalOpenElective
       const resolved = curricularSem.subjects.flatMap(s => {
         if (s.isGroup) {
           const optId = selectedOptions[s.id];
-          const opt = s.options?.find(o => o.id === optId);
+          const opt = s.options?.find((o: any) => o.id === optId);
           return opt ? [opt] : [];
         }
         return [s];
@@ -352,8 +399,8 @@ export default function Calculator({ program, historicalData, globalOpenElective
       const resolved = sem.subjects.flatMap(sub => {
         if (sub.isGroup) {
           const optId = selectedOptions[sub.id];
-          const opt = sub.options?.find(o => o.id === optId) || 
-                      globalOpenElectives?.find(o => o.id === optId);
+          const opt = sub.options?.find((o: any) => o.id === optId) || 
+                      globalOpenElectives?.find((o: any) => o.id === optId);
           return opt ? [opt] : [];
         }
         return [sub];
@@ -370,7 +417,7 @@ export default function Calculator({ program, historicalData, globalOpenElective
               name: s.name, 
               credits: s.credits, 
               grade: gd, 
-              points: isNP ? 0 : GRADE_POINTS[gd], 
+              points: isNP ? -1 : GRADE_POINTS[gd], 
               code: s.code 
             };
           })
@@ -427,6 +474,7 @@ export default function Calculator({ program, historicalData, globalOpenElective
         const newGrades = { ...grades };
         const newCustomSubjects = { ...customSubjects };
         const newExclusions = { ...exclusions };
+        const newSelectedOptions = { ...selectedOptions };
 
         res.results.forEach((result) => {
             if ('error' in result) {
@@ -441,25 +489,48 @@ export default function Calculator({ program, historicalData, globalOpenElective
 
             result.subjects.forEach((sub) => {
                 const subCodeTrimmed = sub.code?.trim() || "";
-                const subNameTrimmed = sub.name?.trim().toLowerCase() || "";
+                const subNameNormalized = sub.name?.trim().toLowerCase().replace(/[^a-z0-9]/g, "") || "";
 
-                // Try to find in official subjects first
-                const original = sem.subjects.find((s) => 
-                    (s.code && s.code.trim() === subCodeTrimmed) || 
-                    (s.name.trim().toLowerCase() === subNameTrimmed)
-                );
+                // Try to find in official subjects first (including elective options)
+                let matchedSubject: Subject | null = null;
+                let parentGroupId: string | null = null;
 
-                if (original) {
-                    newGrades[original.id] = sub.grade as Grade;
-                    newExclusions[original.id] = null; // Ensure it's visible
-                    matchedOriginalIds.add(original.id);
+                for (const s of sem.subjects) {
+                    if (s.isGroup && s.options) {
+                        const opt = s.options.find(o => 
+                            (o.code && o.code.trim() === subCodeTrimmed) || 
+                            (o.name.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === subNameNormalized)
+                        );
+                        if (opt) {
+                            matchedSubject = opt;
+                            parentGroupId = s.id;
+                            break;
+                        }
+                    } else {
+                        if ((s.code && s.code.trim() === subCodeTrimmed) || 
+                            (s.name.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === subNameNormalized)) {
+                            matchedSubject = s;
+                            break;
+                        }
+                    }
+                }
+
+                if (matchedSubject) {
+                    newGrades[matchedSubject.id] = sub.grade as Grade;
+                    newExclusions[matchedSubject.id] = null; 
+                    if (parentGroupId) {
+                        newSelectedOptions[parentGroupId] = matchedSubject.id;
+                        matchedOriginalIds.add(parentGroupId);
+                    } else {
+                        matchedOriginalIds.add(matchedSubject.id);
+                    }
                 } else {
                     // Check if it already exists in custom subjects
                     if (!newCustomSubjects[sem.id]) newCustomSubjects[sem.id] = [];
                     
                     const existingCustomIdx = newCustomSubjects[sem.id].findIndex(s => 
                         (s.code && s.code.trim() === subCodeTrimmed) || 
-                        (s.name.trim().toLowerCase() === subNameTrimmed)
+                        (s.name.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === subNameNormalized)
                     );
                     
                     if (existingCustomIdx !== -1) {
@@ -468,12 +539,15 @@ export default function Calculator({ program, historicalData, globalOpenElective
                         newExclusions[existingId] = null;
                     } else {
                         // New custom subject
+                        const subName = sub.name.trim();
+                        const subCredits = subName.toLowerCase().includes("activity") ? 0 : 0;
                         const customId = `pdf-${Math.random().toString(36).substring(2, 11)}`;
+                        
                         newCustomSubjects[sem.id].push({
                             id: customId,
                             code: sub.code,
-                            name: sub.name,
-                            credits: 4, // Default for unknown theory
+                            name: subName,
+                            credits: subCredits,
                             isCustom: true
                         });
                         newGrades[customId] = sub.grade as Grade;
@@ -493,6 +567,7 @@ export default function Calculator({ program, historicalData, globalOpenElective
         setGrades(newGrades);
         setCustomSubjects(newCustomSubjects);
         setExclusions(newExclusions);
+        setSelectedOptions(newSelectedOptions);
         
         if (useSamePassword || filesToProcess.length === 1) {
             setPendingFiles([]);
@@ -562,11 +637,20 @@ export default function Calculator({ program, historicalData, globalOpenElective
           })}
         </nav>
 
-        <div className="p-4 border-t border-border bg-card/50">
+        <div className="p-4 border-t border-border bg-card/50 space-y-2">
           <Link href="/history" className="flex items-center justify-start gap-3 p-3 rounded-xl text-muted-foreground hover:bg-card/50 hover:text-foreground transition-all">
             <History className="h-5 w-5" />
             <span className="font-bold text-sm">History</span>
           </Link>
+          {session && (
+            <button 
+              onClick={() => signOut({ callbackUrl: '/' })}
+              className="w-full flex items-center justify-start gap-3 p-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-all"
+            >
+              <LogOut className="h-5 w-5" />
+              <span className="font-bold text-sm">Logout</span>
+            </button>
+          )}
         </div>
       </aside>
 
@@ -574,13 +658,21 @@ export default function Calculator({ program, historicalData, globalOpenElective
       <main className="flex-1 bg-background animate-fade-in relative touch-pan-y">
         <header className="h-auto border-b border-border flex flex-col items-stretch px-4 lg:px-8 py-2 bg-transparent z-[60] gap-2">
           <div className="flex items-center justify-between py-2">
-            <div className="flex items-center gap-4">
-              <div className="lg:hidden h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center font-black text-black">P</div>
-              <div>
-                <h1 className="text-sm lg:text-lg font-black tracking-tight leading-tight max-w-[150px] lg:max-w-none truncate">{program.name}</h1>
-                <span className="text-muted-foreground font-mono text-[9px] lg:text-sm">{program.code}</span>
+              <div className="flex items-center gap-4">
+                <div className="lg:hidden h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center font-black text-black">P</div>
+                <div>
+                  <h1 className="text-sm lg:text-lg font-black tracking-tight leading-tight max-w-[150px] lg:max-w-none truncate">{program.name}</h1>
+                  <span className="text-muted-foreground font-mono text-[9px] lg:text-sm">{program.code}</span>
+                </div>
+                {session && (
+                  <button 
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="lg:hidden p-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-all ml-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                )}
               </div>
-            </div>
 
             <div className="flex items-center gap-3 lg:gap-6">
               <div className="flex items-center gap-3 border-r border-border pr-3 lg:pr-6">
@@ -961,7 +1053,7 @@ export default function Calculator({ program, historicalData, globalOpenElective
                                 )}
                               >
                                 <option value="">Select from Group: {sub.name}...</option>
-                                {sub.options?.map(opt => (
+                                {sub.options?.map((opt: any) => (
                                   <option key={opt.id} value={opt.id} className="bg-card text-foreground">{opt.name}</option>
                                 ))}
                               </select>
@@ -1133,7 +1225,13 @@ export default function Calculator({ program, historicalData, globalOpenElective
                 </div>
                 <div className="space-y-2">
                   <h2 className="text-2xl font-black tracking-tight uppercase">Save Session</h2>
-                  <p className="text-sm text-muted-foreground font-medium">Enter a student name to identify these results in your history.</p>
+                  {saveStatus === 'error' ? (
+                    <p className="text-xs text-red-500 font-bold bg-red-500/10 py-2 px-4 rounded-xl border border-red-500/20">
+                      Failed to save. Please try logging out and back in.
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground font-medium">Enter a student name to identify these results in your history.</p>
+                  )}
                 </div>
 
                 <div className="w-full space-y-4">
