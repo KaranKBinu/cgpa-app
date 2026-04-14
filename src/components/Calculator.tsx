@@ -6,10 +6,10 @@ import {
   ChevronRight, Save, BarChart3, Calculator as CalcIcon,
   Trash2, CheckCircle2, Loader2, Plus, X, Download, Check,
   LayoutDashboard, History, Settings, LogOut, FileText, FileDown, ArrowRight,
-  Search
+  Search, FileUp
 } from 'lucide-react';
 import { calculateSGPA, calculateCGPA, groupSemesters, Grade, GRADE_POINTS } from '@/lib/calculator';
-import { saveCalculation, processTranscriptPdfs } from '@/app/actions';
+import { saveCalculation, processTranscriptPdfs, getSubjectByCode } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { Tooltip } from './Tooltip';
 import Link from 'next/link';
@@ -47,10 +47,11 @@ interface Program {
   semesters: Semester[];
 }
 
-export default function Calculator({ program, historicalData, globalOpenElectives = [] }: { 
-  program: Program & { semesters: (SyllabusSemester & { subjects: (SyllabusSubject & { options?: SyllabusSubject[] })[] })[] };
+export default function Calculator({ program, historicalData, globalOpenElectives = [], userIsLET = false }: { 
+  program: Program;
   historicalData?: any;
   globalOpenElectives?: any[];
+  userIsLET?: boolean;
 }) {
   const groupedOpenElectives = useMemo(() => {
     const groups: Record<string, any[]> = {};
@@ -62,12 +63,25 @@ export default function Calculator({ program, historicalData, globalOpenElective
     return groups;
   }, [globalOpenElectives]);
   const groupedSemesters = useMemo(() => groupSemesters(program.semesters), [program.semesters]);
+  const [isLETMode, setIsLETMode] = useState(userIsLET);
+  const displayedSemesters = useMemo(() => {
+    return isLETMode 
+      ? groupedSemesters.filter(s => s.number > 2)
+      : groupedSemesters;
+  }, [groupedSemesters, isLETMode]);
 
   const [grades, setGrades] = useState<Record<string, Grade>>({});
   const [exclusions, setExclusions] = useState<Record<string, 'not-published' | 'not-taken' | null>>({});
   const [customSubjects, setCustomSubjects] = useState<Record<string, Subject[]>>({});
   const [manualSgpas, setManualSgpas] = useState<Record<string, { sgpa: number, credits: number } | null>>({});
-  const [expandedSem, setExpandedSem] = useState<string | null>(groupedSemesters[0]?.id || null);
+  const [expandedSem, setExpandedSem] = useState<string | null>(null);
+
+  // Initialize expanded sem once grouped semesters are ready
+  useEffect(() => {
+    if (!expandedSem && displayedSemesters.length > 0) {
+      setExpandedSem(displayedSemesters[0].id);
+    }
+  }, [displayedSemesters, expandedSem]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -138,7 +152,7 @@ export default function Calculator({ program, historicalData, globalOpenElective
 
           activeSem.subjects.forEach(s => {
             if (s.isGroup) {
-              const opt = s.options?.find((o: any) => 
+              const opt = s.options?.find(o => 
                 (o.code && o.code.trim() === subCodeTrimmed) || 
                 (o.name.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === subNameNormalized)
               );
@@ -271,22 +285,36 @@ export default function Calculator({ program, historicalData, globalOpenElective
         totalCredits, 
         earnedCredits, 
         attemptedCredits,
+        number: sem.number,
         isComplete: semGrades.length === allSubjectsInSem.filter(s => exclusions[s.id] !== 'not-taken').length, 
         isManual: false 
       };
     });
-    const cgpa = calculateCGPA(semResults.filter(s => s.sgpa > 0).map(s => ({ sgpa: s.sgpa, totalCredits: s.attemptedCredits })));
+    
+    const relevantSems = isLETMode 
+      ? semResults.filter(s => s.sgpa > 0 && s.number > 2)
+      : semResults.filter(s => s.sgpa > 0);
+
+    const cgpa = calculateCGPA(relevantSems.map(s => ({ sgpa: s.sgpa, totalCredits: s.attemptedCredits })));
     const totalPercentage = cgpa > 0 ? (cgpa - 0.5) * 10 : 0;
     return { semResults, cgpa, totalPercentage };
-  }, [groupedSemesters, grades, exclusions, customSubjects, manualSgpas]);
+  }, [groupedSemesters, grades, exclusions, customSubjects, manualSgpas, isLETMode]);
 
-  const downloadAsPDF = () => {
+  const downloadAsPDF = (semId?: string) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    const isSingleSem = !!semId;
+    const targets = isSingleSem 
+      ? results.semResults.filter(s => s.id === semId)
+      : (isLETMode 
+          ? results.semResults.filter(s => s.sgpa > 0 && s.number > 2)
+          : results.semResults.filter(s => s.sgpa > 0));
+
+    if (targets.length === 0) return;
 
     doc.setFontSize(22);
     doc.setTextColor(16, 185, 129);
-    doc.text("PolyCGPA Official Report", 14, 22);
+    doc.text(isSingleSem ? "Semester Performance Report" : "PolyCGPA Cumulative Report", 14, 22);
 
     doc.setFontSize(10);
     doc.setTextColor(100);
@@ -300,18 +328,23 @@ export default function Calculator({ program, historicalData, globalOpenElective
 
     doc.setFontSize(9);
     doc.setTextColor(120);
-    doc.text("CUMULATIVE PERFORMANCE (OVERALL)", 20, 52);
+    doc.text(isSingleSem ? "SEMESTER PERFORMANCE SUMMARY" : "CUMULATIVE PERFORMANCE (OVERALL)", 20, 52);
 
     doc.setFontSize(16);
     doc.setTextColor(0);
-    doc.text(`FINAL CGPA: ${results.cgpa.toFixed(2)}`, 20, 62);
-    doc.text(`EQUIVALENT PERCENTAGE: ${results.totalPercentage.toFixed(1)}%`, pageWidth / 2, 62);
+    
+    if (isSingleSem) {
+      const sem = targets[0];
+      doc.text(`SGPA: ${sem.sgpa.toFixed(2)}`, 20, 62);
+      doc.text(`EQUIVALENT PERCENTAGE: ${sem.percentage.toFixed(1)}%`, pageWidth / 2, 62);
+    } else {
+      doc.text(`FINAL CGPA: ${results.cgpa.toFixed(2)}`, 20, 62);
+      doc.text(`EQUIVALENT PERCENTAGE: ${results.totalPercentage.toFixed(1)}%`, pageWidth / 2, 62);
+    }
 
     let currentY = 85;
 
-    results.semResults.forEach((sem) => {
-      if (sem.sgpa === 0) return;
-
+    targets.forEach((sem) => {
       const curricularSem = groupedSemesters.find(s => s.id === sem.id);
       if (!curricularSem) return;
 
@@ -378,7 +411,11 @@ export default function Calculator({ program, historicalData, globalOpenElective
       }
     });
 
-    doc.save(`PolyCGPA_Results_${program.code}.pdf`);
+    const fileName = isSingleSem 
+      ? `Transcript_${targets[0].name.replace(/\s+/g, '_')}_${program.code}.pdf`
+      : `PolyCGPA_FullReport_${program.code}.pdf`;
+      
+    doc.save(fileName);
   };
 
   const handleSave = async () => {
@@ -477,18 +514,18 @@ export default function Calculator({ program, historicalData, globalOpenElective
         const newExclusions = { ...exclusions };
         const newSelectedOptions = { ...selectedOptions };
 
-        res.results.forEach((result) => {
+        for (const result of res.results) {
             if ('error' in result) {
                 console.error(`Error in ${result.fileName}: ${result.error}`);
-                return;
+                continue;
             }
 
             const sem = groupedSemesters.find(s => s.number === result.semester);
-            if (!sem) return;
+            if (!sem) continue;
 
             const matchedOriginalIds = new Set<string>();
 
-            result.subjects.forEach((sub) => {
+            for (const sub of result.subjects) {
                 const subCodeTrimmed = sub.code?.trim() || "";
                 const subNameNormalized = sub.name?.trim().toLowerCase().replace(/[^a-z0-9]/g, "") || "";
 
@@ -539,9 +576,19 @@ export default function Calculator({ program, historicalData, globalOpenElective
                         newGrades[existingId] = sub.grade as Grade;
                         newExclusions[existingId] = null;
                     } else {
-                        // New custom subject
-                        const subName = sub.name.trim();
-                        const subCredits = subName.toLowerCase().includes("activity") ? 0 : 0;
+                        // NEW LOGIC: Check database for subject info by code
+                        let subName = sub.name.trim();
+                        let subCredits = subName.toLowerCase().includes("activity") ? 0 : 0;
+                        
+                        // Try DB lookup if code exists
+                        if (subCodeTrimmed) {
+                          const dbRes = await getSubjectByCode(subCodeTrimmed);
+                          if (dbRes.success && dbRes.subject) {
+                            subName = dbRes.subject.name;
+                            subCredits = dbRes.subject.credits;
+                          }
+                        }
+
                         const customId = `pdf-${Math.random().toString(36).substring(2, 11)}`;
                         
                         newCustomSubjects[sem.id].push({
@@ -555,7 +602,7 @@ export default function Calculator({ program, historicalData, globalOpenElective
                         newExclusions[customId] = null;
                     }
                 }
-            });
+            }
 
             // Automatically hide official subjects NOT found in the PDF for this semester
             sem.subjects.forEach(s => {
@@ -563,7 +610,7 @@ export default function Calculator({ program, historicalData, globalOpenElective
                     newExclusions[s.id] = 'not-taken';
                 }
             });
-        });
+        }
 
         setGrades(newGrades);
         setCustomSubjects(newCustomSubjects);
@@ -614,7 +661,7 @@ export default function Calculator({ program, historicalData, globalOpenElective
 
         <nav className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
           <div className="px-4 py-3 text-[11px] font-black text-muted-foreground uppercase tracking-[0.25em] mb-2 border-b border-border/50">Semesters</div>
-          {groupedSemesters.map((sem) => {
+          {displayedSemesters.map((sem) => {
             const res = results.semResults.find(r => r.id === sem.id);
             const isActive = sem.id === expandedSem;
             return (
@@ -657,192 +704,249 @@ export default function Calculator({ program, historicalData, globalOpenElective
 
       {/* Main Content Area */}
       <main className="flex-1 bg-background animate-fade-in relative touch-pan-y">
-        <header className="h-auto border-b border-border flex flex-col items-stretch px-4 lg:px-8 py-2 bg-transparent z-[60] gap-2">
-          <div className="flex items-center justify-between py-2">
-              <div className="flex items-center gap-4">
-                <div className="lg:hidden h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center font-black text-black">P</div>
-                <div>
-                  <h1 className="text-sm lg:text-lg font-black tracking-tight leading-tight max-w-[150px] lg:max-w-none truncate">{program.name}</h1>
-                  <span className="text-muted-foreground font-mono text-[9px] lg:text-sm">{program.code}</span>
+
+        <header className="sticky top-0 z-[60] bg-background/80 backdrop-blur-3xl border-b border-border/50 py-2 lg:py-5 px-3 sm:px-4 lg:px-12 shadow-sm">
+          <div className="max-w-4xl mx-auto w-full flex flex-col gap-2 lg:gap-4">
+            
+            {/* Top Row: Identity & Desktop Actions */}
+            <div className="flex items-center justify-between gap-3">
+              {/* Left: Program Identity */}
+              <div className="flex items-center gap-2 lg:gap-4 min-w-0">
+                <div className="h-8 w-8 lg:h-12 lg:w-12 rounded-lg lg:rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center font-black text-black shadow-lg shadow-emerald-500/20 shrink-0">
+                  <LayoutDashboard className="h-4 w-4 lg:h-6 lg:w-6" />
                 </div>
-                {session && (
-                  <button 
-                    onClick={() => signOut({ callbackUrl: '/' })}
-                    className="lg:hidden p-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-all ml-2"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </button>
-                )}
+                <div className="flex flex-col min-w-0">
+                  <h1 className="text-[11px] lg:text-xl font-black tracking-tight text-foreground sm:truncate max-w-[120px] sm:max-w-none leading-none">{program.name}</h1>
+                  <span className="text-[8px] lg:text-[10px] font-black text-primary/60 uppercase tracking-widest mt-1">{(activeSessionId ? "Sync Active" : "Local Engine")}</span>
+                </div>
               </div>
 
-            <div className="flex items-center gap-3 lg:gap-6">
-              <div className="flex items-center gap-3 border-r border-border pr-3 lg:pr-6">
-                <input 
-                  type="file" 
-                  multiple 
-                  accept=".pdf" 
-                  className="hidden" 
-                  id="pdf-upload" 
-                  onChange={handlePdfUpload} 
-                />
+              {/* Mobile Global Result Pill Cluster */}
+              <div className="lg:hidden flex items-center gap-2">
+                <div className="flex items-center gap-2 bg-background border-2 border-primary/20 rounded-xl px-3 py-1.5 shadow-lg shadow-primary/5">
+                  <span className="text-[8px] font-black text-primary uppercase tracking-widest leading-none">CGPA</span>
+                  <span className="text-sm font-black text-foreground leading-none">{results.cgpa.toFixed(2)}</span>
+                </div>
                 
-                <Tooltip content={isProcessingPdf ? "Processing..." : "Auto-fill results from PDF Marksheets"} position="bottom">
+                <Tooltip content="Import Transcripts" position="bottom" variant="emerald">
                   <button
                     onClick={() => document.getElementById('pdf-upload')?.click()}
                     disabled={isProcessingPdf}
-                    className={cn(
-                      "hidden lg:flex px-4 py-2.5 rounded-2xl transition-all items-center gap-2 text-[10px] font-black uppercase tracking-widest border-2",
-                      isProcessingPdf 
-                        ? "bg-primary/20 border-primary/30 text-primary animate-pulse" 
-                        : "bg-card border-border/50 text-muted-foreground hover:text-foreground hover:border-border"
-                    )}
+                    className="h-9 w-9 flex items-center justify-center rounded-xl bg-primary text-black shadow-lg shadow-primary/20 active:scale-90 transition-transform"
                   >
-                    {isProcessingPdf ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <FileText className="h-3 w-3" />
-                    )}
-                    <span>{isProcessingPdf ? "Parsing..." : "Auto-Fill"}</span>
+                    {isProcessingPdf ? <Loader2 className="h-4 w-4 animate-spin"/> : <FileUp className="h-4 w-4" />}
                   </button>
                 </Tooltip>
 
-                <div className="flex flex-col items-end">
-                  <span className="text-[7px] lg:text-[9px] font-black text-muted-foreground uppercase">CGPA</span>
-                  <span className="text-sm lg:text-xl font-black text-primary">{results.cgpa.toFixed(2)}</span>
+                <Tooltip content="Full Report (PDF)" position="bottom" variant="emerald">
+                  <button
+                    onClick={() => downloadAsPDF()}
+                    disabled={results.cgpa === 0}
+                    className="h-9 w-9 flex items-center justify-center rounded-xl bg-surface border border-border/50 text-foreground shadow-lg active:scale-90 transition-transform disabled:opacity-50"
+                  >
+                    <Download className="h-4 w-4" />
+                  </button>
+                </Tooltip>
+              </div>
+
+              {/* Desktop Performance Hub (Hidden on Mobile) */}
+              <div className="hidden lg:flex items-center gap-px bg-card/30 border border-border/50 rounded-3xl p-1 shadow-2xl overflow-hidden backdrop-blur-md">
+                <div className="flex flex-col items-center px-10 py-1 border-r border-border/50">
+                  <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Total CGPA</span>
+                  <span className="text-2xl font-black text-primary tracking-tighter leading-none">{results.cgpa.toFixed(2)}</span>
                 </div>
-                <div className="flex flex-col items-end">
-                  <span className="text-[7px] lg:text-[9px] font-black text-muted-foreground uppercase">Pct</span>
-                  <span className="text-sm lg:text-xl font-black text-foreground/80">{results.totalPercentage.toFixed(0)}%</span>
+                <div className="flex flex-col items-center px-10 py-1">
+                  <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Equivalent %</span>
+                  <span className="text-2xl font-black text-foreground tracking-tighter leading-none">{results.totalPercentage.toFixed(0)}%</span>
                 </div>
               </div>
-              
-              <button
-                onClick={() => {
-                  if (!session) router.push('/auth/login');
-                  else setIsSaveModalOpen(true);
-                }}
-                disabled={isSaving || results.cgpa === 0}
-                className={cn(
-                  "hidden lg:flex px-6 py-2.5 rounded-2xl transition-all items-center gap-2 text-[10px] font-black uppercase tracking-widest",
-                  saveStatus === 'success' 
-                    ? "bg-emerald-500/20 text-emerald-500 border border-emerald-500/30"
-                    : "bg-emerald-500 text-black hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/20"
-                )}
-              >
-                {activeSessionId ? (
-                  <>
-                    <History className="h-3 w-3" />
-                    <span>Update Progress</span>
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-3 w-3" />
-                    <span>Save Session</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
 
-          {/* Mobile Semester Tab Bar */}
-          <div className="lg:hidden flex items-center gap-2 overflow-x-auto py-2 no-scrollbar border-t border-border/30">
-            {groupedSemesters.map((sem) => {
-              const isActive = sem.id === expandedSem;
-              const res = results.semResults.find(r => r.id === sem.id);
-              return (
+              {/* Desktop Right Actions */}
+              <div className="flex items-center gap-2 lg:gap-3 lg:flex-1 justify-end">
+                {/* Mobile View: Minimal Toggle Cluster */}
+                {/* Mobile LET Toggle Switch */}
+                <div className="lg:hidden flex items-center gap-2 bg-card/30 border border-border/50 rounded-xl px-3 py-1.5 shadow-sm">
+                    <span className={cn("text-[9px] font-black uppercase tracking-widest transition-colors", isLETMode ? "text-emerald-500" : "text-muted-foreground")}>LET</span>
+                    <button 
+                        role="switch"
+                        aria-checked={isLETMode}
+                        onClick={() => {
+                            const nextMode = !isLETMode;
+                            setIsLETMode(nextMode);
+                            if (nextMode && expandedSem) {
+                                const sem = (groupedSemesters as any).find((s: any) => s.id === expandedSem);
+                                if (sem && sem.number <= 2) {
+                                    setExpandedSem(groupedSemesters[2]?.id || null);
+                                }
+                            }
+                        }}
+                        className={cn(
+                            "relative h-5 w-9 rounded-full transition-all duration-300 outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2",
+                            isLETMode ? "bg-emerald-500" : "bg-zinc-800"
+                        )}
+                    >
+                        <div className={cn(
+                            "absolute top-1 h-3 w-3 rounded-full bg-white shadow-lg transition-all duration-300 transform",
+                            isLETMode ? "left-5" : "left-1"
+                        )} />
+                    </button>
+                </div>
+
+                <div className="hidden lg:flex items-center gap-2">
+                    <Tooltip content={isLETMode ? "Normal Curriculum" : "Lateral Entry Mode"} variant="emerald">
+                        <div className="flex items-center gap-3 bg-card/30 border border-border/50 rounded-2xl px-4 py-2 hover:border-emerald-500/50 transition-all group">
+                            <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", isLETMode ? "text-emerald-500" : "text-muted-foreground")}>LET MODE</span>
+                            <button 
+                                role="switch"
+                                aria-checked={isLETMode}
+                                onClick={() => {
+                                    const nextMode = !isLETMode;
+                                    setIsLETMode(nextMode);
+                                    if (nextMode && expandedSem) {
+                                        const sem = groupedSemesters.find(s => s.id === expandedSem);
+                                        if (sem && sem.number <= 2) {
+                                            setExpandedSem(groupedSemesters[2]?.id || null);
+                                        }
+                                    }
+                                }}
+                                className={cn(
+                                    "relative h-6 w-11 rounded-full transition-all duration-300 outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2",
+                                    isLETMode ? "bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]" : "bg-zinc-800"
+                                )}
+                            >
+                                <div className={cn(
+                                    "absolute top-1 h-4 w-4 rounded-full bg-white shadow-xl transition-all duration-300 transform",
+                                    isLETMode ? "left-6" : "left-1"
+                                )} />
+                            </button>
+                        </div>
+                    </Tooltip>
+                    
+                    <button
+                        onClick={() => document.getElementById('pdf-upload')?.click()}
+                        disabled={isProcessingPdf}
+                        className="h-10 px-5 rounded-xl bg-surface border border-border/50 text-foreground hover:border-primary transition-all flex items-center gap-2 text-[9px] font-black uppercase tracking-widest active:scale-95"
+                    >
+                        {isProcessingPdf ? <Loader2 className="h-3 w-3 animate-spin"/> : <FileText className="h-3 w-3 text-primary" />}
+                        <span>Import PDF</span>
+                    </button>
+                    
+                    {results.semResults.filter(s => s.sgpa > 0).length > 1 && (
+                        <Tooltip content="Download Full Report" variant="emerald">
+                        <button
+                            onClick={() => downloadAsPDF()}
+                            className="h-10 w-10 rounded-xl bg-surface border border-border/50 text-foreground hover:border-emerald-500 transition-all flex items-center justify-center active:scale-95"
+                        >
+                            <Download className="h-3.5 w-3.5" />
+                        </button>
+                        </Tooltip>
+                    )}
+                </div>
+
                 <button
-                  key={sem.id}
-                  onClick={() => setExpandedSem(sem.id)}
-                  className={cn(
-                    "whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all",
-                    isActive
-                      ? "bg-emerald-500 border-emerald-500 text-black"
-                      : "bg-card/50 border-border/50 text-muted-foreground"
-                  )}
+                    onClick={() => {
+                        if (!session) router.push('/auth/login');
+                        else setIsSaveModalOpen(true);
+                    }}
+                    disabled={isSaving || results.cgpa === 0}
+                    className={cn(
+                        "hidden lg:flex h-12 px-8 rounded-2xl transition-all items-center gap-2 text-[10px] font-black uppercase tracking-widest active:scale-95",
+                        saveStatus === 'success' 
+                            ? "bg-emerald-500/20 text-emerald-500 border border-emerald-500/30"
+                            : "bg-emerald-500 text-black shadow-xl shadow-emerald-500/30"
+                    )}
                 >
-                  {sem.displayName} {res && res.sgpa > 0 && <span className="ml-1 opacity-60">[{res.sgpa.toFixed(1)}]</span>}
+                    <div className="flex items-center gap-2">
+                        {activeSessionId ? <History className="h-4 w-4" /> : <Save className="h-4 w-4" />}
+                        <span>{activeSessionId ? "Update History" : "Save Progress"}</span>
+                    </div>
                 </button>
-              )
-            })}
-            
-            <button
-              onClick={() => document.getElementById('pdf-upload')?.click()}
-              className="flex-none px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase"
-            >
-              {isProcessingPdf ? <Loader2 className="h-3 w-3 animate-spin" /> : "Fill PDF"}
-            </button>
+              </div>
+            </div>
+
+            {/* Bottom Row: Mobile Semester Tab Bar */}
+            <div className="lg:hidden w-full max-w-[calc(100vw-2rem)] overflow-hidden border-t border-border/30 pt-3 self-center">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar px-4 -mx-4 w-full">
+                <div className="flex items-center gap-2 min-w-max px-4">
+                  {displayedSemesters.map((sem) => {
+                    const isActive = sem.id === expandedSem;
+                    const res = results.semResults.find(r => r.id === sem.id);
+                    return (
+                      <button
+                        key={sem.id}
+                        onClick={() => setExpandedSem(sem.id)}
+                        className={cn(
+                          "whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all active:scale-90",
+                          isActive
+                            ? "bg-emerald-500 border-emerald-500 text-black shadow-lg shadow-emerald-500/20"
+                            : "bg-surface border-border/50 text-muted-foreground"
+                        )}
+                      >
+                        {sem.displayName} {res && res.sgpa > 0 && <span className="ml-1 opacity-70 font-black">({res.sgpa.toFixed(1)})</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
         </header>
 
-        <div className="p-4 lg:p-12">
-          <div className="max-w-5xl mx-auto space-y-4 lg:space-y-12">
+        <div className="px-3 sm:px-4 lg:px-10 py-6 lg:py-12 pb-32 lg:pb-12">
+          <div className="max-w-4xl mx-auto space-y-4 lg:space-y-12">
 
-            {/* Minimalist Curricular Apex HUD */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-6 pb-6 lg:pb-12 border-b-2 border-border/50 relative">
-              <div className="flex items-center gap-6">
-                <div className="h-12 w-1.5 bg-primary rounded-full shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
-                <div className="space-y-1">
-                  <div className="flex items-center gap-3">
-                    <span className="text-4xl font-black tracking-tighter text-foreground uppercase">{currentSem?.name}</span>
-                  </div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">Academic Core Matrix</p>
+            {/* Premium Semester HUD */}
+            <div className="flex items-center justify-between gap-4 pb-6 lg:pb-12 border-b-2 border-border/50 relative">
+              <div className="flex items-center gap-4 lg:gap-6">
+                <div className="h-10 lg:h-12 w-1.5 bg-primary rounded-full shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
+                <div className="space-y-0.5 lg:space-y-1">
+                  <span className="text-xl lg:text-4xl font-black tracking-tighter text-foreground uppercase">{currentSem?.name}</span>
+                  <p className="text-[8px] lg:text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">Academic Core</p>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-4 lg:gap-8">
+              <div className="flex items-center gap-3 lg:gap-8">
+                {/* Manual Entry Toggle (Justified Right) */}
+                <Tooltip content={manualSgpas[expandedSem!] ? "Switch to Interactive Grid" : "Set results manually"} position="left">
+                    <button 
+                      onClick={() => {
+                        if (manualSgpas[expandedSem!]) {
+                          setManualSgpas(prev => {
+                            const next = { ...prev };
+                            delete next[expandedSem!];
+                            return next;
+                          });
+                        } else {
+                          setManualSgpas(prev => ({ ...prev, [expandedSem!]: { sgpa: 0, credits: 0 } }));
+                        }
+                      }}
+                      className={cn(
+                        "h-10 w-10 lg:h-12 lg:w-12 rounded-2xl flex items-center justify-center transition-all border-2",
+                        manualSgpas[expandedSem!] 
+                          ? "bg-emerald-500 border-emerald-500 text-black shadow-lg shadow-emerald-500/20 scale-105" 
+                          : "bg-surface border-border/50 text-muted-foreground hover:text-foreground hover:border-border"
+                      )}
+                    >
+                      {manualSgpas[expandedSem!] ? <CheckCircle2 className="h-5 w-5" /> : <Settings className="h-5 w-5" />}
+                    </button>
+                </Tooltip>
                 {currentSemRes && (
-                  <div className="flex items-center bg-card/50 border border-border rounded-3xl p-1 lg:p-2 lg:pr-6 gap-3 lg:gap-6 shadow-2xl backdrop-blur-md">
+                  <div className="hidden lg:flex items-center bg-card/50 border-2 border-primary/20 rounded-3xl p-1 lg:p-2 lg:pr-6 gap-3 lg:gap-6 lg:shadow-[0_20px_40px_rgba(16,185,129,0.1)] lg:backdrop-blur-xl group hover:border-primary/40 transition-all duration-500">
                     {currentSemRes.sgpa > 0 ? (
-                      <div className="flex items-center gap-4 p-3 lg:p-4 rounded-2xl bg-background border border-border">
+                      <div className="flex items-center gap-4 p-3 lg:p-4 rounded-2xl bg-primary/10 border border-primary/20">
                         <div className="text-left">
-                          <p className="text-[7px] lg:text-[9px] font-black text-primary uppercase tracking-widest mb-0.5">SGPA</p>
-                          <p className="text-xl lg:text-3xl font-black text-foreground tracking-tighter leading-none">{currentSemRes.sgpa.toFixed(2)}</p>
+                          <p className="text-[7px] lg:text-[9px] font-black text-primary uppercase tracking-widest mb-0.5">CURRENT SGPA</p>
+                          <p className="text-2xl lg:text-3xl font-black text-foreground tracking-tighter leading-none">{currentSemRes.sgpa.toFixed(2)}</p>
                         </div>
-                        <div className="h-6 lg:h-8 w-px bg-border" />
+                        <div className="h-6 lg:h-8 w-px bg-primary/20" />
                         <div className="text-right">
-                          <p className="text-[7px] lg:text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-0.5 whitespace-nowrap">Equiv Pct</p>
-                          <p className="text-xl lg:text-3xl font-black text-foreground tracking-tighter leading-none">{currentSemRes.percentage.toFixed(0)}%</p>
+                          <p className="text-[7px] lg:text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-0.5 whitespace-nowrap">EQUIV PCT</p>
+                          <p className="text-2xl lg:text-3xl font-black text-foreground tracking-tighter leading-none">{currentSemRes.percentage.toFixed(0)}%</p>
                         </div>
                       </div>
                     ) : (
-                      <div className="px-4 py-2 text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">Awaiting Data</div>
+                      <div className="hidden lg:block px-6 py-4 text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest animate-pulse">Awaiting Academic Input</div>
                     )}
-                    
-                    <div className="flex items-center gap-2">
-                      <Tooltip content={manualSgpas[expandedSem!] ? "Switch to Interactive Grid" : "Set results manually"} position="top">
-                        <button 
-                          onClick={() => {
-                            if (manualSgpas[expandedSem!]) {
-                              setManualSgpas(prev => {
-                                const next = { ...prev };
-                                delete next[expandedSem!];
-                                return next;
-                              });
-                            } else {
-                              setManualSgpas(prev => ({ ...prev, [expandedSem!]: { sgpa: 0, credits: 0 } }));
-                            }
-                          }}
-                          className={cn(
-                            "h-10 w-10 lg:h-12 lg:w-12 rounded-2xl flex items-center justify-center transition-all border-2",
-                            manualSgpas[expandedSem!] 
-                              ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20" 
-                              : "bg-card border-border/50 text-muted-foreground hover:text-foreground hover:border-border"
-                          )}
-                        >
-                          {manualSgpas[expandedSem!] ? <CheckCircle2 className="h-5 w-5" /> : <Settings className="h-5 w-5" />}
-                        </button>
-                      </Tooltip>
-
-                      <Tooltip content="Download Transcript" variant="emerald">
-                        <button
-                          onClick={downloadAsPDF}
-                          disabled={currentSemRes.sgpa === 0}
-                          className="h-10 w-10 lg:h-12 lg:w-12 rounded-2xl flex items-center justify-center bg-emerald-500 text-black hover:scale-110 active:scale-95 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:grayscale"
-                        >
-                          <FileDown className="h-5 w-5" />
-                        </button>
-                      </Tooltip>
-                    </div>
                   </div>
                 )}
               </div>
@@ -904,214 +1008,247 @@ export default function Calculator({ program, historicalData, globalOpenElective
                     <Trash2 className="h-12 w-12 text-muted-foreground/30 mb-4" />
                     <p className="text-muted-foreground font-black uppercase tracking-widest text-xs italic">All subjects removed or not added</p>
                   </div>
-                )
+                );
               }
 
-              return subjects.map((sub) => {
-                const isNotPublished = exclusions[sub.id] === 'not-published';
-                return (
-                  <div key={sub.id} className={cn(
-                    "flex flex-col lg:grid lg:grid-cols-12 gap-6 p-6 lg:px-8 lg:py-6 items-start lg:items-center group transition-all rounded-3xl mb-4 border-2 shadow-xl",
-                    isNotPublished
-                      ? "bg-amber-500/5 border-amber-500/20 opacity-70"
-                      : "bg-card/50 border-border/50 hover:border-primary/40 hover:bg-card/80"
-                  )}>
-                  <div className="w-full flex justify-between items-center lg:col-span-1 border-b lg:border-none border-border pb-3 lg:pb-0">
-                    <div className="font-black text-xs text-primary/60 tracking-tighter">
-                      {(sub as any).isCustom ? (
-                        <input
-                          value={sub.code || ''}
-                          placeholder="CODE"
-                          onChange={(e) => {
-                            const newCustom = [...(customSubjects[expandedSem!] || [])];
-                            const idx = newCustom.findIndex(s => s.id === sub.id);
-                            if (idx !== -1) {
-                              newCustom[idx] = { ...newCustom[idx], code: e.target.value.toUpperCase() };
-                              setCustomSubjects(prev => ({ ...prev, [expandedSem!]: newCustom }));
-                            }
-                          }}
-                          className="w-full bg-transparent outline-none border-none focus:text-primary uppercase"
-                        />
-                      ) : (
-                        sub.code || 'CORE'
-                      )}
-                    </div>
-                    <div className="lg:hidden text-center">
-                      {(sub as any).isCustom ? (
-                        <div className="flex items-center gap-2">
-                          <span className="text-[9px] font-black text-muted-foreground">CR:</span>
-                          <input
-                            type="number"
-                            value={sub.credits}
-                            onChange={(e) => {
-                              const newCustom = [...(customSubjects[expandedSem!] || [])];
-                              const idx = newCustom.findIndex(s => s.id === sub.id);
-                              if (idx !== -1) {
-                                newCustom[idx] = { ...newCustom[idx], credits: Number(e.target.value) };
-                                setCustomSubjects(prev => ({ ...prev, [expandedSem!]: newCustom }));
-                              }
-                            }}
-                            className="w-10 bg-card/80 font-black text-[11px] text-foreground border border-border rounded text-center py-0.5"
-                          />
+              return (
+                <>
+                  {subjects.map((sub) => {
+                    const isNotPublished = exclusions[sub.id] === 'not-published';
+                    return (
+                      <div key={sub.id} className={cn(
+                        "flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 p-5 lg:px-8 lg:py-6 items-start lg:items-center group transition-all rounded-[2rem] lg:rounded-3xl mb-4 border-2 shadow-sm lg:shadow-xl",
+                        isNotPublished
+                          ? "bg-amber-500/5 border-amber-500/20 opacity-70"
+                          : "bg-surface border-border/50 hover:border-primary/40 hover:bg-card/80"
+                      )}>
+                        {/* Header info - Code and Credits */}
+                        <div className="w-full flex justify-between items-center lg:col-span-1 border-b lg:border-none border-border/30 pb-3 lg:pb-0">
+                          <div className="font-black text-[10px] lg:text-xs text-primary/60 tracking-widest uppercase">
+                            {sub.isCustom ? (
+                              <input
+                                value={sub.code || ''}
+                                placeholder="CODE"
+                                onChange={(e) => {
+                                  const val = e.target.value.toUpperCase();
+                                  const newCustom = [...(customSubjects[expandedSem!] || [])];
+                                  const idx = newCustom.findIndex(s => s.id === sub.id);
+                                  if (idx !== -1) {
+                                    newCustom[idx] = { ...newCustom[idx], code: val };
+                                    setCustomSubjects(prev => ({ ...prev, [expandedSem!]: newCustom }));
+
+                                    // Auto fetch subject info from DB if code matches
+                                    if (val.length >= 4) {
+                                      getSubjectByCode(val).then(res => {
+                                        if (res.success && res.subject) {
+                                          setCustomSubjects(curr => {
+                                            const updated = [...(curr[expandedSem!] || [])];
+                                            const uIdx = updated.findIndex(s => s.id === sub.id);
+                                            if (uIdx !== -1) {
+                                              updated[uIdx] = {
+                                                ...updated[uIdx],
+                                                name: res.subject!.name,
+                                                credits: res.subject!.credits
+                                              };
+                                            }
+                                            return { ...curr, [expandedSem!]: updated };
+                                          });
+                                        }
+                                      });
+                                    }
+                                  }
+                                }}
+                                className="bg-transparent outline-none border-none focus:text-primary uppercase w-16"
+                              />
+                            ) : (
+                              sub.code || 'CORE'
+                            )}
+                          </div>
+                          <div className="lg:hidden">
+                            {sub.isCustom ? (
+                              <div className="flex items-center gap-2 bg-background/50 rounded-xl px-3 py-1 border border-border/50">
+                                <span className="text-[9px] font-black text-muted-foreground uppercase opacity-40">CR</span>
+                                <input
+                                  type="number"
+                                  value={sub.credits}
+                                  onChange={(e) => {
+                                    const newCustom = [...(customSubjects[expandedSem!] || [])];
+                                    const idx = newCustom.findIndex(s => s.id === sub.id);
+                                    if (idx !== -1) {
+                                      newCustom[idx] = { ...newCustom[idx], credits: Number(e.target.value) };
+                                      setCustomSubjects(prev => ({ ...prev, [expandedSem!]: newCustom }));
+                                    }
+                                  }}
+                                  className="w-8 bg-transparent font-black text-xs text-foreground outline-none text-center"
+                                />
+                              </div>
+                            ) : (
+                              <span className="px-3 py-1 rounded-xl bg-primary/10 text-[9px] font-black text-primary border border-primary/20">{sub.credits} CREDITS</span>
+                            )}
+                          </div>
                         </div>
-                      ) : (
-                        <span className="px-3 py-1 rounded-full bg-card/80 text-[11px] font-black text-foreground border border-border">{sub.credits} CREDITS</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="hidden lg:block lg:col-span-1 text-center">
-                    {(sub as any).isCustom ? (
-                      <input
-                        type="number"
-                        value={sub.credits}
-                        onChange={(e) => {
-                          const newCustom = [...(customSubjects[expandedSem!] || [])];
-                          const idx = newCustom.findIndex(s => s.id === sub.id);
-                          if (idx !== -1) {
-                            newCustom[idx] = { ...newCustom[idx], credits: Number(e.target.value) };
-                            setCustomSubjects(prev => ({ ...prev, [expandedSem!]: newCustom }));
-                          }
-                        }}
-                        className="w-12 bg-card/80 font-black text-[11px] text-foreground border-2 border-border rounded-lg text-center py-1 outline-none focus:border-primary focus:bg-background focus:ring-4 focus:ring-primary/20 transition-all"
-                      />
-                    ) : (
-                      <span className="px-3 py-1 rounded-full bg-card/80 text-[11px] font-black text-foreground border border-border">{sub.credits}</span>
-                    )}
-                  </div>
-                  <div className="w-full lg:col-span-6">
-                    {(sub as any).isCustom ? (
-                      <input
-                        value={sub.name}
-                        onChange={(e) => {
-                          const newCustom = [...(customSubjects[expandedSem!] || [])];
-                          const idx = newCustom.findIndex(s => s.id === sub.id);
-                          if (idx !== -1) {
-                            newCustom[idx] = { ...newCustom[idx], name: e.target.value };
-                            setCustomSubjects(prev => ({ ...prev, [expandedSem!]: newCustom }));
-                          }
-                        }}
-                        className="w-full bg-transparent font-black text-base lg:text-lg tracking-tighter text-primary border-b-2 border-primary/20 focus:border-primary focus:bg-card/50 outline-none py-1 px-2 rounded-t-lg transition-all"
-                        placeholder="Enter Course Title..."
-                      />
-                    ) : sub.isGroup ? (
-                      <div className="space-y-2">
-                        <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest leading-none pl-1">
-                          {sub.category === 'Open Elective course' ? 'Inter-Departmental Selection' : 'Choose Elective Option'}
-                        </p>
-                        <div className="relative group/select">
-                          {sub.category === 'Open Elective course' ? (
-                            <button 
-                              onClick={() => {
-                                setActiveSearchGroup(sub.id);
-                                setIsSearchModalOpen(true);
+
+                        {/* Desktop Credit Badge */}
+                        <div className="hidden lg:block lg:col-span-1 text-center">
+                          {sub.isCustom ? (
+                            <input
+                              type="number"
+                              value={sub.credits}
+                              onChange={(e) => {
+                                const newCustom = [...(customSubjects[expandedSem!] || [])];
+                                const idx = newCustom.findIndex(s => s.id === sub.id);
+                                if (idx !== -1) {
+                                  newCustom[idx] = { ...newCustom[idx], credits: Number(e.target.value) };
+                                  setCustomSubjects(prev => ({ ...prev, [expandedSem!]: newCustom }));
+                                }
+                              }}
+                              className="w-12 bg-card/80 font-black text-[11px] text-foreground border-2 border-border rounded-lg text-center py-1 outline-none focus:border-primary focus:bg-background transition-all"
+                            />
+                          ) : (
+                            <span className="px-3 py-1 rounded-full bg-card/80 text-[11px] font-black text-foreground border border-border">{sub.credits}</span>
+                          )}
+                        </div>
+
+                        {/* Course Title Area */}
+                        <div className="w-full lg:col-span-6 min-h-[40px] flex items-center">
+                          {sub.isCustom ? (
+                            <input
+                              value={sub.name}
+                              onChange={(e) => {
+                                const newCustom = [...(customSubjects[expandedSem!] || [])];
+                                const idx = newCustom.findIndex(s => s.id === sub.id);
+                                if (idx !== -1) {
+                                  newCustom[idx] = { ...newCustom[idx], name: e.target.value };
+                                  setCustomSubjects(prev => ({ ...prev, [expandedSem!]: newCustom }));
+                                }
+                              }}
+                              className="w-full bg-transparent font-black text-base lg:text-lg tracking-tight text-primary border-b-2 border-primary/20 focus:border-primary outline-none py-1 transition-all"
+                              placeholder="Course Title..."
+                            />
+                          ) : sub.isGroup ? (
+                            <div className="space-y-2 w-full">
+                              <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest leading-none">
+                                {sub.category === 'Open Elective course' ? 'Inter-Departmental Pool' : 'Elective Group'}
+                              </p>
+                              <div className="relative group/select">
+                                {sub.category === 'Open Elective course' ? (
+                                  <button 
+                                    onClick={() => {
+                                      setActiveSearchGroup(sub.id);
+                                      setIsSearchModalOpen(true);
+                                    }}
+                                    className={cn(
+                                      "w-full bg-background/50 border-2 text-left text-foreground font-black text-sm lg:text-base rounded-2xl px-5 py-3 outline-none focus:ring-4 focus:ring-primary/10 transition-all flex items-center justify-between",
+                                      selectedOptions[sub.id] ? "border-primary/40" : "border-border/50 text-muted-foreground italic"
+                                    )}
+                                  >
+                                    <div className="flex flex-col truncate pr-2">
+                                      <span className={cn("truncate", selectedOptions[sub.id] ? "text-foreground" : "text-muted-foreground")}>
+                                        {selectedOptions[sub.id] 
+                                          ? (globalOpenElectives.find(o => o.id === selectedOptions[sub.id])?.name || "Selected Subject")
+                                          : `Search available courses...`}
+                                      </span>
+                                      {selectedOptions[sub.id] && (
+                                        <span className="text-[9px] font-mono text-primary/40 tracking-widest">
+                                          {globalOpenElectives.find(o => o.id === selectedOptions[sub.id])?.code}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <Search className="h-4 w-4 text-primary shrink-0" />
+                                  </button>
+                                ) : (
+                                  <>
+                                    <select 
+                                      value={selectedOptions[sub.id] || ""}
+                                      onChange={(e) => {
+                                        const optId = e.target.value;
+                                        setSelectedOptions(prev => ({ ...prev, [sub.id]: optId }));
+                                      }}
+                                      className={cn(
+                                        "w-full bg-background/50 border-2 text-foreground font-black text-sm lg:text-base rounded-2xl px-5 py-3 outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer",
+                                        selectedOptions[sub.id] ? "border-primary/40 text-foreground" : "border-border/50 text-muted-foreground italic"
+                                      )}
+                                    >
+                                      <option value="">Select option from {sub.name}...</option>
+                                      {sub.options?.map((opt: any) => (
+                                        <option key={opt.id} value={opt.id}>{opt.name}</option>
+                                      ))}
+                                    </select>
+                                    <ChevronRight className="absolute right-5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary pointer-events-none group-hover/select:translate-x-1 transition-transform" />
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <p className={cn(
+                              "font-black text-base lg:text-lg tracking-tight leading-snug transition-all",
+                              isNotPublished ? "text-amber-500 line-through opacity-60" : "text-foreground"
+                            )}>
+                              {sub.name}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Grade and Actions Area */}
+                        <div className="w-full lg:col-span-4 flex flex-col lg:flex-row items-stretch lg:items-center gap-4 lg:gap-6 pt-2 lg:pt-0">
+                          <div className="flex-1 lg:flex-none flex items-center gap-3">
+                            <select
+                              disabled={!!exclusions[sub.id] || (sub.isGroup && !selectedOptions[sub.id])}
+                              value={(sub.isGroup ? grades[selectedOptions[sub.id]] : grades[sub.id]) || ''}
+                              onChange={(e) => {
+                                const targetId = sub.isGroup ? selectedOptions[sub.id] : sub.id;
+                                if (targetId) setGrades(prev => ({ ...prev, [targetId]: e.target.value as Grade }));
                               }}
                               className={cn(
-                                "w-full bg-background/50 border-2 text-left text-foreground font-black text-sm lg:text-base rounded-2xl px-5 py-2.5 outline-none focus:ring-8 focus:ring-primary/10 transition-all flex items-center justify-between group/btn",
-                                selectedOptions[sub.id] ? "border-primary/40" : "border-border/50 text-muted-foreground italic"
+                                "flex-1 lg:w-32 h-12 lg:h-10 rounded-2xl lg:rounded-full border-2 text-[10px] font-black tracking-widest text-center cursor-pointer outline-none appearance-none transition-all",
+                                (sub.isGroup ? grades[selectedOptions[sub.id]] : grades[sub.id])
+                                  ? "border-primary bg-primary text-black shadow-lg shadow-primary/20"
+                                  : "border-border/50 bg-background text-foreground/80 hover:border-border",
+                                (!!exclusions[sub.id] || (sub.isGroup && !selectedOptions[sub.id])) && "opacity-20 cursor-not-allowed"
                               )}
                             >
-                              <div className="flex flex-col">
-                                <span className={cn("transition-all truncate max-w-[200px] lg:max-w-[300px]", selectedOptions[sub.id] ? "text-foreground" : "text-muted-foreground")}>
-                                  {selectedOptions[sub.id] 
-                                    ? (globalOpenElectives.find(o => o.id === selectedOptions[sub.id])?.name || "Selected Subject")
-                                    : `Search in All Departments...`}
-                                </span>
-                                {selectedOptions[sub.id] && (
-                                  <span className="text-[10px] font-mono text-primary/60 tracking-widest leading-none">
-                                    {globalOpenElectives.find(o => o.id === selectedOptions[sub.id])?.code}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover/btn:bg-primary group-hover/btn:text-black transition-all">
-                                <Search className="h-4 w-4" />
-                              </div>
-                            </button>
-                          ) : (
-                            <>
-                              <select 
-                                value={selectedOptions[sub.id] || ""}
-                                onChange={(e) => {
-                                  const optId = e.target.value;
-                                  setSelectedOptions(prev => ({ ...prev, [sub.id]: optId }));
-                                }}
+                              <option value="" disabled>{sub.isGroup && !selectedOptions[sub.id] ? 'PICK OPTION' : 'SELECT GRADE'}</option>
+                              {Object.keys(GRADE_POINTS).map(g => (
+                                <option key={g} value={g}>{g}</option>
+                              ))}
+                            </select>
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => setExclusions(prev => ({ ...prev, [sub.id]: prev[sub.id] === 'not-published' ? null : 'not-published' }))}
                                 className={cn(
-                                  "w-full bg-background/50 border-2 text-foreground font-black text-sm lg:text-base rounded-2xl px-5 py-3 outline-none focus:ring-8 focus:ring-primary/10 transition-all appearance-none cursor-pointer",
-                                  selectedOptions[sub.id] ? "border-primary/40 text-foreground" : "border-border/50 text-muted-foreground italic"
+                                  "h-12 w-12 lg:h-9 lg:w-9 rounded-2xl flex items-center justify-center border-2 transition-all",
+                                  exclusions[sub.id] === 'not-published'
+                                    ? "bg-amber-500 border-amber-500 text-white"
+                                    : "border-border/30 text-muted-foreground hover:text-amber-500 hover:border-amber-500/30"
                                 )}
                               >
-                                <option value="">Select from Group: {sub.name}...</option>
-                                {sub.options?.map((opt: any) => (
-                                  <option key={opt.id} value={opt.id} className="bg-card text-foreground">{opt.name}</option>
-                                ))}
-                              </select>
-                              <ChevronRight className="absolute right-5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary pointer-events-none group-hover/select:translate-x-1 transition-transform" />
-                            </>
-                          )}
+                                <History className="h-4 w-4" />
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  if ((sub as any).isCustom) {
+                                    setCustomSubjects(prev => ({ ...prev, [expandedSem!]: prev[expandedSem!].filter(s => s.id !== sub.id) }));
+                                  } else {
+                                    setExclusions(prev => ({ ...prev, [sub.id]: 'not-taken' }));
+                                  }
+                                }}
+                                className="h-12 w-12 lg:h-9 lg:w-9 rounded-2xl flex items-center justify-center border-2 border-border/30 text-muted-foreground hover:text-red-500 hover:border-red-500/30 transition-all"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    ) : (
-                      <p className={cn(
-                        "font-black text-base lg:text-lg tracking-tighter leading-tight transition-all",
-                        isNotPublished ? "text-amber-500 line-through opacity-60" : "text-foreground"
-                      )}>
-                        {sub.name}
-                      </p>
-                    )}
-                  </div>
-                  <div className="w-full lg:col-span-4 flex flex-row-reverse lg:flex-row justify-between lg:justify-end items-center gap-6 pt-4 lg:pt-0 border-t lg:border-none border-border">
-                    {/* Standard High-Contrast Select */}
-                    <select
-                      disabled={!!exclusions[sub.id] || (sub.isGroup && !selectedOptions[sub.id])}
-                      value={(sub.isGroup ? grades[selectedOptions[sub.id]] : grades[sub.id]) || ''}
-                      onChange={(e) => {
-                        const targetId = sub.isGroup ? selectedOptions[sub.id] : sub.id;
-                        if (targetId) setGrades(prev => ({ ...prev, [targetId]: e.target.value as Grade }));
-                      }}
-                      className={cn(
-                        "w-full lg:w-32 h-10 rounded-full border-2 text-[10px] font-black tracking-widest text-center cursor-pointer outline-none appearance-none transition-all",
-                        (sub.isGroup ? grades[selectedOptions[sub.id]] : grades[sub.id])
-                          ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                          : "border-border/50 bg-option-pane text-foreground/80 hover:text-foreground hover:border-border hover:shadow-lg",
-                        (!!exclusions[sub.id] || (sub.isGroup && !selectedOptions[sub.id])) && "opacity-20 cursor-not-allowed"
-                      )}
-                    >
-                      <option value="" disabled className="bg-option-pane text-foreground/50">{sub.isGroup && !selectedOptions[sub.id] ? 'PICK OPTION' : 'GRADE'}</option>
-                      {Object.keys(GRADE_POINTS).map(g => (
-                        <option key={g} value={g} className="bg-option-pane text-foreground font-black">{g}</option>
-                      ))}
-                    </select>
-
-                    <div className="flex items-center gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Tooltip content={isNotPublished ? "Restore Grade Entry" : "Result Not Published"} position="top">
-                        <button
-                          onClick={() => setExclusions(prev => ({ ...prev, [sub.id]: prev[sub.id] === 'not-published' ? null : 'not-published' }))}
-                          className={cn(
-                            "h-10 w-10 lg:h-9 lg:w-9 rounded-xl flex items-center justify-center border-2 transition-all hover:scale-110 active:scale-95 shadow-lg",
-                            exclusions[sub.id] === 'not-published'
-                              ? "bg-amber-500 border-amber-500 text-white shadow-amber-500/20"
-                              : "border-border/50 bg-card text-muted-foreground hover:text-amber-500 hover:border-amber-500/30 hover:bg-amber-500/5 shadow-none"
-                          )}
-                        >
-                          <History className="h-4 w-4" />
-                        </button>
-                      </Tooltip>
-
-                      <Tooltip content="Delete Subject" position="top">
-                        <button
-                          onClick={() => setExclusions(prev => ({ ...prev, [sub.id]: 'not-taken' }))}
-                          className="h-10 w-10 lg:h-9 lg:w-9 rounded-xl flex items-center justify-center border-2 transition-all hover:scale-110 active:scale-95 border-border/50 bg-card text-muted-foreground hover:text-red-500 hover:border-red-500/30 hover:bg-red-500/5 shadow-none"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </Tooltip>
-                    </div>
-                  </div>
-                </div>
-                  );
-              });
+                    );
+                  })}
+                </>
+              );
             })()}
-            </>
-            )}
+          </>
+        )}
 
             {/* Footer Actions */}
             <div className="mt-8 lg:mt-16 mb-24 lg:mb-32 flex flex-col lg:flex-row items-stretch lg:items-center justify-between p-4 lg:p-10 rounded-[2.5rem] bg-card border-2 border-border/50 gap-8 lg:gap-0 shadow-2xl relative overflow-hidden group/actions">
@@ -1159,32 +1296,52 @@ export default function Calculator({ program, historicalData, globalOpenElective
         </div>
       </main>
 
-      {/* Mobile Floating Action Button (FAB) */}
+      {/* Mobile Floating Action Stack */}
       <AnimatePresence>
-        {results.cgpa > 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5, y: 100 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.5, y: 100 }}
-            className="lg:hidden fixed bottom-8 right-6 z-[90]"
-          >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5, y: 100 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.5, y: 100 }}
+          className="lg:hidden fixed bottom-6 right-6 z-[90] flex flex-col items-center gap-4"
+        >
+          {/* SGPA Monitor Pill */}
+          <div className="bg-card/90 backdrop-blur-2xl border border-primary/30 rounded-2xl px-4 py-2 shadow-2xl flex flex-col items-center group">
+             <span className="text-[8px] font-black text-primary uppercase tracking-widest mb-0.5">SGPA</span>
+             <span className="text-2xl font-black text-foreground tracking-tighter leading-none">
+                {(results.semResults.find(r => r.id === expandedSem)?.sgpa || 0).toFixed(2)}
+             </span>
+          </div>
+
+          {/* Download FAB - Semester Specific */}
+          <Tooltip content="Semester Transcript" position="left" variant="emerald">
+            <button
+              onClick={() => expandedSem && downloadAsPDF(expandedSem)}
+              disabled={!currentSemRes || currentSemRes.sgpa === 0}
+              className="h-14 w-14 rounded-full bg-surface/80 backdrop-blur-xl border border-border/50 shadow-xl flex items-center justify-center text-foreground active:scale-90 transition-all hover:border-emerald-500 disabled:opacity-50"
+            >
+              <Download className="h-6 w-6" />
+            </button>
+          </Tooltip>
+
+          {/* Save FAB */}
+          <Tooltip content={activeSessionId ? "Update History" : "Save Session"} position="left" variant="emerald">
             <button
               onClick={() => setIsSaveModalOpen(true)}
               disabled={isSaving}
               className={cn(
-                "h-16 w-16 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-90",
+                "h-16 w-16 rounded-full flex items-center justify-center shadow-[0_15px_40px_-10px_rgba(16,185,129,0.5)] transition-all active:scale-90",
                 saveStatus === 'success' 
                   ? "bg-emerald-500 text-black" 
-                  : "bg-emerald-500 text-black shadow-emerald-500/40"
+                  : "bg-emerald-500 text-black"
               )}
             >
               <div className="flex flex-col items-center gap-0.5">
-                <Save className="h-5 w-5" />
-                <span className="text-[7px] font-black uppercase tracking-tighter">Save</span>
+                {activeSessionId ? <History className="h-5 w-5" /> : <Save className="h-5 w-5" />}
+                <span className="text-[8px] font-black uppercase tracking-tighter">{activeSessionId ? "Update" : "Save"}</span>
               </div>
             </button>
-          </motion.div>
-        )}
+          </Tooltip>
+        </motion.div>
       </AnimatePresence>
 
       {/* Save Session Modal */}

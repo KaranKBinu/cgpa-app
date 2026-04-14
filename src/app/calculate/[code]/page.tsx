@@ -3,6 +3,7 @@ import Calculator from "@/components/Calculator";
 import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { auth } from "@/lib/auth";
 
 export default async function CalculatePage({ 
   params,
@@ -13,6 +14,12 @@ export default async function CalculatePage({
 }) {
   const { code } = await params;
   const { session: sessionId } = await searchParams;
+  const session = await auth();
+  
+  const user = session?.user?.email ? await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { isLET: true }
+  }) : null;
 
   const [program, historicalData, allOpenElectives] = await Promise.all([
     prisma.program.findUnique({
@@ -72,6 +79,7 @@ export default async function CalculatePage({
         program={program} 
         historicalData={historicalData} 
         globalOpenElectives={allOpenElectives} 
+        userIsLET={!!user?.isLET}
       />
     </div>
   );

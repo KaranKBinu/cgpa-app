@@ -39,64 +39,48 @@ export default async function RootLayout({
           <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/10 via-background to-background opacity-70"></div>
           <div className="fixed inset-0 -z-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
           
-          <header className="absolute top-0 left-0 right-0 z-[60] p-4 lg:p-6 text-foreground">
-            <nav className="mx-auto max-w-7xl px-4 lg:px-8 h-16 lg:h-20 rounded-[1.5rem] lg:rounded-[2rem] border border-border/50 bg-background/80 backdrop-blur-2xl shadow-2xl flex items-center justify-between">
-              <Link href="/" className="flex items-center gap-3 group transition-all active:scale-95">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 font-extrabold text-black shadow-xl shadow-emerald-500/20 group-hover:rotate-6 transition-transform">
+          <header className="absolute top-0 left-0 right-0 z-[60] p-2 sm:p-4 lg:p-6 text-foreground">
+            <nav className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-8 h-14 lg:h-20 rounded-2xl lg:rounded-[2rem] border border-border/50 bg-background/80 backdrop-blur-2xl shadow-2xl flex items-center justify-between">
+              <Link href="/" className="flex items-center gap-2 group transition-all active:scale-95 shrink-0">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 font-extrabold text-black shadow-lg shadow-emerald-500/20 group-hover:rotate-6 transition-transform shrink-0">
                   {config.appName.charAt(0)}
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-base lg:text-lg font-black tracking-tight text-foreground leading-none">{config.appName}</span>
-                  <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5">{config.revision}</span>
+                <div className="flex flex-col overflow-hidden">
+                  <span className="text-sm sm:text-lg font-black tracking-tight text-foreground leading-none truncate hidden xs:block">{config.appName}</span>
+                  <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5 hidden sm:block">{config.revision}</span>
                 </div>
               </Link>
               
-              <div className="flex items-center gap-1 lg:gap-3 font-bold text-xs lg:text-sm text-muted-foreground">
-                <Link href="/" className="px-3 py-2 rounded-xl hover:text-emerald-500 hover:bg-emerald-500/5 transition-all flex items-center gap-2">
-                  <Home className="h-4 w-4" />
-                  <span className="hidden md:inline">Home</span>
+              <div className="flex items-center gap-1 sm:gap-3 font-bold text-xs lg:text-sm text-muted-foreground mr-1 lg:mr-0">
+                <Link href="/" className="p-2 rounded-xl hover:text-emerald-500 hover:bg-emerald-500/5 transition-all">
+                  <Home className="h-5 w-5" />
+                  <span className="hidden sm:inline">Home</span>
                 </Link>
-                <Link href="/history" className="px-3 py-2 rounded-xl hover:text-emerald-500 hover:bg-emerald-500/5 transition-all flex items-center gap-2">
-                  <History className="h-4 w-4" />
-                  <span className="hidden md:inline">History</span>
+                <Link href="/history" className="p-2 rounded-xl hover:text-emerald-500 hover:bg-emerald-500/5 transition-all">
+                  <History className="h-5 w-5" />
+                  <span className="hidden sm:inline">History</span>
                 </Link>
 
-                {isAdmin && (
-                  <Link href="/admin" className="px-3 py-2 rounded-xl text-amber-500 hover:bg-amber-500/5 transition-all flex items-center gap-2">
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span className="hidden md:inline">Admin</span>
-                  </Link>
-                )}
-
-                <div className="w-px h-6 bg-border mx-2 hidden sm:block"></div>
+                <div className="w-px h-6 bg-border mx-1 hidden sm:block"></div>
                 
                 <ThemeToggle />
 
-                <div className="w-px h-6 bg-border mx-2 hidden sm:block"></div>
+                <div className="w-px h-6 bg-border mx-1 hidden sm:block"></div>
 
                 {user ? (
-                  <div className="flex items-center gap-2 lg:gap-4">
-                    <div className="hidden lg:flex flex-col items-end mr-2">
-                      <span className="text-foreground text-[11px] leading-tight font-black uppercase tracking-tighter">{user.name}</span>
-                      <span className="text-emerald-500 text-[9px] leading-tight font-bold uppercase tracking-widest">{(user as any).role}</span>
-                    </div>
-                    <form action={async () => {
-                      "use server";
-                      await signOut();
-                    }}>
-                      <button type="submit" className="p-2 lg:px-4 lg:py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all flex items-center gap-2 group">
-                        <LogOut className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-                        <span className="hidden md:inline">Sign Out</span>
-                      </button>
-                    </form>
-                  </div>
+                  <form action={async () => {
+                    "use server";
+                    await signOut();
+                  }}>
+                    <button type="submit" className="p-2 sm:px-4 sm:py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all">
+                      <LogOut className="h-5 w-5" />
+                      <span className="hidden sm:inline">Sign Out</span>
+                    </button>
+                  </form>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <Link href="/auth/login" className="px-4 py-2 rounded-xl hover:text-foreground transition-all font-black uppercase tracking-widest text-[10px]">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Link href="/auth/login" className="px-3 py-2 rounded-xl hover:text-foreground transition-all font-black uppercase tracking-widest text-[10px]">
                       Login
-                    </Link>
-                    <Link href="/auth/register" className="px-4 py-2 rounded-xl bg-emerald-500 text-black font-black uppercase tracking-widest text-[10px] shadow-xl shadow-emerald-500/20 hover:scale-[1.05] active:scale-95 transition-all">
-                      Sign Up
                     </Link>
                   </div>
                 )}

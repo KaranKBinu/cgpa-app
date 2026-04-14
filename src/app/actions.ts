@@ -127,6 +127,8 @@ export async function registerUser(formData: FormData) {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const department = formData.get("department") as string;
+  const isLET = formData.get("isLET") === "true";
   const role = (formData.get("role") as any) || "STUDENT";
 
   if (!email || !password) {
@@ -150,6 +152,8 @@ export async function registerUser(formData: FormData) {
         email,
         password: hashedPassword,
         role,
+        department,
+        isLET
       },
     });
 
@@ -381,4 +385,27 @@ export async function processTranscriptPdfs(files: { name: string, data: string 
   }
 
   return { success: true, results };
+}
+
+export async function getSubjectByCode(code: string) {
+  try {
+    const subject = await prisma.syllabusSubject.findFirst({
+      where: { 
+        code: {
+          equals: code,
+          // case insensitive search if needed, though codes are usually uppercase
+        },
+        isGroup: false // We want actual subjects, not groups
+      },
+      select: {
+        name: true,
+        credits: true,
+        code: true
+      }
+    });
+    
+    return { success: true, subject };
+  } catch (error) {
+    return { success: false, error: "Failed to fetch subject" };
+  }
 }

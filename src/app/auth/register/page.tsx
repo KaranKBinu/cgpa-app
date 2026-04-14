@@ -11,6 +11,8 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [department, setDepartment] = useState("");
+  const [isLET, setIsLET] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -24,6 +26,8 @@ export default function RegisterPage() {
     formData.append("name", name);
     formData.append("email", email);
     formData.append("password", password);
+    formData.append("department", department);
+    formData.append("isLET", isLET.toString());
 
     try {
       const result = await registerUser(formData);
@@ -39,6 +43,20 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  const departments = [
+    "Computer Engineering",
+    "Electronics Engineering",
+    "Electrical & Electronics Engineering",
+    "Mechanical Engineering",
+    "Civil Engineering",
+    "Chemical Engineering",
+    "Automobile Engineering",
+    "Architecture",
+    "Biomedical Engineering",
+    "Instrumentation Engineering",
+    "Computer Application & Business Management",
+  ];
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">
@@ -103,6 +121,31 @@ export default function RegisterPage() {
                   placeholder="••••••••"
                   required
                 />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-4">Department / Branch</label>
+              <select
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 px-6 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium appearance-none"
+                required
+              >
+                <option value="" disabled>Select Department</option>
+                {departments.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-3 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl cursor-pointer group hover:border-emerald-500/30 transition-all" onClick={() => setIsLET(!isLET)}>
+              <div className={`h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-all ${isLET ? 'bg-emerald-500 border-emerald-500' : 'border-border/50 group-hover:border-emerald-500/50'}`}>
+                {isLET && <div className="h-3 w-3 bg-white rounded-sm" />}
+              </div>
+              <div>
+                <p className="text-sm font-black text-foreground">LET Student</p>
+                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase">Joined from 3rd Semester (Lateral Entry)</p>
               </div>
             </div>
 

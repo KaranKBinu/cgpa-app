@@ -44,15 +44,27 @@ export default function RecentCalculatorLink({
             if (key?.startsWith('poly-cgpa-') && !key.includes('index')) {
                 const progId = key.replace('poly-cgpa-', '');
                 const program = programs.find(p => p.id === progId);
-                if (program) {
-                    // We don't have a timestamp in the current localStorage schema, 
-                    // but we can at least show the first one we find or the one that has most data.
-                    items.push({
-                        id: program.id,
-                        code: program.code,
-                        name: program.name,
-                        timestamp: Date.now() // Placeholder
-                    });
+                const rawData = localStorage.getItem(key);
+                
+                if (program && rawData) {
+                    try {
+                        const data = JSON.parse(rawData);
+                        // Check if there is actual content in the draft
+                        const hasGrades = Object.values(data.grades || {}).some(g => !!g);
+                        const hasManual = Object.values(data.manualSgpas || {}).some(m => !!m);
+                        const hasCustomSubjects = Object.values(data.customSubjects || {}).some((subs: any) => subs && subs.length > 0);
+                        
+                        if (hasGrades || hasManual || hasCustomSubjects) {
+                            items.push({
+                                id: program.id,
+                                code: program.code,
+                                name: program.name,
+                                timestamp: Date.now() // Placeholder
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Failed to parse local draft", e);
+                    }
                 }
             }
         }
@@ -60,7 +72,7 @@ export default function RecentCalculatorLink({
         if (items.length > 0) {
             setLastProgram(items[0]);
         }
-    }, [programs]);
+    }, [programs, latestCalculation]);
 
     if (!lastProgram) return null;
 
