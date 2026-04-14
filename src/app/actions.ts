@@ -409,3 +409,16 @@ export async function getSubjectByCode(code: string) {
     return { success: false, error: "Failed to fetch subject" };
   }
 }
+
+export async function getPrograms() {
+  try {
+    const programs = await prisma.program.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, code: true }
+    });
+    return { success: true, programs };
+  } catch (error) {
+    console.error("Failed to fetch programs:", error);
+    return { success: false, programs: [] };
+  }
+}

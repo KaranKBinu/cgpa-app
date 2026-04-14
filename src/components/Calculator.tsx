@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { groupSemesters } from '@/lib/calculator';
+import { groupSemesters, Grade } from '@/lib/calculator';
 import { processTranscriptPdfs } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
@@ -65,7 +65,7 @@ export default function Calculator({
       // Corrected: processTranscriptPdfs takes 2 arguments
       const res = await processTranscriptPdfs(actions.pendingFiles, actions.pdfPassword);
       if (res.success && res.results) {
-        const newGrades: Record<string, string> = {};
+        const newGrades: Record<string, Grade> = {};
         const newSelectedOptions: Record<string, string> = {};
         
         res.results.forEach((fileRes: any) => {

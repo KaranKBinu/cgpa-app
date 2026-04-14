@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, Mail, Lock, Loader2, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
-import { registerUser } from "@/app/actions";
+import { User, Mail, Lock, Loader2, ArrowRight, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { registerUser, getPrograms } from "@/app/actions";
+import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -15,7 +17,24 @@ export default function RegisterPage() {
   const [isLET, setIsLET] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [openDept, setOpenDept] = useState(false);
+  const [departments, setDepartments] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    async function loadDepts() {
+      const res = await getPrograms();
+      if (res.success && res.programs) {
+        setDepartments(res.programs.map(p => p.name));
+      }
+    }
+    loadDepts();
+  }, []);
+
+  const filteredDepartments = departments.filter(dept => 
+    dept.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,19 +63,7 @@ export default function RegisterPage() {
     }
   };
 
-  const departments = [
-    "Computer Engineering",
-    "Electronics Engineering",
-    "Electrical & Electronics Engineering",
-    "Mechanical Engineering",
-    "Civil Engineering",
-    "Chemical Engineering",
-    "Automobile Engineering",
-    "Architecture",
-    "Biomedical Engineering",
-    "Instrumentation Engineering",
-    "Computer Application & Business Management",
-  ];
+  // Departments are now fetched from DB
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">
@@ -124,24 +131,79 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 ">
               <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-4">Department / Branch</label>
-              <select
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 px-6 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium appearance-none"
-                required
-              >
-                <option value="" disabled>Select Department</option>
-                {departments.map(dept => (
-                  <option key={dept} value={dept}>{dept}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setOpenDept(!openDept)}
+                  className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 px-6 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-left flex justify-between items-center"
+                >
+                  <span className={department ? "text-foreground" : "text-muted-foreground"}>
+                    {department.length > 30 ? department.substring(0, 30) + "..." : (department || "Select Department")}
+                  </span>
+                  <motion.div
+                    animate={{ rotate: openDept ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <svg className="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </motion.div>
+                </button>
+
+                <AnimatePresence>
+                  {openDept && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute left-0 right-0 top-full mt-2 z-50 bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden"
+                    >
+                      <div className="p-2 border-b border-border/50">
+                        <input 
+                          type="text"
+                          placeholder="Search department..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          autoFocus
+                          className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-2 text-xs font-bold focus:outline-none focus:border-emerald-500/50 transition-all font-outfit"
+                        />
+                      </div>
+                      <div className="max-h-[200px] overflow-y-auto custom-scrollbar p-1">
+                        {filteredDepartments.length > 0 ? (
+                          filteredDepartments.map((dept) => (
+                            <button
+                              key={dept}
+                              type="button"
+                              onClick={() => {
+                                setDepartment(dept);
+                                setOpenDept(false);
+                                setSearchTerm("");
+                              }}
+                              className={cn(
+                                "w-full text-left px-4 py-3 rounded-xl text-[11px] font-black uppercase tracking-tight transition-all",
+                                department === dept 
+                                  ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20" 
+                                  : "text-muted-foreground hover:bg-emerald-500/10 hover:text-foreground"
+                              )}
+                            >
+                              {dept}
+                            </button>
+                          ))
+                        ) : (
+                          <p className="text-[10px] font-bold text-muted-foreground/50 text-center py-8 uppercase tracking-widest">No matching department</p>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
             <div className="flex items-center gap-3 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl cursor-pointer group hover:border-emerald-500/30 transition-all" onClick={() => setIsLET(!isLET)}>
               <div className={`h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-all ${isLET ? 'bg-emerald-500 border-emerald-500' : 'border-border/50 group-hover:border-emerald-500/50'}`}>
-                {isLET && <div className="h-3 w-3 bg-white rounded-sm" />}
+                {isLET && <Check className="h-4 w-4 text-black" strokeWidth={4} />}
               </div>
               <div>
                 <p className="text-sm font-black text-foreground">LET Student</p>

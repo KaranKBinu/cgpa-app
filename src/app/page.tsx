@@ -8,7 +8,7 @@ export default async function Home() {
   const session = await auth();
   const userId = session?.user ? (session.user as any).id : null;
 
-  const [programs, latestCalculation] = await Promise.all([
+  const [allPrograms, latestCalculation, user] = await Promise.all([
     prisma.program.findMany({
       orderBy: { name: 'asc' },
       select: { id: true, name: true, code: true }
@@ -22,8 +22,32 @@ export default async function Home() {
           select: { semesters: true }
         }
       }
+    }) : Promise.resolve(null),
+    userId ? prisma.user.findUnique({
+      where: { id: userId },
+      select: { department: true }
     }) : Promise.resolve(null)
   ]);
+
+  // Priority: Latest calculation program > User Profile Department > alphabetical
+  let userProgramId: string | undefined;
+  
+  if (latestCalculation?.programId) {
+    userProgramId = latestCalculation.programId;
+  } else if (user?.department) {
+    const matched = allPrograms.find(p => 
+      p.code.toLowerCase() === user.department?.toLowerCase() || 
+      p.name.toLowerCase() === user.department?.toLowerCase()
+    );
+    if (matched) userProgramId = matched.id;
+  }
+
+  const programs = userProgramId 
+    ? [
+        ...allPrograms.filter(p => p.id === userProgramId),
+        ...allPrograms.filter(p => p.id !== userProgramId)
+      ]
+    : allPrograms;
 
   return (
     <div className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center px-6 py-20 relative overflow-hidden">
@@ -44,7 +68,7 @@ export default async function Home() {
         </p>
       </div>
 
-      <ProgramSelector programs={programs} />
+      <ProgramSelector programs={programs} userProgramId={userProgramId} />
 
       <RecentCalculatorLink programs={programs} latestCalculation={latestCalculation} />
 

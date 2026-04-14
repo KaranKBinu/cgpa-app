@@ -87,11 +87,11 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
               }
             }}
             className={cn(
-              "h-8 px-3 rounded-lg text-[8px] font-black uppercase tracking-tighter transition-all",
+              "h-8 w-8 rounded-lg flex items-center justify-center transition-all",
               exclusion === 'not-taken' ? "bg-red-500 text-white" : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
             )}
           >
-            {sub.isCustom ? <Trash2 className="h-3.5 w-3.5" /> : "Skip"}
+            <Trash2 className="h-3.5 w-3.5" />
           </button>
         </Tooltip>
       </div>

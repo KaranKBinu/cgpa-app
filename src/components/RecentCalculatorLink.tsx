@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 interface RecentItem {
     id: string;
@@ -24,6 +25,7 @@ export default function RecentCalculatorLink({
     programs: { id: string, name: string, code: string }[],
     latestCalculation: any
 }) {
+    const { data: session } = useSession();
     const [lastProgram, setLastProgram] = useState<RecentItem | null>(null);
     const [isHistory, setIsHistory] = useState(false);
 
@@ -41,7 +43,13 @@ export default function RecentCalculatorLink({
             return;
         }
 
-        // 2. Fallback to localStorage
+        // 2. If user is logged in but has no database calculation, do NOT show drafts
+        if (session) {
+            setLastProgram(null);
+            return;
+        }
+
+        // 3. Fallback to localStorage (only for guests)
         const items: RecentItem[] = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);

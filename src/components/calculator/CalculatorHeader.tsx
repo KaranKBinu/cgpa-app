@@ -51,7 +51,11 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
               <LayoutDashboard className="h-4 w-4 lg:h-6 lg:w-6" />
             </div>
             <div className="flex flex-col min-w-0">
-              <h1 className="text-[11px] lg:text-xl font-black tracking-tight text-foreground sm:truncate max-w-[120px] sm:max-w-none leading-none">{program.name}</h1>
+              <Tooltip content={program.name} position="bottom" variant="emerald">
+                <h1 className="text-[11px] lg:text-xl font-black tracking-tight text-foreground sm:truncate max-w-[120px] sm:max-w-none leading-none cursor-help hover:text-emerald-500 transition-colors">
+                  {program.name}
+                </h1>
+              </Tooltip>
               <span className="text-[8px] lg:text-[10px] font-black text-primary/60 uppercase tracking-widest mt-1">{(activeSessionId ? "Sync Active" : "Local Engine")}</span>
             </div>
           </div>
@@ -98,61 +102,74 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
 
           {/* Desktop Right Actions */}
           <div className="flex items-center gap-2 lg:gap-3 lg:flex-1 justify-end">
-            {/* Mobile LET Toggle Switch */}
-            <div className="lg:hidden flex items-center gap-2 bg-card/30 border border-border/50 rounded-xl px-3 py-1.5 shadow-sm">
-              <span className={cn("text-[9px] font-black uppercase tracking-widest transition-colors", isLETMode ? "text-emerald-500" : "text-muted-foreground")}>LET</span>
-              <button
-                role="switch"
-                aria-checked={isLETMode}
-                onClick={() => {
-                  const nextMode = !isLETMode;
-                  setIsLETMode(nextMode);
-                  if (nextMode && expandedSem) {
-                    const sem = (groupedSemesters as any).find((s: any) => s.id === expandedSem);
-                    if (sem && sem.number <= 2) {
-                      setExpandedSem(groupedSemesters[2]?.id || null);
-                    }
+            {/* Mobile LET Toggle Checkbox */}
+            <div 
+              onClick={() => {
+                const nextMode = !isLETMode;
+                setIsLETMode(nextMode);
+                if (nextMode && expandedSem) {
+                  const sem = (groupedSemesters as any).find((s: any) => s.id === expandedSem);
+                  if (sem && sem.number <= 2) {
+                    setExpandedSem(groupedSemesters[2]?.id || null);
                   }
-                }}
-                className={cn(
-                  "relative h-5 w-9 rounded-full transition-all duration-300 outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2",
-                  isLETMode ? "bg-emerald-500" : "bg-zinc-800"
-                )}
-              >
+                }
+              }}
+              className={cn(
+                "lg:hidden relative flex items-center border rounded-lg px-2.5 py-2.5 transition-all cursor-pointer select-none active:scale-95 shadow-sm",
+                isLETMode ? "border-emerald-500 bg-emerald-500/5" : "border-muted-foreground/30 bg-surface/30"
+              )}
+            >
+              <span className={cn(
+                "absolute -top-1.5 left-1.5 bg-background px-1 text-[6px] font-black tracking-[0.1em] transition-colors leading-none",
+                isLETMode ? "text-emerald-500" : "text-muted-foreground"
+              )}>
+                LET
+              </span>
+              <div className={cn(
+                "relative h-[12px] w-[24px] rounded-full transition-all duration-300 ease-out flex items-center px-0.5",
+                isLETMode ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]" : "bg-muted-foreground/20"
+              )}>
                 <div className={cn(
-                  "absolute top-1 h-3 w-3 rounded-full bg-white shadow-lg transition-all duration-300 transform",
-                  isLETMode ? "left-5" : "left-1"
+                  "h-[8px] w-[8px] rounded-full transition-all duration-300 ease-out shadow-sm",
+                  isLETMode ? "translate-x-[12px] bg-black" : "translate-x-0 bg-white"
                 )} />
-              </button>
+              </div>
             </div>
 
             <div className="hidden lg:flex items-center gap-2">
               <Tooltip content={isLETMode ? "Normal Curriculum" : "Lateral Entry Mode"} variant="emerald">
-                <div className="flex items-center gap-3 bg-card/30 border border-border/50 rounded-2xl px-4 py-2 hover:border-emerald-500/50 transition-all group">
-                  <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", isLETMode ? "text-emerald-500" : "text-muted-foreground")}>LET MODE</span>
-                  <button
-                    role="switch"
-                    aria-checked={isLETMode}
-                    onClick={() => {
-                      const nextMode = !isLETMode;
-                      setIsLETMode(nextMode);
-                      if (nextMode && expandedSem) {
-                        const sem = groupedSemesters.find(s => s.id === expandedSem);
-                        if (sem && sem.number <= 2) {
-                          setExpandedSem(groupedSemesters[2]?.id || null);
-                        }
+                <div 
+                  onClick={() => {
+                    const nextMode = !isLETMode;
+                    setIsLETMode(nextMode);
+                    if (nextMode && expandedSem) {
+                      const sem = groupedSemesters.find(s => s.id === expandedSem);
+                      if (sem && sem.number <= 2) {
+                        setExpandedSem(groupedSemesters[2]?.id || null);
                       }
-                    }}
-                    className={cn(
-                      "relative h-6 w-11 rounded-full transition-all duration-300 outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2",
-                      isLETMode ? "bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]" : "bg-zinc-800"
-                    )}
-                  >
+                    }
+                  }}
+                  className={cn(
+                    "relative flex items-center border rounded-xl px-4 py-3 transition-all cursor-pointer select-none active:scale-95 shadow-sm",
+                    isLETMode ? "border-emerald-500 bg-emerald-500/5" : "border-muted-foreground/20 bg-card/10"
+                  )}
+                >
+                  <span className={cn(
+                    "absolute -top-2 left-2.5 bg-background px-1 text-[8px] font-black tracking-[0.15em] transition-colors leading-none",
+                    isLETMode ? "text-emerald-500" : "text-muted-foreground"
+                  )}>
+                    LET MODE
+                  </span>
+                  
+                  <div className={cn(
+                    "relative h-[16px] w-[32px] rounded-full transition-all duration-300 ease-out flex items-center px-0.5",
+                    isLETMode ? "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]" : "bg-muted-foreground/20"
+                  )}>
                     <div className={cn(
-                      "absolute top-1 h-4 w-4 rounded-full bg-white shadow-xl transition-all duration-300 transform",
-                      isLETMode ? "left-6" : "left-1"
+                      "h-[12px] w-[12px] rounded-full transition-all duration-300 ease-out shadow-lg",
+                      isLETMode ? "translate-x-[16px] bg-black" : "translate-x-0 bg-muted-foreground/50"
                     )} />
-                  </button>
+                  </div>
                 </div>
               </Tooltip>
 

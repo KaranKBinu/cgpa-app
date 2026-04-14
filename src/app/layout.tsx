@@ -35,7 +35,7 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${outfit.variable} font-inter min-h-screen bg-background text-foreground selection:bg-emerald-500/30 overflow-x-hidden`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <SessionProvider>
+          <SessionProvider session={session}>
           <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/10 via-background to-background opacity-70"></div>
           <div className="fixed inset-0 -z-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
           
@@ -52,12 +52,12 @@ export default async function RootLayout({
               </Link>
               
               <div className="flex items-center gap-1 sm:gap-3 font-bold text-xs lg:text-sm text-muted-foreground mr-1 lg:mr-0">
-                <Link href="/" className="p-2 rounded-xl hover:text-emerald-500 hover:bg-emerald-500/5 transition-all">
-                  <Home className="h-5 w-5" />
+                <Link href="/" className="flex items-center gap-2 p-2 rounded-xl hover:text-emerald-500 hover:bg-emerald-500/5 transition-all group">
+                  <Home className="h-4 w-4 lg:h-5 lg:w-5 group-hover:scale-110 transition-transform" />
                   <span className="hidden sm:inline">Home</span>
                 </Link>
-                <Link href="/history" className="p-2 rounded-xl hover:text-emerald-500 hover:bg-emerald-500/5 transition-all">
-                  <History className="h-5 w-5" />
+                <Link href="/history" className="flex items-center gap-2 p-2 rounded-xl hover:text-emerald-500 hover:bg-emerald-500/5 transition-all group">
+                  <History className="h-4 w-4 lg:h-5 lg:w-5 group-hover:scale-110 transition-transform" />
                   <span className="hidden sm:inline">History</span>
                 </Link>
 
@@ -72,8 +72,8 @@ export default async function RootLayout({
                     "use server";
                     await signOut();
                   }}>
-                    <button type="submit" className="p-2 sm:px-4 sm:py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all">
-                      <LogOut className="h-5 w-5" />
+                    <button type="submit" className="flex items-center gap-2 p-2 sm:px-4 sm:py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all group">
+                      <LogOut className="h-4 w-4 lg:h-5 lg:w-5 group-hover:scale-110 transition-transform" />
                       <span className="hidden sm:inline">Sign Out</span>
                     </button>
                   </form>
