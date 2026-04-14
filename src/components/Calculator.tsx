@@ -227,11 +227,12 @@ export default function Calculator({ program, historicalData, globalOpenElective
     const semResults = groupedSemesters.map(sem => {
       const manualEntry = manualSgpas[sem.id];
       if (manualEntry) {
+        const officialCredits = sem.subjects.reduce((acc, sub) => acc + (sub.credits || 0), 0);
         return {
           id: sem.id, name: sem.name, sgpa: manualEntry.sgpa,
           percentage: manualEntry.sgpa > 0 ? (manualEntry.sgpa - 0.5) * 10 : 0,
-          totalCredits: manualEntry.credits, earnedCredits: manualEntry.credits,
-          attemptedCredits: manualEntry.credits,
+          totalCredits: officialCredits, earnedCredits: officialCredits,
+          attemptedCredits: officialCredits,
           isComplete: true, isManual: true
         };
       }
@@ -864,9 +865,9 @@ export default function Calculator({ program, historicalData, globalOpenElective
                   <p className="text-muted-foreground font-medium text-lg leading-relaxed">The automated subject grid is bypassed. Results entered here will be directly applied to the CGPA matrix.</p>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-lg">
-                  <div className="space-y-3">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest text-left ml-4">Semester SGPA</p>
+                <div className="flex flex-col items-center gap-6 w-full max-w-sm">
+                  <div className="space-y-3 w-full">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest text-center">Semester SGPA</p>
                     <input 
                       type="number"
                       step="0.01"
@@ -878,21 +879,7 @@ export default function Calculator({ program, historicalData, globalOpenElective
                         ...prev, 
                         [expandedSem!]: { ...prev[expandedSem!]!, sgpa: Number(e.target.value) } 
                       }))}
-                      className="w-full h-16 bg-background border-2 border-border/50 rounded-3xl px-8 font-black text-2xl outline-none focus:border-primary focus:ring-8 focus:ring-primary/10 transition-all text-center"
-                    />
-                  </div>
-                  <div className="space-y-3">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest text-left ml-4">Total Credits</p>
-                    <input 
-                      type="number"
-                      min="0"
-                      placeholder="0"
-                      value={manualSgpas[expandedSem!]?.credits || ''}
-                      onChange={(e) => setManualSgpas(prev => ({ 
-                        ...prev, 
-                        [expandedSem!]: { ...prev[expandedSem!]!, credits: Number(e.target.value) } 
-                      }))}
-                      className="w-full h-16 bg-background border-2 border-border/50 rounded-3xl px-8 font-black text-2xl outline-none focus:border-primary focus:ring-8 focus:ring-primary/10 transition-all text-center"
+                      className="w-full h-20 bg-background border-2 border-border/50 rounded-3xl px-8 font-black text-4xl outline-none focus:border-primary focus:ring-8 focus:ring-primary/10 transition-all text-center"
                     />
                   </div>
                 </div>
