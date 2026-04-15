@@ -28,19 +28,19 @@ export const PDFImportModal: React.FC<PDFImportModalProps> = ({
     <AnimatePresence>
       <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
         {/* Backdrop */}
-        <motion.div 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
-          exit={{ opacity: 0 }} 
-          onClick={onClose} 
-          className="absolute inset-0 bg-background/90 backdrop-blur-xl" 
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute inset-0 bg-background/90 backdrop-blur-xl"
         />
-        
+
         {/* Modal Container */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }} 
-          animate={{ opacity: 1, scale: 1 }} 
-          exit={{ opacity: 0, scale: 0.95 }} 
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
           className="relative w-full max-w-md bg-card border border-border/50 rounded-[2.5rem] p-8 lg:p-10 shadow-2xl"
         >
           {/* Header */}
@@ -49,8 +49,8 @@ export const PDFImportModal: React.FC<PDFImportModalProps> = ({
               <h3 className="text-xl font-black text-foreground uppercase tracking-tight">Import Transcripts</h3>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Upload official PDF results</p>
             </div>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="h-10 w-10 flex items-center justify-center rounded-xl bg-surface border border-border/50 text-muted-foreground hover:text-foreground transition-all"
             >
               <X className="h-5 w-5" />
@@ -59,7 +59,7 @@ export const PDFImportModal: React.FC<PDFImportModalProps> = ({
 
           {/* Conditional Content: Upload or Password/Pathway */}
           {!pendingFiles.length ? (
-            <div 
+            <div
               onClick={() => (document.getElementById('pdf-upload') as any)?.click()}
               className="group cursor-pointer border-2 border-dashed border-border/50 rounded-[2rem] p-12 flex flex-col items-center gap-4 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all"
             >
@@ -78,8 +78,10 @@ export const PDFImportModal: React.FC<PDFImportModalProps> = ({
                 <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">PDF Password</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
-                  <input 
+                  <input
                     type={showPdfPassword ? "text" : "password"}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="Enter password (if any)..."
                     value={pdfPassword}
                     onChange={(e) => setPdfPassword(e.target.value)}
@@ -100,7 +102,7 @@ export const PDFImportModal: React.FC<PDFImportModalProps> = ({
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Sem 6 Pathway (If applicable)</label>
                 <div className="grid grid-cols-2 gap-2">
-                  <button 
+                  <button
                     onClick={() => setS6Pathway('normal')}
                     className={cn(
                       "h-12 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all",
@@ -109,7 +111,7 @@ export const PDFImportModal: React.FC<PDFImportModalProps> = ({
                   >
                     Normal Pathway
                   </button>
-                  <button 
+                  <button
                     onClick={() => setS6Pathway('internship')}
                     className={cn(
                       "h-12 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all",
@@ -123,7 +125,7 @@ export const PDFImportModal: React.FC<PDFImportModalProps> = ({
 
               {/* Multiple Files Logic */}
               {pendingFiles.length > 1 && (
-                <button 
+                <button
                   onClick={() => setUseSamePassword(!useSamePassword)}
                   className="flex items-center gap-3 w-full p-2 hover:bg-white/5 rounded-lg transition-all"
                 >
