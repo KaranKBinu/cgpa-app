@@ -16,7 +16,6 @@ import { ManualEntryView } from './calculator/ManualEntryView';
 import { ActionFABs } from './calculator/ActionFABs';
 import { SaveSessionModal } from './calculator/SaveSessionModal';
 import { PDFImportModal } from './calculator/PDFImportModal';
-import { ElectiveModal } from './calculator/ElectiveModal';
 import { AddCustomSubjectModal } from './calculator/AddCustomSubjectModal';
 import { LoadingOverlay } from './calculator/LoadingOverlay';
 import { ToastContainer, ToastData } from './calculator/Toast';
@@ -40,9 +39,6 @@ export default function Calculator({
     setGrades: core.setGrades, setExclusions: core.setExclusions, setCustomSubjects: core.setCustomSubjects
   });
 
-  const [isElectiveModalOpen, setIsElectiveModalOpen] = useState(false);
-  const [activeElectiveGroupId, setActiveElectiveGroupId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isAddCustomModalOpen, setIsAddCustomModalOpen] = useState(false);
   const [targetSemForCustom, setTargetSemForCustom] = useState<string | null>(null);
@@ -284,7 +280,6 @@ export default function Calculator({
                        return next;
                      });
                    }}
-                   onOpenElectiveSearch={(sid, gid) => { setActiveElectiveGroupId(gid); setIsElectiveModalOpen(true); }}
                 />
               )}
             </div>
@@ -316,18 +311,7 @@ export default function Calculator({
 
       <SaveSessionModal isOpen={isSaveModalOpen} onClose={() => setIsSaveModalOpen(false)} {...core} {...actions} />
       <PDFImportModal isOpen={actions.pendingFiles.length > 0} onClose={() => actions.setPendingFiles([])} {...actions} onConfirm={handleImportConfirm} errorMessage={actions.pdfErrorMessage} isProcessing={actions.isProcessingPdf} />
-      <ElectiveModal 
-        isOpen={isElectiveModalOpen} onClose={() => setIsElectiveModalOpen(false)} searchQuery={searchQuery} setSearchQuery={setSearchQuery} title="Select Elective"
-        options={[]} selectedId={activeElectiveGroupId ? core.selectedOptions[activeElectiveGroupId] : undefined}
-        onSelect={(optId) => activeElectiveGroupId && core.setSelectedOptions(p => ({ ...p, [activeElectiveGroupId]: optId }))}
-        groupedOptions={(() => {
-          if (!activeElectiveGroupId) return {};
-          const group = currentSem?.subjects.find(s => s.id === activeElectiveGroupId);
-          if (group?.category === 'Open Elective course') return groupedOpenElectives;
-          return group?.options ? { "Local Options": group.options } : groupedOpenElectives;
-        })()}
-      />
-
+      
       <AddCustomSubjectModal 
         isOpen={isAddCustomModalOpen} 
         onClose={() => setIsAddCustomModalOpen(false)}

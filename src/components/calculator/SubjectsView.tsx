@@ -15,7 +15,7 @@ interface SubjectsViewProps {
   onExclude: (id: string, type: 'not-published' | 'not-taken' | null) => void;
   onAddCustom: (semId: string) => void;
   onRemoveCustom: (semId: string, subjectId: string) => void;
-  onOpenElectiveSearch: (semId: string, groupId: string) => void;
+  setSelectedOptions: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
 export const SubjectsView: React.FC<SubjectsViewProps> = ({
@@ -29,21 +29,36 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
   onExclude,
   onAddCustom,
   onRemoveCustom,
-  onOpenElectiveSearch
+  setSelectedOptions
 }) => {
   if (!currentSem) return null;
 
-  const resolvedSubjects = currentSem.subjects.flatMap(sub => {
+  const resolvedSubjects = currentSem.subjects.map(sub => {
     if (sub.isGroup) {
       const selectedId = selectedOptions[sub.id];
       const selectedOpt = sub.options?.find((o: any) => o.id === selectedId) || 
                           globalOpenElectives?.find((o: any) => o.id === selectedId);
-      return selectedOpt ? [selectedOpt] : [sub];
+      return { ...sub, selectedOpt };
     }
-    return [sub];
+    return sub;
   });
 
-  const allSubjectsToShow = [...resolvedSubjects, ...(customSubjects[currentSem.id] || [])];
+  const allSubjectsToShow = [...resolvedSubjects, ...(customSubjects[currentSem.id] || [])]
+    .filter(sub => (sub.isGroup && sub.selectedOpt) 
+      ? exclusions[sub.selectedOpt.id] !== 'not-taken' 
+      : exclusions[sub.id] !== 'not-taken'
+    );
+
+  // Group global open electives for the searchable selector
+  const groupedOpenElectives = React.useMemo(() => {
+    const groups: Record<string, any[]> = {};
+    globalOpenElectives.forEach(sub => {
+      const progName = sub.semester?.program?.name || "Other Department";
+      if (!groups[progName]) groups[progName] = [];
+      groups[progName].push(sub);
+    });
+    return groups;
+  }, [globalOpenElectives]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8">
@@ -51,12 +66,17 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
         <SubjectCard
           key={sub.id}
           sub={sub}
-          grade={grades[sub.id] || ''}
-          exclusion={exclusions[sub.id]}
+          grade={sub.isGroup && sub.selectedOpt ? (grades[sub.selectedOpt.id] || '') : (grades[sub.id] || '')}
+          exclusion={sub.isGroup && sub.selectedOpt ? exclusions[sub.selectedOpt.id] : exclusions[sub.id]}
           onGradeChange={onGradeChange}
           onExclude={onExclude}
           onRemoveCustom={(id) => onRemoveCustom(currentSem.id, id)}
-          onSelectElective={sub.isGroup ? () => onOpenElectiveSearch(currentSem.id, sub.id) : undefined}
+          // New props for inline elective selection
+          selectedOptionId={sub.isGroup ? selectedOptions[sub.id] : undefined}
+          onSelectOption={(groupId, optId) => {
+             setSelectedOptions((prev: any) => ({ ...prev, [groupId]: optId }));
+          }}
+          groupedOpenElectives={groupedOpenElectives}
         />
       ))}
 
