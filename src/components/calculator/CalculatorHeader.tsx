@@ -215,24 +215,48 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
         <div className="lg:hidden w-full border-t border-border/30 pt-3">
           <div className="flex items-end gap-2 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
             <div className="flex items-end gap-2 min-w-max px-3 sm:px-4">
-              {displayedSemesters.map((sem) => {
-                const isActive = sem.id === expandedSem;
-                const res = results.semResults.find(r => r.id === sem.id);
-                return (
-                  <button
-                    key={sem.id}
-                    onClick={() => setExpandedSem(sem.id)}
-                    className={cn(
-                      "whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all active:scale-90",
-                      isActive
-                        ? "bg-emerald-500 border-emerald-500 text-black shadow-lg shadow-emerald-500/20"
-                        : "bg-surface border-border/50 text-muted-foreground"
-                    )}
-                  >
-                    {sem.displayName} {res && res.sgpa > 0 && <span className="ml-1 opacity-70 font-black">({res.sgpa.toFixed(1)})</span>}
-                  </button>
-                )
-              })}
+              {(() => {
+                const groups: any[][] = [];
+                displayedSemesters.forEach(sem => {
+                  const lastGroup = groups[groups.length - 1];
+                  if (lastGroup && lastGroup[0].number === sem.number) {
+                    lastGroup.push(sem);
+                  } else {
+                    groups.push([sem]);
+                  }
+                });
+
+                return groups.map((group, idx) => {
+                  const isShared = group.length > 1;
+                  const content = group.map((sem) => {
+                    const isActive = sem.id === expandedSem;
+                    const res = results.semResults.find(r => r.id === sem.id);
+                    return (
+                      <button
+                        key={sem.id}
+                        onClick={() => setExpandedSem(sem.id)}
+                        className={cn(
+                          "whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all active:scale-90",
+                          isActive
+                            ? "bg-emerald-500 border-emerald-500 text-black shadow-lg shadow-emerald-500/20"
+                            : "bg-surface border-border/50 text-muted-foreground"
+                        )}
+                      >
+                        {sem.displayName} {res && res.sgpa > 0 && <span className="ml-1 opacity-70 font-black">({res.sgpa.toFixed(1)})</span>}
+                      </button>
+                    );
+                  });
+
+                  if (isShared) {
+                    return (
+                      <div key={`mob-group-${group[0].number}`} className="flex items-center gap-1.5 p-1 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 min-w-max">
+                        {content}
+                      </div>
+                    );
+                  }
+                  return <React.Fragment key={`mob-single-${group[0].id}`}>{content}</React.Fragment>;
+                });
+              })()}
             </div>
           </div>
         </div>

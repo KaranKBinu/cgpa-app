@@ -75,11 +75,14 @@ export function groupSemesters<S, T extends { id: string; name: string; subjects
       // Actually, standard naming is fine for others
     }
 
+    const isPathway = sem.name.toLowerCase().includes('pathway');
+    const finalNumber = isPathway ? 6 : ((sem as any).number || index + 1);
+
     return {
       ...sem,
       subjects: uniqueSubjects,
       originalIds: [sem.id],
-      number: (sem as any).number || index + 1,
+      number: finalNumber,
       displayName
     };
   });

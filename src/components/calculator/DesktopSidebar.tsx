@@ -30,28 +30,53 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
 
       <nav className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
         <div className="px-4 py-3 text-[11px] font-black text-muted-foreground uppercase tracking-[0.25em] mb-2 border-b border-border/50">Semesters</div>
-        {displayedSemesters.map((sem) => {
-          const res = semResults.find(r => r.id === sem.id);
-          const isActive = sem.id === expandedSem;
-          return (
-            <button
-              key={sem.id}
-              onClick={() => setExpandedSem(sem.id)}
-              className={cn(
-                "w-full flex items-center justify-between p-4 rounded-3xl transition-all group border-2 outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 active:scale-95",
-                isActive
-                  ? "bg-emerald-500 border-emerald-500 text-black shadow-[0_15px_40px_-10px_rgba(16,185,129,0.5)]"
-                  : "bg-card/50 border-border/50 text-muted-foreground hover:border-border hover:text-foreground"
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <div className={cn("h-2.5 w-2.5 rounded-full transition-all", isActive ? "bg-primary-foreground" : "bg-card/80 group-hover:bg-primary")} />
-                <span className="font-black text-sm uppercase tracking-tighter">{(sem as any).displayName}</span>
-              </div>
-              {res && res.sgpa > 0 && <span className={cn("text-xs font-black px-2 py-0.5 rounded-md", isActive ? "bg-primary-foreground/10 text-primary-foreground" : "bg-primary/10 text-primary")}>{res.sgpa.toFixed(2)}</span>}
-            </button>
-          )
-        })}
+        {(() => {
+          const groups: Semester[][] = [];
+          displayedSemesters.forEach(sem => {
+            const lastGroup = groups[groups.length - 1];
+            if (lastGroup && lastGroup[0].number === sem.number) {
+              lastGroup.push(sem);
+            } else {
+              groups.push([sem]);
+            }
+          });
+
+          return groups.map((group, idx) => {
+            const isShared = group.length > 1;
+            const content = group.map((sem) => {
+              const res = semResults.find(r => r.id === sem.id);
+              const isActive = sem.id === expandedSem;
+              return (
+                <button
+                  key={sem.id}
+                  onClick={() => setExpandedSem(sem.id)}
+                  className={cn(
+                    "w-full flex items-center justify-between p-4 rounded-3xl transition-all group border-2 outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 active:scale-95",
+                    isActive
+                      ? "bg-emerald-500 border-emerald-500 text-black shadow-[0_15px_40px_-10px_rgba(16,185,129,0.5)]"
+                      : "bg-card/50 border-border/50 text-muted-foreground hover:border-border hover:text-foreground"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={cn("h-2.5 w-2.5 rounded-full transition-all", isActive ? "bg-primary-foreground" : "bg-card/80 group-hover:bg-primary")} />
+                    <span className="font-black text-sm uppercase tracking-tighter">{(sem as any).displayName}</span>
+                  </div>
+                  {res && res.sgpa > 0 && <span className={cn("text-xs font-black px-2 py-0.5 rounded-md", isActive ? "bg-primary-foreground/10 text-primary-foreground" : "bg-primary/10 text-primary")}>{res.sgpa.toFixed(2)}</span>}
+                </button>
+              );
+            });
+
+            if (isShared) {
+              return (
+                <div key={`group-${group[0].number}`} className="p-3 rounded-[2rem] border-2 border-emerald-500/30 bg-emerald-500/10 space-y-3 relative shadow-sm ring-1 ring-emerald-500/5">
+                  <div className="absolute -top-3 left-6 px-3 bg-background border-2 border-emerald-500/30 text-[9px] font-black text-emerald-500 uppercase tracking-[0.2em] rounded-full shadow-sm">Pathway Selection</div>
+                  {content}
+                </div>
+              );
+            }
+            return <React.Fragment key={group[0].id}>{content}</React.Fragment>;
+          });
+        })()}
       </nav>
 
       <div className="p-4 border-t border-border bg-card/50 space-y-2">
