@@ -17,6 +17,13 @@ import { Suspense } from "react";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
+export const viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#10b981" },
+    { media: "(prefers-color-scheme: dark)", color: "#064e3b" },
+  ],
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getSettings();
   return {
