@@ -66,49 +66,93 @@ export default function Calculator({
       if (res.success && res.results) {
         const newGrades: Record<string, Grade> = {};
         const newSelectedOptions: Record<string, string> = {};
+        const newCustomSubjects: Record<string, any[]> = {};
         
         res.results.forEach((fileRes: any) => {
-          if (fileRes.subjects) {
-            fileRes.subjects.forEach((extracted: any) => {
-              program.semesters.forEach(sem => {
-                // If it's a semester 6 result, we check if this semester record matches the user's selected pathway
-                // We use indices or name checks similar to groupSemesters
-                const isS6 = fileRes.semester === 6;
-                const semName = sem.name.toLowerCase();
-                const isInternshipSem = semName.includes('internship pathway');
-                const isNormalSem = semName.includes('normal pathway') || (sem.number === 6 && !isInternshipSem);
+          if (!fileRes.subjects) return;
 
-                if (isS6) {
-                  const matchesPathway = (actions.s6Pathway === 'internship' && isInternshipSem) || 
-                                        (actions.s6Pathway === 'normal' && isNormalSem);
-                  if (!matchesPathway) return;
-                }
+          // Find the target semester(s) in our program that correspond to this PDF file
+          const targetSemesters = program.semesters.filter(sem => {
+            if (sem.number !== fileRes.semester) return false;
 
-                sem.subjects.forEach(sub => {
-                  // 1. Direct match
-                  if (sub.code === extracted.code) {
-                    newGrades[sub.id] = extracted.grade;
-                  } 
-                  // 2. Search in local elective options
-                  else if (sub.isGroup && sub.options && sub.category !== 'Open Elective course') {
-                    const optMatch = sub.options.find(o => o.code === extracted.code);
-                    if (optMatch) {
-                      newGrades[optMatch.id] = extracted.grade;
-                      newSelectedOptions[sub.id] = optMatch.id;
-                    }
+            // Handle S6 Pathway prioritization
+            if (sem.number === 6) {
+              const semName = sem.name.toLowerCase();
+              const isInternshipSem = semName.includes('internship pathway');
+              const isNormalSem = semName.includes('normal pathway') || !isInternshipSem;
+
+              const matchesPathway = (actions.s6Pathway === 'internship' && isInternshipSem) || 
+                                    (actions.s6Pathway === 'normal' && isNormalSem);
+              return matchesPathway;
+            }
+            return true;
+          });
+
+          // Fallback to number match if pathway specific one not found or multiple found
+          const targetSem = targetSemesters[0] || program.semesters.find(s => s.number === fileRes.semester);
+          if (!targetSem) return;
+
+          fileRes.subjects.forEach((extracted: any) => {
+            let matched = false;
+            const normalizedCode = extracted.code?.trim().toUpperCase();
+
+            // 1. Direct match with standard subjects
+            const directMatch = targetSem.subjects.find(sub => sub.code?.trim().toUpperCase() === normalizedCode);
+            if (directMatch) {
+              newGrades[directMatch.id] = extracted.grade;
+              matched = true;
+            } else {
+              // 2. Search in local elective options or open electives
+              for (const sub of targetSem.subjects) {
+                if (sub.isGroup) {
+                  const optMatch = sub.options?.find(o => o.code?.trim().toUpperCase() === normalizedCode);
+                  if (optMatch) {
+                    newGrades[optMatch.id] = extracted.grade;
+                    newSelectedOptions[sub.id] = optMatch.id;
+                    matched = true;
+                    break;
                   }
-                  // 3. Search in global open electives for Open Elective slots
-                  else if (sub.isGroup && sub.category === 'Open Elective course') {
-                    const globalMatch = globalOpenElectives.find(o => o.code === extracted.code);
+                  
+                  if (sub.category === 'Open Elective course') {
+                    const globalMatch = globalOpenElectives.find(o => o.code?.trim().toUpperCase() === normalizedCode);
                     if (globalMatch) {
                       newGrades[globalMatch.id] = extracted.grade;
                       newSelectedOptions[sub.id] = globalMatch.id;
+                      matched = true;
+                      break;
                     }
                   }
-                });
+                }
+              }
+
+              // 3. Check if it's already in customSubjects (either in state or newly added in this loop)
+              if (!matched) {
+                const existingCustom = [
+                  ...(core.customSubjects[targetSem.id] || []),
+                  ...(newCustomSubjects[targetSem.id] || [])
+                ].find(s => s.code?.trim().toUpperCase() === normalizedCode);
+
+                if (existingCustom) {
+                  newGrades[existingCustom.id] = extracted.grade;
+                  matched = true;
+                }
+              }
+            }
+
+            // 4. Unmatched: Add as new custom subject
+            if (!matched) {
+              if (!newCustomSubjects[targetSem.id]) newCustomSubjects[targetSem.id] = [];
+              const customId = `c-${Math.random().toString(36).substring(2, 9)}`;
+              newCustomSubjects[targetSem.id].push({
+                id: customId,
+                name: extracted.name,
+                code: extracted.code,
+                credits: 0,
+                isCustom: true
               });
-            });
-          }
+              newGrades[customId] = extracted.grade;
+            }
+          });
         });
 
         if (Object.keys(newGrades).length > 0) {
@@ -116,6 +160,15 @@ export default function Calculator({
         }
         if (Object.keys(newSelectedOptions).length > 0) {
           core.setSelectedOptions(prev => ({ ...prev, ...newSelectedOptions }));
+        }
+        if (Object.keys(newCustomSubjects).length > 0) {
+          core.setCustomSubjects(prev => {
+            const next = { ...prev };
+            Object.entries(newCustomSubjects).forEach(([semId, subs]) => {
+              next[semId] = [...(next[semId] || []), ...subs];
+            });
+            return next;
+          });
         }
         
         actions.setPendingFiles([]); 

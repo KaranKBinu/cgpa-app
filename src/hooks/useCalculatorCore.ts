@@ -82,10 +82,21 @@ export function useCalculatorCore({
             if (sub.grade === 'PENDING' || sub.points === -1) { histExclusions[foundSubjectId] = 'not-published'; histGrades[foundSubjectId] = '' as Grade; }
           } else {
             if (!histCustom[activeSem.id]) histCustom[activeSem.id] = [];
-            const customId = `hist-${Math.random().toString(36).substring(2, 11)}`;
-            histCustom[activeSem.id].push({ id: customId, code: sub.code, name: sub.name, credits: sub.credits, isCustom: true });
-            if (sub.grade === 'PENDING' || sub.points === -1) { histExclusions[customId] = 'not-published'; histGrades[customId] = '' as Grade; } 
-            else { histGrades[customId] = sub.grade as Grade; }
+            
+            // Prevent duplicates in historical custom subjects
+            const subCodeNormalized = sub.code?.trim().toUpperCase();
+            const isDuplicate = histCustom[activeSem.id].some(s => s.code?.trim().toUpperCase() === subCodeNormalized);
+            
+            if (!isDuplicate) {
+              const customId = `hist-${Math.random().toString(36).substring(2, 11)}`;
+              histCustom[activeSem.id].push({ id: customId, code: sub.code, name: sub.name, credits: sub.credits, isCustom: true });
+              if (sub.grade === 'PENDING' || sub.points === -1) { 
+                histExclusions[customId] = 'not-published'; 
+                histGrades[customId] = '' as Grade; 
+              } else { 
+                histGrades[customId] = sub.grade as Grade; 
+              }
+            }
           }
         });
         activeSem.subjects.forEach(s => { if (!matchedInThisSem.has(s.id)) { histExclusions[s.id] = 'not-taken'; } });
@@ -137,7 +148,18 @@ export function useCalculatorCore({
         }
         return [sub];
       });
-      const allSubjectsInSem = [...resolvedSubjects, ...(customSubjects[sem.id] || [])];
+      const rawSubjectsInSem = [...resolvedSubjects, ...(customSubjects[sem.id] || [])];
+      
+      // Strict Deduplication by Code
+      const allSubjectsInSem: Subject[] = [];
+      const seenCodes = new Set<string>();
+      rawSubjectsInSem.forEach(sub => {
+        const codeKey = sub.code?.trim().toUpperCase() || sub.id;
+        if (!seenCodes.has(codeKey)) {
+          seenCodes.add(codeKey);
+          allSubjectsInSem.push(sub);
+        }
+      });
       
       const semGrades = allSubjectsInSem
         .filter(sub => (grades[sub.id] || exclusions[sub.id] === 'not-published') && exclusions[sub.id] !== 'not-taken')
