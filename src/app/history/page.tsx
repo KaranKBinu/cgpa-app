@@ -53,7 +53,7 @@ export default async function HistoryPage() {
                 <BarChart3 className="h-5 w-5 lg:h-6 lg:w-6" />
               </div>
               <div className="pr-4">
-                <p className="text-[7px] lg:text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-0.5">Sessions</p>
+                <p className="text-[9px] lg:text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-0.5">Sessions</p>
                 <p className="text-xl lg:text-2xl font-black text-foreground leading-none">{calculations.length}</p>
               </div>
             </div>

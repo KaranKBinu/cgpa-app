@@ -103,7 +103,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
           {/* Desktop Right Actions */}
           <div className="flex items-center gap-2 lg:gap-3 lg:flex-1 justify-end">
             {/* Mobile LET Toggle Checkbox */}
-            <div 
+            <div
               onClick={() => {
                 const nextMode = !isLETMode;
                 setIsLETMode(nextMode);
@@ -120,7 +120,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
               )}
             >
               <span className={cn(
-                "absolute -top-1.5 left-1.5 bg-background px-1 text-[6px] font-black tracking-[0.1em] transition-colors leading-none",
+                "absolute -top-1.5 left-1.5 bg-background px-1 text-[9px] font-black tracking-[0.1em] transition-colors leading-none",
                 isLETMode ? "text-emerald-500" : "text-muted-foreground"
               )}>
                 LET
@@ -138,7 +138,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
 
             <div className="hidden lg:flex items-center gap-2">
               <Tooltip content={isLETMode ? "Normal Curriculum" : "Lateral Entry Mode"} variant="emerald">
-                <div 
+                <div
                   onClick={() => {
                     const nextMode = !isLETMode;
                     setIsLETMode(nextMode);
@@ -160,7 +160,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                   )}>
                     LET MODE
                   </span>
-                  
+
                   <div className={cn(
                     "relative h-[16px] w-[32px] rounded-full transition-all duration-300 ease-out flex items-center px-0.5",
                     isLETMode ? "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]" : "bg-muted-foreground/20"

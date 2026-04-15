@@ -12,11 +12,11 @@ interface Program {
   code: string;
 }
 
-export default function ProgramSelector({ 
-  programs, 
-  userProgramId 
-}: { 
-  programs: Program[]; 
+export default function ProgramSelector({
+  programs,
+  userProgramId
+}: {
+  programs: Program[];
   userProgramId?: string;
 }) {
   const [search, setSearch] = useState('');
@@ -58,8 +58,8 @@ export default function ProgramSelector({
                   href={`/calculate/${program.code}`}
                   className={cn(
                     "flex items-center justify-between p-4 bg-card/50 hover:bg-card/80 border transition-all group hover:scale-[1.01] rounded-xl",
-                    isUserProgram 
-                      ? "border-emerald-500/50 bg-emerald-500/5 shadow-[0_0_20px_rgba(16,185,129,0.1)]" 
+                    isUserProgram
+                      ? "border-emerald-500/50 bg-emerald-500/5 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
                       : "border-border/50 hover:border-emerald-500/30"
                   )}
                 >
@@ -74,7 +74,7 @@ export default function ProgramSelector({
                       <div className="flex items-center gap-2">
                         <h3 className={cn("font-semibold text-foreground transition-colors", isUserProgram ? "text-emerald-500" : "group-hover:text-emerald-500")}>{program.name}</h3>
                         {isUserProgram && (
-                          <span className="text-[7px] font-black bg-emerald-500 text-black px-1.5 py-0.5 rounded-md uppercase tracking-widest shadow-lg shadow-emerald-500/20">
+                          <span className="text-[9px] font-black bg-emerald-500 text-black px-1.5 py-0.5 rounded-md uppercase tracking-widest shadow-lg shadow-emerald-500/20">
                             Your Program
                           </span>
                         )}
