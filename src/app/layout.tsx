@@ -4,12 +4,15 @@ import Link from "next/link";
 import { Home, History, LogOut, LayoutDashboard, User as UserIcon } from "lucide-react";
 import "./globals.css";
 import React from "react";
+import { PageTransition } from "@/components/PageTransition";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { auth, signOut } from "@/lib/auth";
 import { getSettings } from "./actions";
 import Footer from "@/components/Footer";
+import { TopProgressBar } from "@/components/TopProgressBar";
+import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
@@ -99,8 +102,14 @@ export default async function RootLayout({
             </nav>
           </header>
 
+          <Suspense fallback={null}>
+            <TopProgressBar />
+          </Suspense>
+
           <main className="pt-24 lg:pt-32 pb-12 lg:pb-20">
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
           </main>
 
           <Footer />

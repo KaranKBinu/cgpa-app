@@ -18,6 +18,7 @@ import { SaveSessionModal } from './calculator/SaveSessionModal';
 import { PDFImportModal } from './calculator/PDFImportModal';
 import { ElectiveModal } from './calculator/ElectiveModal';
 import { AddCustomSubjectModal } from './calculator/AddCustomSubjectModal';
+import { LoadingOverlay } from './calculator/LoadingOverlay';
 
 // Hooks
 import { useCalculatorCore } from '@/hooks/useCalculatorCore';
@@ -273,6 +274,11 @@ export default function Calculator({
             }));
           }
         }}
+      />
+
+      <LoadingOverlay 
+        isLoading={actions.isSaving || actions.isProcessingPdf} 
+        message={actions.isSaving ? "Saving Calculation..." : "Processing PDFs..."} 
       />
     </div>
   );
