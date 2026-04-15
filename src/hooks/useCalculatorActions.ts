@@ -85,5 +85,7 @@ export function useCalculatorActions({
     finally { setIsSaving(false); }
   };
 
-  return { isSaving, saveStatus, isProcessingPdf, setIsProcessingPdf, pdfPassword, setPdfPassword, pdfErrorMessage, setPdfErrorMessage, pendingFiles, setPendingFiles, useSamePassword, setUseSamePassword, s6Pathway, setS6Pathway, downloadAsPDF, handleSave };
+  const resetSaveStatus = () => setSaveStatus('idle');
+
+  return { isSaving, saveStatus, resetSaveStatus, isProcessingPdf, setIsProcessingPdf, pdfPassword, setPdfPassword, pdfErrorMessage, setPdfErrorMessage, pendingFiles, setPendingFiles, useSamePassword, setUseSamePassword, s6Pathway, setS6Pathway, downloadAsPDF, handleSave };
 }

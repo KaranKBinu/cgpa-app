@@ -100,15 +100,6 @@ export const SaveSessionModal: React.FC<SaveSessionModalProps> = ({
                 )}
               </button>
 
-              {saveStatus === 'success' && (
-                <motion.p 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-center text-emerald-500 font-bold text-xs"
-                >
-                  Academic record persistent. Success!
-                </motion.p>
-              )}
             </div>
           </div>
         </motion.div>

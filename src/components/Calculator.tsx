@@ -19,6 +19,7 @@ import { PDFImportModal } from './calculator/PDFImportModal';
 import { ElectiveModal } from './calculator/ElectiveModal';
 import { AddCustomSubjectModal } from './calculator/AddCustomSubjectModal';
 import { LoadingOverlay } from './calculator/LoadingOverlay';
+import { ToastContainer, ToastData } from './calculator/Toast';
 
 // Hooks
 import { useCalculatorCore } from '@/hooks/useCalculatorCore';
@@ -45,6 +46,28 @@ export default function Calculator({
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isAddCustomModalOpen, setIsAddCustomModalOpen] = useState(false);
   const [targetSemForCustom, setTargetSemForCustom] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<ToastData[]>([]);
+
+  const addToast = (message: string, variant: 'success' | 'error' | 'info' = 'success') => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts(prev => [...prev, { id, message, variant }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  // Sync save status to modal closure and toasts
+  React.useEffect(() => {
+    if (actions.saveStatus === 'success') {
+      setIsSaveModalOpen(false);
+      addToast("Progress saved to your account!", 'success');
+      actions.resetSaveStatus();
+    } else if (actions.saveStatus === 'error') {
+      addToast("Failed to save progress.", 'error');
+      actions.resetSaveStatus();
+    }
+  }, [actions.saveStatus, actions]);
 
   const currentSem = core.displayedSemesters.find(s => s.id === core.expandedSem);
   const currentSemRes = core.results.semResults.find(r => r.id === core.expandedSem);
@@ -298,6 +321,8 @@ export default function Calculator({
         isLoading={actions.isSaving || actions.isProcessingPdf} 
         message={actions.isSaving ? "Saving Calculation..." : "Processing PDFs..."} 
       />
+
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </div>
   );
 }
