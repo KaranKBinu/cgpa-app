@@ -2,6 +2,9 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import prisma from "./prisma";
 import bcrypt from "bcryptjs";
+import { createLogger } from "./logger";
+
+const log = createLogger("auth");
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
@@ -16,27 +19,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        const email = credentials?.email as string | undefined;
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-        });
+        if (!email || !credentials?.password) {
+          log.warn("Login attempt with missing credentials");
+          return null;
+        }
 
-        if (!user || !user.password) return null;
+        log.info("Login attempt", { email });
+
+        const user = await prisma.user.findUnique({ where: { email } });
+
+        if (!user || !user.password) {
+          log.warn("Login failed – user not found or no password set", { email });
+          return null;
+        }
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password as string,
           user.password
         );
 
-        if (!isPasswordValid) return null;
+        if (!isPasswordValid) {
+          log.warn("Login failed – incorrect password", { email });
+          return null;
+        }
 
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        };
+        log.info("Login successful", { email, userId: user.id, role: user.role });
+        return { id: user.id, name: user.name, email: user.email, role: user.role };
       },
     }),
   ],
