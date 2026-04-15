@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, Mail, Lock, Loader2, ArrowRight, Check } from "lucide-react";
+import { User, Mail, Lock, Loader2, ArrowRight, Check, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { registerUser, getPrograms } from "@/app/actions";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,9 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [department, setDepartment] = useState("");
   const [isLET, setIsLET] = useState(false);
   const [error, setError] = useState("");
@@ -39,6 +42,12 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
 
     const formData = new FormData();
@@ -63,8 +72,6 @@ export default function RegisterPage() {
     }
   };
 
-  // Departments are now fetched from DB
-
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">
       <motion.div 
@@ -86,6 +93,7 @@ export default function RegisterPage() {
               </div>
             )}
 
+            {/* Full Name */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-4">Full Name</label>
               <div className="relative group">
@@ -101,6 +109,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Email */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-4">Email Address</label>
               <div className="relative group">
@@ -116,21 +125,65 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Password */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-4">Password</label>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-emerald-500 transition-colors" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 pl-12 pr-4 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
+                  className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 pl-12 pr-12 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
                   placeholder="••••••••"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
             </div>
 
+            {/* Confirm Password */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-4">Confirm Password</label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-emerald-500 transition-colors" />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={cn(
+                    "w-full bg-background/80 border rounded-2xl py-4 pl-12 pr-12 text-foreground focus:outline-none focus:ring-4 transition-all font-medium",
+                    confirmPassword && confirmPassword !== password
+                      ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/10"
+                      : confirmPassword && confirmPassword === password
+                      ? "border-emerald-500/50 focus:border-emerald-500/50 focus:ring-emerald-500/10"
+                      : "border-border/50 focus:border-emerald-500/50 focus:ring-emerald-500/10"
+                  )}
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(v => !v)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+              {confirmPassword && confirmPassword !== password && (
+                <p className="text-[10px] font-black text-red-500 uppercase tracking-widest ml-4">Passwords do not match</p>
+              )}
+            </div>
+
+            {/* Department / Branch */}
             <div className="space-y-1.5 ">
               <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-4">Department / Branch</label>
               <div className="relative">
@@ -201,6 +254,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* LET Toggle */}
             <div className="flex items-center gap-3 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl cursor-pointer group hover:border-emerald-500/30 transition-all" onClick={() => setIsLET(!isLET)}>
               <div className={`h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-all ${isLET ? 'bg-emerald-500 border-emerald-500' : 'border-border/50 group-hover:border-emerald-500/50'}`}>
                 {isLET && <Check className="h-4 w-4 text-black" strokeWidth={4} />}

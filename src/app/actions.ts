@@ -87,6 +87,44 @@ export async function saveCalculation(data: {
       return { success: true, id: data.id };
     }
 
+    // Check if a calculation with the same label + program already exists for this user.
+    // If so, replace it (update) instead of creating a duplicate.
+    const existing = await prisma.calculation.findFirst({
+      where: { label: data.label, programId: data.programId, userId: userId ?? undefined },
+      select: { id: true },
+    });
+
+    if (existing) {
+      logCalc.info("Duplicate label+program found – replacing existing calculation", { existingId: existing.id, label: data.label });
+      await prisma.calculation.update({
+        where: { id: existing.id },
+        data: {
+          cgpa: data.cgpa,
+          semesters: {
+            deleteMany: {},
+            create: data.semesters.map(sem => ({
+              name: sem.name,
+              number: sem.number,
+              sgpa: sem.sgpa,
+              credits: sem.credits,
+              subjects: {
+                create: sem.subjects.map(sub => ({
+                  name: sub.name,
+                  credits: sub.credits,
+                  grade: sub.grade,
+                  points: sub.points,
+                  code: sub.code,
+                })),
+              },
+            })),
+          },
+        },
+      });
+      revalidatePath("/history");
+      logCalc.info("Existing calculation replaced successfully", { calcId: existing.id });
+      return { success: true, id: existing.id };
+    }
+
     logCalc.info("Creating new calculation", { programId: data.programId, label: data.label });
     const result = await prisma.calculation.create({
       data: {

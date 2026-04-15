@@ -60,43 +60,42 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
             </div>
           </div>
 
-          {/* Mobile Global Result Pill Cluster */}
-          <div className="lg:hidden flex items-center gap-2">
-            <div className="flex items-center gap-2 bg-background border-2 border-primary/20 rounded-xl px-3 py-1.5 shadow-lg shadow-primary/5">
-              <span className="text-[8px] font-black text-primary uppercase tracking-widest leading-none">CGPA</span>
-              <span className="text-sm font-black text-foreground leading-none">{results.cgpa.toFixed(2)}</span>
+          {/* Unified CGPA + % pill — visible on all screen sizes */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-card/60 border border-border/50 rounded-2xl overflow-hidden shadow-lg shadow-black/10 backdrop-blur-md">
+              {/* CGPA */}
+              <div className="flex flex-col items-center px-3 lg:px-8 py-1.5 lg:py-2 border-r border-border/50">
+                <span className="text-[7px] lg:text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-0.5 lg:mb-1">CGPA</span>
+                <span className="text-sm lg:text-2xl font-black text-primary tracking-tighter leading-none">{results.cgpa.toFixed(2)}</span>
+              </div>
+              {/* Percentage */}
+              <div className="flex flex-col items-center px-3 lg:px-8 py-1.5 lg:py-2">
+                <span className="text-[7px] lg:text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-0.5 lg:mb-1">Equiv %</span>
+                <span className="text-sm lg:text-2xl font-black text-foreground tracking-tighter leading-none">{results.totalPercentage.toFixed(0)}%</span>
+              </div>
             </div>
 
-            <Tooltip content="Import Transcripts" position="bottom" variant="emerald">
-              <button
-                onClick={onImportClick}
-                disabled={isProcessingPdf}
-                className="h-9 w-9 flex items-center justify-center rounded-xl bg-primary text-black shadow-lg shadow-primary/20 active:scale-90 transition-transform"
-              >
-                {isProcessingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4" />}
-              </button>
-            </Tooltip>
+            {/* Mobile-only action buttons beside the pill */}
+            <div className="lg:hidden flex items-center gap-1.5">
+              <Tooltip content="Import Transcripts" position="bottom" variant="emerald">
+                <button
+                  onClick={onImportClick}
+                  disabled={isProcessingPdf}
+                  className="h-9 w-9 flex items-center justify-center rounded-xl bg-primary text-black shadow-lg shadow-primary/20 active:scale-90 transition-transform"
+                >
+                  {isProcessingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4" />}
+                </button>
+              </Tooltip>
 
-            <Tooltip content="Full Report (PDF)" position="bottom" variant="emerald">
-              <button
-                onClick={downloadAsPDF}
-                disabled={results.cgpa === 0}
-                className="h-9 w-9 flex items-center justify-center rounded-xl bg-surface border border-border/50 text-foreground shadow-lg active:scale-90 transition-transform disabled:opacity-50"
-              >
-                <Download className="h-4 w-4" />
-              </button>
-            </Tooltip>
-          </div>
-
-          {/* Desktop Performance Hub (Hidden on Mobile) */}
-          <div className="hidden lg:flex items-center gap-px bg-card/30 border border-border/50 rounded-3xl p-1 shadow-2xl overflow-hidden backdrop-blur-md">
-            <div className="flex flex-col items-center px-10 py-1 border-r border-border/50">
-              <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Total CGPA</span>
-              <span className="text-2xl font-black text-primary tracking-tighter leading-none">{results.cgpa.toFixed(2)}</span>
-            </div>
-            <div className="flex flex-col items-center px-10 py-1">
-              <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Equivalent %</span>
-              <span className="text-2xl font-black text-foreground tracking-tighter leading-none">{results.totalPercentage.toFixed(0)}%</span>
+              <Tooltip content="Full Report (PDF)" position="bottom" variant="emerald">
+                <button
+                  onClick={downloadAsPDF}
+                  disabled={results.cgpa === 0}
+                  className="h-9 w-9 flex items-center justify-center rounded-xl bg-surface border border-border/50 text-foreground shadow-lg active:scale-90 transition-transform disabled:opacity-50"
+                >
+                  <Download className="h-4 w-4" />
+                </button>
+              </Tooltip>
             </div>
           </div>
 

@@ -68,6 +68,7 @@ export default function Calculator({
         const newGrades: Record<string, Grade> = {};
         const newSelectedOptions: Record<string, string> = {};
         const newCustomSubjects: Record<string, any[]> = {};
+        const newExclusions: Record<string, 'not-published' | 'not-taken' | null> = {};
         
         res.results.forEach((fileRes: any) => {
           if (!fileRes.subjects) return;
@@ -93,6 +94,9 @@ export default function Calculator({
           const targetSem = targetSemesters[0] || program.semesters.find(s => s.number === fileRes.semester);
           if (!targetSem) return;
 
+          // Track which DB subject IDs (or group IDs) were matched from the PDF
+          const matchedDbSubjectIds = new Set<string>();
+
           fileRes.subjects.forEach((extracted: any) => {
             let matched = false;
             const normalizedCode = extracted.code?.trim().toUpperCase();
@@ -101,6 +105,7 @@ export default function Calculator({
             const directMatch = targetSem.subjects.find(sub => sub.code?.trim().toUpperCase() === normalizedCode);
             if (directMatch) {
               newGrades[directMatch.id] = extracted.grade;
+              matchedDbSubjectIds.add(directMatch.id);
               matched = true;
             } else {
               // 2. Search in local elective options or open electives
@@ -110,6 +115,7 @@ export default function Calculator({
                   if (optMatch) {
                     newGrades[optMatch.id] = extracted.grade;
                     newSelectedOptions[sub.id] = optMatch.id;
+                    matchedDbSubjectIds.add(sub.id); // group itself is matched
                     matched = true;
                     break;
                   }
@@ -119,6 +125,7 @@ export default function Calculator({
                     if (globalMatch) {
                       newGrades[globalMatch.id] = extracted.grade;
                       newSelectedOptions[sub.id] = globalMatch.id;
+                      matchedDbSubjectIds.add(sub.id); // group itself is matched
                       matched = true;
                       break;
                     }
@@ -154,6 +161,14 @@ export default function Calculator({
               newGrades[customId] = extracted.grade;
             }
           });
+
+          // BUG FIX: DB subjects in this semester that were NOT in the PDF
+          // must be hidden from the UI — mark them as 'not-taken'.
+          targetSem.subjects.forEach((sub) => {
+            if (!matchedDbSubjectIds.has(sub.id)) {
+              newExclusions[sub.id] = 'not-taken';
+            }
+          });
         });
 
         if (Object.keys(newGrades).length > 0) {
@@ -170,6 +185,9 @@ export default function Calculator({
             });
             return next;
           });
+        }
+        if (Object.keys(newExclusions).length > 0) {
+          core.setExclusions(prev => ({ ...prev, ...newExclusions }));
         }
         
         actions.setPendingFiles([]); 

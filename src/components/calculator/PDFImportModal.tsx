@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Lock, FileUp, Loader2 } from 'lucide-react';
+import { X, Lock, FileUp, Loader2, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PDFImportModalProps {
@@ -21,6 +21,7 @@ interface PDFImportModalProps {
 export const PDFImportModal: React.FC<PDFImportModalProps> = ({
   isOpen, onClose, pendingFiles, pdfPassword, setPdfPassword, isProcessing, onConfirm, errorMessage, useSamePassword, setUseSamePassword, s6Pathway, setS6Pathway
 }) => {
+  const [showPdfPassword, setShowPdfPassword] = useState(false);
   if (!isOpen) return null;
 
   return (
@@ -78,12 +79,20 @@ export const PDFImportModal: React.FC<PDFImportModalProps> = ({
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
                   <input 
-                    type="password"
+                    type={showPdfPassword ? "text" : "password"}
                     placeholder="Enter password (if any)..."
                     value={pdfPassword}
                     onChange={(e) => setPdfPassword(e.target.value)}
-                    className="w-full h-14 bg-background border-2 border-border/50 rounded-2xl pl-12 pr-6 text-sm font-bold placeholder:text-muted-foreground/30 focus:border-emerald-500/50 outline-none transition-all"
+                    className="w-full h-14 bg-background border-2 border-border/50 rounded-2xl pl-12 pr-12 text-sm font-bold placeholder:text-muted-foreground/30 focus:border-emerald-500/50 outline-none transition-all"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPdfPassword(v => !v)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPdfPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
               </div>
 
