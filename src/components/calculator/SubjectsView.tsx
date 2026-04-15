@@ -6,7 +6,7 @@ import { SubjectAdder } from './SubjectAdder';
 
 interface SubjectsViewProps {
   currentSem: Semester | undefined;
-  grades: Record<string, Grade>;
+  grades: Record<string, Grade | "">;
   exclusions: Record<string, 'not-published' | 'not-taken' | null>;
   customSubjects: Record<string, Subject[]>;
   selectedOptions: Record<string, string>;

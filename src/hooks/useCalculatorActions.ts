@@ -7,7 +7,7 @@ import { Grade } from '@/lib/calculator';
 interface UseCalculatorActionsProps {
   program: Program;
   results: CalculatorResults;
-  grades: Record<string, Grade>;
+  grades: Record<string, Grade | "">;
   exclusions: Record<string, 'not-published' | 'not-taken' | null>;
   customSubjects: Record<string, Subject[]>;
   manualSgpas: Record<string, { sgpa: number; credits: number } | null>;
