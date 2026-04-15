@@ -16,7 +16,6 @@ import { ManualEntryView } from './calculator/ManualEntryView';
 import { ActionFABs } from './calculator/ActionFABs';
 import { SaveSessionModal } from './calculator/SaveSessionModal';
 import { PDFImportModal } from './calculator/PDFImportModal';
-import { AddCustomSubjectModal } from './calculator/AddCustomSubjectModal';
 import { LoadingOverlay } from './calculator/LoadingOverlay';
 import { ToastContainer, ToastData } from './calculator/Toast';
 
@@ -40,8 +39,6 @@ export default function Calculator({
   });
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [isAddCustomModalOpen, setIsAddCustomModalOpen] = useState(false);
-  const [targetSemForCustom, setTargetSemForCustom] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   const addToast = (message: string, variant: 'success' | 'error' | 'info' = 'success') => {
@@ -259,10 +256,6 @@ export default function Calculator({
                 <SubjectsView 
                    {...core} currentSem={currentSem} globalOpenElectives={globalOpenElectives} onGradeChange={(id, g) => core.setGrades(prev => ({ ...prev, [id]: g }))}
                    onExclude={(id, t) => core.setExclusions(prev => ({ ...prev, [id]: t }))}
-                    onAddCustom={(sid) => {
-                      setTargetSemForCustom(sid);
-                      setIsAddCustomModalOpen(true);
-                    }}
                    onRemoveCustom={(sid, subId) => {
                      core.setCustomSubjects(p => ({
                        ...p,
@@ -280,6 +273,7 @@ export default function Calculator({
                        return next;
                      });
                    }}
+                   setCustomSubjects={core.setCustomSubjects}
                 />
               )}
             </div>
@@ -312,18 +306,6 @@ export default function Calculator({
       <SaveSessionModal isOpen={isSaveModalOpen} onClose={() => setIsSaveModalOpen(false)} {...core} {...actions} />
       <PDFImportModal isOpen={actions.pendingFiles.length > 0} onClose={() => actions.setPendingFiles([])} {...actions} onConfirm={handleImportConfirm} errorMessage={actions.pdfErrorMessage} isProcessing={actions.isProcessingPdf} />
       
-      <AddCustomSubjectModal 
-        isOpen={isAddCustomModalOpen} 
-        onClose={() => setIsAddCustomModalOpen(false)}
-        onConfirm={(name, credits) => {
-          if (targetSemForCustom) {
-            core.setCustomSubjects(p => ({ 
-              ...p, 
-              [targetSemForCustom]: [...(p[targetSemForCustom] || []), { id: `c-${Math.random().toString(36).substring(2, 9)}`, name, credits, isCustom: true }] 
-            }));
-          }
-        }}
-      />
 
       <LoadingOverlay 
         isLoading={actions.isSaving || actions.isProcessingPdf} 

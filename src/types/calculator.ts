@@ -9,6 +9,7 @@ export interface Subject {
   isCustom?: boolean;
   isGroup?: boolean;
   options?: Subject[];
+  selectedOpt?: Subject;
 }
 
 export interface Semester {

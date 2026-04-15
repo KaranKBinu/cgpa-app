@@ -1,8 +1,8 @@
 import React from 'react';
-import { Plus } from 'lucide-react';
 import { SubjectCard } from './SubjectCard';
 import { Grade } from '@/lib/calculator';
 import { Subject, Semester } from '@/types/calculator';
+import { SubjectAdder } from './SubjectAdder';
 
 interface SubjectsViewProps {
   currentSem: Semester | undefined;
@@ -16,6 +16,7 @@ interface SubjectsViewProps {
   onAddCustom: (semId: string) => void;
   onRemoveCustom: (semId: string, subjectId: string) => void;
   setSelectedOptions: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  setCustomSubjects: React.Dispatch<React.SetStateAction<Record<string, Subject[]>>>;
 }
 
 export const SubjectsView: React.FC<SubjectsViewProps> = ({
@@ -29,7 +30,8 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
   onExclude,
   onAddCustom,
   onRemoveCustom,
-  setSelectedOptions
+  setSelectedOptions,
+  setCustomSubjects
 }) => {
   if (!currentSem) return null;
 
@@ -43,13 +45,36 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
     return sub;
   });
 
-  const allSubjectsToShow = [...resolvedSubjects, ...(customSubjects[currentSem.id] || [])]
-    .filter(sub => (sub.isGroup && sub.selectedOpt) 
-      ? exclusions[sub.selectedOpt.id] !== 'not-taken' 
-      : exclusions[sub.id] !== 'not-taken'
-    );
+  // Find all subjects (curriculum + global open electives) that are currently hidden (marked as not-taken)
+  const curriculumHidden = React.useMemo(() => {
+    if (!currentSem) return [];
+    
+    // 1. Core curriculum subjects
+    const hiddenCurriculum = currentSem.subjects.filter(sub => exclusions[sub.id] === 'not-taken');
+    
+    // 2. Global open electives that might have been skipped
+    const hiddenGlobal = globalOpenElectives.filter(sub => exclusions[sub.id] === 'not-taken');
+    
+    // Deduplicate and return
+    const allHidden = [...hiddenCurriculum, ...hiddenGlobal];
+    const seen = new Set();
+    return allHidden.filter(s => {
+      if (seen.has(s.id)) return false;
+      seen.add(s.id);
+      return true;
+    });
+  }, [currentSem, exclusions, globalOpenElectives]);
 
-  // Group global open electives for the searchable selector
+  const allSubjectsToShow = React.useMemo(() => {
+    return [...resolvedSubjects, ...(customSubjects[currentSem.id] || [])]
+      .filter(sub => {
+        if (sub.isGroup && sub.selectedOpt) {
+          return exclusions[sub.selectedOpt.id] !== 'not-taken';
+        }
+        return exclusions[sub.id] !== 'not-taken';
+      });
+  }, [resolvedSubjects, customSubjects, currentSem.id, exclusions]);
+
   const groupedOpenElectives = React.useMemo(() => {
     const groups: Record<string, any[]> = {};
     globalOpenElectives.forEach(sub => {
@@ -71,7 +96,6 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
           onGradeChange={onGradeChange}
           onExclude={onExclude}
           onRemoveCustom={(id) => onRemoveCustom(currentSem.id, id)}
-          // New props for inline elective selection
           selectedOptionId={sub.isGroup ? selectedOptions[sub.id] : undefined}
           onSelectOption={(groupId, optId) => {
              setSelectedOptions((prev: any) => ({ ...prev, [groupId]: optId }));
@@ -80,19 +104,22 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
         />
       ))}
 
-      {/* Add Custom Course Card */}
-      <button
-        onClick={() => onAddCustom(currentSem.id)}
-        className="group relative overflow-hidden rounded-[2rem] border-2 border-dashed border-border/50 bg-card/10 p-8 lg:p-12 hover:bg-card/20 hover:border-primary/50 transition-all duration-500 flex flex-col items-center justify-center gap-4 group"
-      >
-        <div className="h-16 w-16 rounded-full bg-surface border-2 border-border/50 flex items-center justify-center group-hover:bg-primary group-hover:border-primary transition-all duration-500 shdaow-xl shadow-black/20">
-          <Plus className="h-6 w-6 text-muted-foreground group-hover:text-black transition-colors" />
-        </div>
-        <div className="text-center">
-          <p className="text-xs font-black text-foreground uppercase tracking-widest mb-1">Add Course</p>
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Manual result entry</p>
-        </div>
-      </button>
+      {/* Improved Add Subject Control */}
+      <SubjectAdder 
+        hiddenSubjects={curriculumHidden}
+        onAddExisting={(subId) => onExclude(subId, null)}
+        onAddCustom={(name, credits) => {
+          setCustomSubjects((p: any) => ({
+            ...p,
+            [currentSem.id]: [...(p[currentSem.id] || []), { 
+              id: `c-${Math.random().toString(36).substring(2, 9)}`, 
+              name, 
+              credits, 
+              isCustom: true 
+            }]
+          }));
+        }}
+      />
     </div>
   );
 };
