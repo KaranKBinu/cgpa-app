@@ -93,7 +93,7 @@ export default async function HistoryPage() {
                         <Calendar className="h-4 w-4" /> {format(calc.createdAt, 'MMM d, yyyy')}
                       </div>
                       <div className="px-4 py-2 rounded-xl bg-card/80 border border-border/50 flex items-center gap-2 text-[10px] font-bold text-muted-foreground">
-                        <CalcIcon className="h-4 w-4" /> {calc.semesters.length} Terms
+                        <CalcIcon className="h-4 w-4" /> {Math.min(calc.semesters.length, 6)} Terms
                       </div>
                     </div>
                   </div>

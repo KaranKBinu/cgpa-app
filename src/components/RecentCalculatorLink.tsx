@@ -148,7 +148,7 @@ export default function RecentCalculatorLink({
                                 <div className="flex items-center gap-1.5">
                                     <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
                                     <span className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter">
-                                        {isHistory ? (latestCalculation._count?.semesters || 0) : (lastProgram.metadata?.semesters || 0)} Terms Recorded
+                                        {isHistory ? Math.min(latestCalculation._count?.semesters || 0, 6) : Math.min(lastProgram.metadata?.semesters || 0, 6)} Terms Recorded
                                     </span>
                                 </div>
                             </div>
