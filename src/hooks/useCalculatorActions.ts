@@ -78,8 +78,37 @@ export function useCalculatorActions({
     const label = studentName.trim() || (session?.user?.name || `Results for ${program.code}`);
     const semestersToSave = groupedSemesters.map(sem => {
       const res = results.semResults.find(r => r.id === sem.id)!;
-      const resolved = sem.subjects.flatMap(sub => { if (sub.isGroup) { const optId = selectedOptions[sub.id]; const opt = sub.options?.find((o: any) => o.id === optId) || globalOpenElectives?.find((o: any) => o.id === optId); return opt ? [opt] : []; } return [sub]; });
-      return { id: sem.id, name: sem.name, number: sem.number, sgpa: res.sgpa, credits: res.attemptedCredits, isManual: res.isManual, subjects: [...resolved, ...(customSubjects[sem.id] || [])].filter(s => grades[s.id] || exclusions[s.id] === 'not-published').map(s => ({ code: s.code, name: s.name, credits: s.credits, grade: (exclusions[s.id] === 'not-published' ? 'PENDING' : grades[s.id]), points: (exclusions[s.id] === 'not-published' ? -1 : 0) })) };
+      const resolved = sem.subjects.flatMap(sub => { 
+        if (sub.isGroup) { 
+          const optId = selectedOptions[sub.id]; 
+          const opt = sub.options?.find((o: any) => o.id === optId) || globalOpenElectives?.find((o: any) => o.id === optId); 
+          return opt ? [opt] : []; 
+        } 
+        return [sub]; 
+      });
+
+      const allSubjects = [...resolved, ...(customSubjects[sem.id] || [])];
+      
+      return { 
+        id: sem.id, 
+        name: sem.name, 
+        number: sem.number, 
+        sgpa: res.sgpa, 
+        credits: res.attemptedCredits, 
+        isManual: res.isManual, 
+        subjects: allSubjects.map(s => {
+          const isNotTaken = exclusions[s.id] === 'not-taken';
+          const isPending = exclusions[s.id] === 'not-published';
+          
+          return { 
+            code: s.code, 
+            name: s.name, 
+            credits: s.credits, 
+            grade: isNotTaken ? 'HIDDEN' : (isPending ? 'PENDING' : (grades[s.id] || '')), 
+            points: isPending ? -1 : (isNotTaken ? -2 : 0) 
+          };
+        })
+      };
     });
     try { const res = await saveCalculation({ programId: program.id, label, cgpa: results.cgpa, semesters: semestersToSave, id: activeSessionId || undefined }); if (res.success) setSaveStatus('success'); else setSaveStatus('error'); }
     catch (e) { setSaveStatus('error'); }

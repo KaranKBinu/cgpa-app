@@ -8,14 +8,15 @@ export default async function Home() {
   const session = await auth();
   const userId = session?.user ? (session.user as any).id : null;
 
-  const [allPrograms, latestCalculation, user] = await Promise.all([
+  const [allPrograms, recentCalculationsRaw, user] = await Promise.all([
     prisma.program.findMany({
       orderBy: { name: 'asc' },
       select: { id: true, name: true, code: true }
     }),
-    userId ? prisma.calculation.findFirst({
+    userId ? prisma.calculation.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { updatedAt: 'desc' },
+      take: 10,
       include: { 
         program: true,
         _count: {
@@ -28,6 +29,9 @@ export default async function Home() {
       select: { department: true }
     }) : Promise.resolve(null)
   ]);
+
+  const recentCalculations = (recentCalculationsRaw as any[]) || [];
+  const latestCalculation = recentCalculations[0];
 
   // Priority: Latest calculation program > User Profile Department > alphabetical
   let userProgramId: string | undefined;
@@ -70,7 +74,7 @@ export default async function Home() {
 
       <ProgramSelector programs={programs} userProgramId={userProgramId} />
 
-      <RecentCalculatorLink programs={programs} latestCalculation={latestCalculation} />
+      <RecentCalculatorLink programs={programs} recentCalculations={recentCalculations} />
 
       <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full">
         <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3">

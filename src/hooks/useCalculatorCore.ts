@@ -18,7 +18,7 @@ export function useCalculatorCore({
   groupedSemesters
 }: UseCalculatorCoreProps) {
   const [isLETMode, setIsLETMode] = useState(userIsLET);
-  const [grades, setGrades] = useState<Record<string, Grade>>({});
+  const [grades, setGrades] = useState<Record<string, Grade | "">>( {});
   const [exclusions, setExclusions] = useState<Record<string, 'not-published' | 'not-taken' | null>>({});
   const [customSubjects, setCustomSubjects] = useState<Record<string, Subject[]>>({});
   const [manualSgpas, setManualSgpas] = useState<Record<string, { sgpa: number, credits: number } | null>>({});
@@ -50,7 +50,7 @@ export function useCalculatorCore({
     const saved = localStorage.getItem(`poly-cgpa-${program.id}`);
     
     if (historicalData) {
-      const histGrades: Record<string, Grade> = {};
+      const histGrades: Record<string, Grade | ""> = {};
       const histExclusions: Record<string, 'not-published' | 'not-taken' | null> = {};
       const histCustom: Record<string, Subject[]> = {};
       const histManual: Record<string, { sgpa: number, credits: number } | null> = {};
@@ -82,9 +82,13 @@ export function useCalculatorCore({
           });
 
           if (foundSubjectId) {
-            histGrades[foundSubjectId] = sub.grade as Grade;
+            histGrades[foundSubjectId] = sub.grade === 'HIDDEN' ? '' : sub.grade as Grade;
+            if (sub.grade === 'HIDDEN') histExclusions[foundSubjectId] = 'not-taken';
+            else if (sub.grade === 'PENDING' || sub.points === -1) { 
+              histExclusions[foundSubjectId] = 'not-published'; 
+              histGrades[foundSubjectId] = '' as Grade; 
+            }
             matchedInThisSem.add(parentGroupId || foundSubjectId);
-            if (sub.grade === 'PENDING' || sub.points === -1) { histExclusions[foundSubjectId] = 'not-published'; histGrades[foundSubjectId] = '' as Grade; }
           } else {
             if (!histCustom[activeSem.id]) histCustom[activeSem.id] = [];
             
@@ -95,7 +99,10 @@ export function useCalculatorCore({
             if (!isDuplicate) {
               const customId = `hist-${Math.random().toString(36).substring(2, 11)}`;
               histCustom[activeSem.id].push({ id: customId, code: sub.code, name: sub.name, credits: sub.credits, isCustom: true });
-              if (sub.grade === 'PENDING' || sub.points === -1) { 
+              if (sub.grade === 'HIDDEN') {
+                histExclusions[customId] = 'not-taken';
+                histGrades[customId] = '' as Grade;
+              } else if (sub.grade === 'PENDING' || sub.points === -1) { 
                 histExclusions[customId] = 'not-published'; 
                 histGrades[customId] = '' as Grade; 
               } else { 
@@ -104,7 +111,9 @@ export function useCalculatorCore({
             }
           }
         });
-        activeSem.subjects.forEach(s => { if (!matchedInThisSem.has(s.id)) { histExclusions[s.id] = 'not-taken'; } });
+        // We no longer automatically mark unmatched subjects as 'not-taken'.
+        // This ensures that if curriculum subjects were not saved (e.g., they weren't graded yet),
+        // they still appear as empty subjects for the user to fill.
       });
 
       setGrades(histGrades); setCustomSubjects(histCustom); setExclusions(histExclusions);
