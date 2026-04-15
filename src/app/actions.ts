@@ -4,10 +4,8 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { auth } from "@/lib/auth";
-import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { pathToFileURL } from 'url';
 import path from 'path';
-import fs from 'fs';
 
 export async function saveCalculation(data: {
   id?: string;
@@ -304,9 +302,10 @@ export async function updateSettings(formData: FormData) {
 
 export async function processTranscriptPdfs(files: { name: string, data: string }[], password?: string) {
   // data is base64 encoded string from client
-  
-  // Set up PDF.js worker
-  // Note: This needs to work in Node environment
+  // Dynamic import avoids DOMMatrix SSR crash (pdfjs-dist references browser globals at module load)
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+
+  // Set up PDF.js worker for Node environment
   const workerPath = path.resolve('node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs');
   (pdfjs as any).GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).href;
 

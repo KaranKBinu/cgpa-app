@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+
 import { saveCalculation, processTranscriptPdfs } from '@/app/actions';
 import { Program, CalculatorResults, Semester, Subject } from '@/types/calculator';
 import { Grade } from '@/lib/calculator';
@@ -38,7 +37,9 @@ export function useCalculatorActions({
   const [useSamePassword, setUseSamePassword] = useState(true);
   const [s6Pathway, setS6Pathway] = useState<'normal' | 'internship'>('normal');
 
-  const downloadAsPDF = (semIdOrEvent?: string | any) => {
+  const downloadAsPDF = async (semIdOrEvent?: string | any) => {
+    const { default: jsPDF } = await import('jspdf');
+    const { default: autoTable } = await import('jspdf-autotable');
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const isSingleSem = typeof semIdOrEvent === 'string';
