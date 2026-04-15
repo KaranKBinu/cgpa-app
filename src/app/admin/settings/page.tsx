@@ -8,7 +8,7 @@ export default async function SettingsPage() {
     <div className="max-w-4xl animate-fade-in">
       <div className="mb-12">
         <h1 className="text-4xl font-black text-foreground tracking-tighter mb-2">Platform <span className="text-emerald-500">Settings</span></h1>
-        <p className="text-muted-foreground font-medium">Global configurations for the PolyCGPA system.</p>
+        <p className="text-muted-foreground font-medium">Global configurations for the PolyCGPA Calculator system.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-8">

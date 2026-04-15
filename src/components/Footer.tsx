@@ -22,13 +22,13 @@ const Footer = () => {
               Built with <Heart className="h-3 w-3 text-red-500 fill-red-500 animate-pulse" /> for Students
             </div>
             <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.2em]">
-              © {new Date().getFullYear()} PolyCGPA Engine v2.0
+              © {new Date().getFullYear()} PolyCGPA
             </p>
           </div>
-          
+
           <div className="flex items-center gap-4">
-             <Link href="/privacy" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">Privacy</Link>
-             <Link href="/terms" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">Terms</Link>
+            <Link href="/privacy" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">Privacy</Link>
+            <Link href="/terms" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">Terms</Link>
           </div>
         </div>
       </div>
