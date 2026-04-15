@@ -194,28 +194,40 @@ export default function Calculator({
           });
         });
 
+        // Check if any results failed due to password
+        const hasPasswordError = res.results.some((r: any) => r.isPasswordRequired);
+        if (hasPasswordError) {
+          actions.setPdfErrorMessage("Incorrect password or password required for some files.");
+          actions.setIsProcessingPdf(false);
+          return;
+        }
+
         if (Object.keys(newGrades).length > 0) {
           core.setGrades(prev => ({ ...prev, ...newGrades }));
-        }
-        if (Object.keys(newSelectedOptions).length > 0) {
-          core.setSelectedOptions(prev => ({ ...prev, ...newSelectedOptions }));
-        }
-        if (Object.keys(newCustomSubjects).length > 0) {
-          core.setCustomSubjects(prev => {
-            const next = { ...prev };
-            Object.entries(newCustomSubjects).forEach(([semId, subs]) => {
-              next[semId] = [...(next[semId] || []), ...subs];
+          if (Object.keys(newSelectedOptions).length > 0) {
+            core.setSelectedOptions(prev => ({ ...prev, ...newSelectedOptions }));
+          }
+          if (Object.keys(newCustomSubjects).length > 0) {
+            core.setCustomSubjects(prev => {
+              const next = { ...prev };
+              Object.entries(newCustomSubjects).forEach(([semId, subs]) => {
+                next[semId] = [...(next[semId] || []), ...subs];
+              });
+              return next;
             });
-            return next;
-          });
+          }
+          if (Object.keys(newExclusions).length > 0) {
+            core.setExclusions(prev => ({ ...prev, ...newExclusions }));
+          }
+          
+          actions.setPendingFiles([]); 
+          actions.setPdfPassword(""); 
+          actions.setIsProcessingPdf(false);
+        } else {
+          // No subjects found and no password error
+          actions.setPdfErrorMessage("Could not find any subjects to import. Please check if the PDF is correct.");
+          actions.setIsProcessingPdf(false);
         }
-        if (Object.keys(newExclusions).length > 0) {
-          core.setExclusions(prev => ({ ...prev, ...newExclusions }));
-        }
-        
-        actions.setPendingFiles([]); 
-        actions.setPdfPassword(""); 
-        actions.setIsProcessingPdf(false);
       } else { 
         actions.setPdfErrorMessage((res as any).error || "Parsing failed"); 
         actions.setIsProcessingPdf(false); 
@@ -285,8 +297,20 @@ export default function Calculator({
       <input type="file" id="pdf-upload" multiple accept=".pdf" className="hidden" 
         onChange={async (e) => {
           const files = Array.from(e.target.files || []);
-          const p = await Promise.all(files.map(async f => ({ name: f.name, data: Buffer.from(await f.arrayBuffer()).toString('base64') })));
+          const p = await Promise.all(files.map(file => {
+            return new Promise<{ name: string, data: string }>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => {
+                const base64 = (reader.result as string).split(',')[1];
+                resolve({ name: file.name, data: base64 });
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            });
+          }));
           actions.setPendingFiles(p);
+          // Reset input so the same file can be selected again if needed
+          e.target.value = '';
         }}
       />
 

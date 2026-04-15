@@ -18,7 +18,19 @@ export interface ParsedTranscriptFile {
 /** Extract full text from a single PDF page */
 async function getPageText(page: any): Promise<string> {
   const textContent = await page.getTextContent();
-  return (textContent.items as { str: string }[]).map((i) => i.str).join(' ');
+  const items = textContent.items as any[];
+  
+  // Sort items by visual position to ensure logical reading order.
+  // PDF coordinates: (0,0) is bottom-left. Y increases upwards.
+  items.sort((a, b) => {
+    // b.transform[5] is the Y-coordinate. Higher Y means higher on page.
+    const yDiff = b.transform[5] - a.transform[5];
+    if (Math.abs(yDiff) > 5) return yDiff; // Use a small threshold for "same line"
+    // a.transform[4] is the X-coordinate.
+    return a.transform[4] - b.transform[4];
+  });
+
+  return items.map((i) => i.str || '').join(' ').replace(/\s+/g, ' ');
 }
 
 /** Parse extracted full text into structured transcript data */
@@ -65,6 +77,8 @@ function parseTranscriptText(
   };
 }
 
+let pdfjsInitialized = false;
+
 /**
  * Parse transcript PDFs entirely in the browser.
  * @param files  Array of { name, data } where data is base64-encoded PDF bytes.
@@ -75,35 +89,50 @@ export async function parseTranscriptPdfs(
   password?: string
 ): Promise<{ success: boolean; results: ParsedTranscriptFile[] }> {
   // Dynamic import — pdfjs-dist is large; only load it when actually needed.
-  // In the browser, DOMMatrix is natively available so no crash occurs.
   const pdfjs = await import('pdfjs-dist');
 
   // Point the worker at the bundled copy shipped with pdfjs-dist
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.mjs',
-    import.meta.url
-  ).toString();
+  // Ensure we only set this once to avoid re-initializing the worker unnecessarily
+  if (!pdfjsInitialized) {
+    try {
+      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+        'pdfjs-dist/build/pdf.worker.mjs',
+        import.meta.url
+      ).toString();
+      pdfjsInitialized = true;
+    } catch (err) {
+      console.error('Failed to initialize PDF.js worker:', err);
+    }
+  }
 
   const results: ParsedTranscriptFile[] = [];
 
   for (const file of files) {
+    let pdf: any = null;
+    let loadingTask: any = null;
+    
     try {
       const binaryStr = atob(file.data);
       const bytes = new Uint8Array(binaryStr.length);
       for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
 
-      const loadingTask = pdfjs.getDocument({
+      loadingTask = pdfjs.getDocument({
         data: bytes,
         password: password || undefined,
         verbosity: 0,
       });
 
-      const pdf = await loadingTask.promise;
+      pdf = await loadingTask.promise;
 
       let fullText = '';
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
-        fullText += (await getPageText(page)) + ' ';
+        try {
+          fullText += (await getPageText(page)) + ' ';
+        } finally {
+          // Explicitly cleanup page resources if available in this version
+          if (page.cleanup) page.cleanup();
+        }
       }
 
       results.push(parseTranscriptText(fullText, file.name));
@@ -112,6 +141,19 @@ export async function parseTranscriptPdfs(
       const isPasswordError =
         msg.toLowerCase().includes('password') || error?.name === 'PasswordException';
       results.push({ fileName: file.name, error: msg, isPasswordRequired: isPasswordError });
+    } finally {
+      // CRITICAL: Always destroy the PDF document and cleanup the loading task
+      // to prevent memory leaks and worker hangs.
+      try {
+        if (pdf) {
+          await pdf.destroy();
+        }
+        if (loadingTask && loadingTask.destroy) {
+          await loadingTask.destroy();
+        }
+      } catch (cleanupError) {
+        console.warn('Error during PDF cleanup:', cleanupError);
+      }
     }
   }
 
