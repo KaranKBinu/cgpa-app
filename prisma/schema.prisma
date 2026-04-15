@@ -103,7 +103,7 @@ model UserSubject {
 
 model Configuration {
   id        String   @id @default("global")
-  appName   String   @default("PolyCGPA")
+  appName   String   @default("PolyGrade")
   revision  String   @default("Revision 2021")
   updatedAt DateTime @updatedAt
 }

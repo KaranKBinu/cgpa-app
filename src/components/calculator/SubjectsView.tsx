@@ -13,7 +13,6 @@ interface SubjectsViewProps {
   globalOpenElectives: any[];
   onGradeChange: (id: string, grade: Grade) => void;
   onExclude: (id: string, type: 'not-published' | 'not-taken' | null) => void;
-  onAddCustom: (semId: string) => void;
   onRemoveCustom: (semId: string, subjectId: string) => void;
   setSelectedOptions: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   setCustomSubjects: React.Dispatch<React.SetStateAction<Record<string, Subject[]>>>;
@@ -28,7 +27,6 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
   globalOpenElectives,
   onGradeChange,
   onExclude,
-  onAddCustom,
   onRemoveCustom,
   setSelectedOptions,
   setCustomSubjects

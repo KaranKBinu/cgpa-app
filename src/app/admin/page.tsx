@@ -48,7 +48,7 @@ export default async function AdminDashboard() {
         <h2 className="text-2xl font-black text-foreground mb-4">Welcome to the Command Center</h2>
         <p className="text-muted-foreground font-medium leading-relaxed max-w-2xl">
           As an administrator, you have the authority to manage academic structures, oversee student progress, 
-          and maintain the integrity of the PolyCGPA Calculator ecosystem. Use the sidebar to navigate through specific administrative tasks.
+          and maintain the integrity of the PolyGrade ecosystem. Use the sidebar to navigate through specific administrative tasks.
         </p>
       </div>
     </div>

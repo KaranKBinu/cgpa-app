@@ -27,8 +27,8 @@ export const viewport = {
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getSettings();
   return {
-    title: `${config.appName} - Kerala Polytechnic`,
-    description: `Calculate your Kerala Polytechnic CGPA with precision using the latest ${config.revision} syllabus data.`,
+    title: `${config.appName} - Polytechnic GPA Engine`,
+    description: `The definitive GPA calculation engine for Kerala Polytechnic students. Track your progress with precision using the latest ${config.revision} syllabus.`,
     icons: {
       icon: '/favicon.svg',
       shortcut: '/favicon.svg',
@@ -58,10 +58,10 @@ export default async function RootLayout({
             <nav className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-8 h-14 lg:h-20 rounded-2xl lg:rounded-[2rem] border border-border/50 bg-background/80 backdrop-blur-2xl shadow-2xl flex items-center justify-between">
               <Link href="/" className="flex items-center gap-2 group transition-all active:scale-95 shrink-0">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 font-extrabold text-black shadow-lg shadow-emerald-500/20 group-hover:rotate-6 transition-transform shrink-0">
-                  {config.appName.charAt(0)}
+                  G
                 </div>
                 <div className="flex flex-col overflow-hidden">
-                  <span className="text-sm sm:text-lg font-black tracking-tight text-foreground leading-none truncate hidden xs:block">{config.appName}</span>
+                  <span className="text-sm sm:text-lg font-black tracking-tight text-foreground leading-none truncate">{config.appName}</span>
                   <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5 hidden sm:block">{config.revision}</span>
                 </div>
               </Link>

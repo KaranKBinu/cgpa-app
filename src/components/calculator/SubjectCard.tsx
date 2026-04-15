@@ -129,8 +129,8 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
           <div className={cn("space-y-4", groupData && "pt-4 border-t border-border/20")}>
             {groupData && (
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black text-foreground uppercase tracking-widest">{groupData.selectedOpt.name}</span>
-                <span className="text-[10px] font-black text-muted-foreground uppercase">{groupData.selectedOpt.credits} Credits</span>
+                <span className="text-[10px] font-black text-foreground uppercase tracking-widest">{groupData.selectedOpt?.name}</span>
+                <span className="text-[10px] font-black text-muted-foreground uppercase">{groupData.selectedOpt?.credits} Credits</span>
               </div>
             )}
             <div className="flex flex-wrap gap-1.5 lg:gap-2">

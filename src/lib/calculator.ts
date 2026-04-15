@@ -67,7 +67,7 @@ export function groupSemesters<S, T extends { id: string; name: string; subjects
       }
     });
 
-    let displayName = `S${index + 1}`;
+    let displayName = `S${(sem as any).number || index + 1}`;
     if (sem.name.toLowerCase().includes('normal pathway')) displayName = 'S6 Normal';
     else if (sem.name.toLowerCase().includes('internship pathway')) displayName = 'S6 Intern';
     else if (index >= 5) {

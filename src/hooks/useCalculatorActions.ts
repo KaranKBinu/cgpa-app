@@ -49,7 +49,8 @@ export function useCalculatorActions({
       ? results.semResults.filter(s => s.id === semId)
       : (isLETMode ? results.semResults.filter(s => s.sgpa > 0 && s.number > 2) : results.semResults.filter(s => s.sgpa > 0));
     if (targets.length === 0) return;
-    doc.setFontSize(22); doc.setTextColor(16, 185, 129); doc.text(isSingleSem ? "Semester Performance Report" : "PolyGPA Calculator Cumulative Report", 14, 22);
+    doc.setFontSize(22); doc.setTextColor(16, 185, 129); doc.text(isSingleSem ? "Semester Performance Report" : "PolyGrade Cumulative Report", 14, 22);
+    doc.text(isSingleSem ? `Academic Result Summary` : `PolyGrade Final Transcript`, (pageWidth / 2) - 30, 60);
     doc.setFontSize(10); doc.setTextColor(100); doc.text(`Program: ${program.name} (${program.code})`, 14, 30); doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 35); doc.text(`Schema: Kerala Polytechnic REV2021 Engine`, 14, 40);
     doc.setDrawColor(240, 240, 240); doc.setFillColor(252, 252, 252); doc.roundedRect(14, 45, pageWidth - 28, 25, 2, 2, 'FD');
     doc.setFontSize(16); doc.setTextColor(0);
@@ -68,7 +69,7 @@ export function useCalculatorActions({
       if (sem.isManual) { doc.setFontSize(9); doc.setTextColor(150); doc.text("Semester was processed via manual aggregate entry.", 14, currentY + 10); currentY += 20; }
       else if (tableData.length > 0) { autoTable(doc, { startY: currentY + 10, head: [['Code', 'Course / Subject Name', 'CR', 'Grade']], body: tableData, theme: 'grid', headStyles: { fillColor: [16, 185, 129], textColor: [255, 255, 255] }, styles: { fontSize: 8 }, margin: { left: 14, right: 14 } }); currentY = (doc as any).lastAutoTable.finalY + 15; }
     });
-    doc.save(isSingleSem ? `Transcript_${targets[0].name.replace(/\s+/g, '_')}_${program.code}.pdf` : `PolyGPA_Calculator_FullReport_${program.code}.pdf`);
+    doc.save(isSingleSem ? `Transcript_${targets[0].name.replace(/\s+/g, '_')}_${program.code}.pdf` : `PolyGrade_FullReport_${program.code}.pdf`);
   };
 
   const handleSave = async () => {
