@@ -19,6 +19,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: `${config.appName} - Premium Diploma CGPA Calculator`,
     description: `Calculate your Kerala Polytechnic CGPA with precision using the latest ${config.revision} syllabus data.`,
+    icons: {
+      icon: '/favicon.svg',
+      shortcut: '/favicon.svg',
+      apple: '/favicon.svg',
+    },
   };
 }
 
