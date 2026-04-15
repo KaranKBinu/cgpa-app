@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { saveCalculation, processTranscriptPdfs } from '@/app/actions';
+import { saveCalculation } from '@/app/actions';
 import { Program, CalculatorResults, Semester, Subject } from '@/types/calculator';
 import { Grade } from '@/lib/calculator';
 

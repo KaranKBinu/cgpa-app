@@ -4,8 +4,7 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { auth } from "@/lib/auth";
-import { pathToFileURL } from 'url';
-import path from 'path';
+
 
 export async function saveCalculation(data: {
   id?: string;
@@ -298,92 +297,6 @@ export async function updateSettings(formData: FormData) {
   } catch (error) {
     return { error: "Failed to update settings" };
   }
-}
-
-export async function processTranscriptPdfs(files: { name: string, data: string }[], password?: string) {
-  // data is base64 encoded string from client
-  // Dynamic import avoids DOMMatrix SSR crash (pdfjs-dist references browser globals at module load)
-  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-
-  // Set up PDF.js worker for Node environment
-  const workerPath = path.resolve('node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs');
-  (pdfjs as any).GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).href;
-
-  const results = [];
-
-  for (const file of files) {
-    try {
-      const buffer = Buffer.from(file.data, 'base64');
-      const uint8Array = new Uint8Array(buffer);
-      
-      const loadingTask = pdfjs.getDocument({
-        data: uint8Array,
-        password: password,
-        verbosity: 0
-      });
-
-      const pdf = await loadingTask.promise;
-      
-      let fullText = '';
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        fullText += (textContent.items as { str: string }[]).map((item) => item.str).join(' ') + ' ';
-      }
-
-      // Extract Branch
-      const branchMatch = fullText.match(/INSTITUTION\s*:\s*(?:Diploma\s+in\s+Engineering\s+\/\s+Technology\s+\/\s+Management\s+\/\s+Commercial Practice)?\s*(.*?)\s+(?:\d{10}|REGISTER|NAME|FIRST|SECOND|THIRD|FOURTH|FIFTH|SIXTH|THE GRADE)/i);
-      let branch = branchMatch ? branchMatch[1].trim() : "Unknown";
-      branch = branch.replace(/\s+/g, " ");
-
-      // Extract Semester
-      const semMatch = fullText.match(/BRANCH\s*:\s*(FIRST|SECOND|THIRD|FOURTH|FIFTH|SIXTH)\s+SEMESTER/i) 
-                    || fullText.match(/(FIRST|SECOND|THIRD|FOURTH|FIFTH|SIXTH)\s+SEMESTER/i);
-      const semesterLetter = semMatch ? semMatch[1].trim() : "Unknown";
-      
-      const semMap: Record<string, number> = {
-        'FIRST': 1, 'SECOND': 2, 'THIRD': 3, 'FOURTH': 4, 'FIFTH': 5, 'SIXTH': 6
-      };
-      const semesterNumber = semMap[semesterLetter] || 0;
-
-      // Extract Subjects
-      const tableStartIndex = fullText.indexOf("Grade");
-      const tableText = tableStartIndex !== -1 ? fullText.substring(tableStartIndex) : fullText;
-      const rowRegex = /(\d{4}[A-Z]{0,1})\s+(.*?)\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}\s+([SABCDEF])/gi;
-      
-      const subjects = [];
-      let match;
-      while ((match = rowRegex.exec(tableText)) !== null) {
-        subjects.push({
-          code: match[1],
-          name: match[2].trim(),
-          grade: match[3]
-        });
-      }
-
-      results.push({
-        fileName: file.name,
-        branch,
-        semester: semesterNumber,
-        semesterName: `${semesterLetter} SEMESTER`,
-        subjects
-      });
-
-    } catch (error: any) {
-      const errorMessage = error.message || String(error);
-      const isPasswordError = errorMessage.toLowerCase().includes('password') || 
-                              error.name === 'PasswordException';
-      
-      console.error(`Error processing ${file.name}:`, errorMessage);
-      results.push({
-        fileName: file.name,
-        error: errorMessage,
-        isPasswordRequired: isPasswordError
-      });
-    }
-  }
-
-  return { success: true, results };
 }
 
 export async function getSubjectByCode(code: string) {

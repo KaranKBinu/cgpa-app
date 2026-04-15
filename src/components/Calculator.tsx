@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { groupSemesters, Grade } from '@/lib/calculator';
-import { processTranscriptPdfs } from '@/app/actions';
+import { parseTranscriptPdfs } from '@/lib/pdfParser';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { Program } from '@/types/calculator';
@@ -62,8 +62,7 @@ export default function Calculator({
     actions.setIsProcessingPdf(true);
     actions.setPdfErrorMessage(null);
     try {
-      // Corrected: processTranscriptPdfs takes 2 arguments
-      const res = await processTranscriptPdfs(actions.pendingFiles, actions.pdfPassword);
+      const res = await parseTranscriptPdfs(actions.pendingFiles, actions.pdfPassword);
       if (res.success && res.results) {
         const newGrades: Record<string, Grade> = {};
         const newSelectedOptions: Record<string, string> = {};
