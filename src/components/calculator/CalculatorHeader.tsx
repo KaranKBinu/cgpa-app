@@ -52,11 +52,11 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
             </div>
             <div className="flex flex-col min-w-0">
               <Tooltip content={program.name} position="bottom" variant="emerald">
-                <h1 className="text-[11px] lg:text-xl font-black tracking-tight text-foreground sm:truncate max-w-[120px] sm:max-w-none leading-none cursor-help hover:text-emerald-500 transition-colors">
+                <h1 className="text-xs sm:text-lg lg:text-xl font-black tracking-tight text-foreground sm:truncate max-w-[120px] sm:max-w-none leading-none cursor-help hover:text-emerald-500 transition-colors">
                   {program.name}
                 </h1>
               </Tooltip>
-              <span className="text-[8px] lg:text-[10px] font-black text-primary/60 uppercase tracking-widest mt-1">{(activeSessionId ? "Sync Active" : "Local Engine")}</span>
+              <span className="text-[10px] lg:text-[10px] font-black text-primary/60 uppercase tracking-widest mt-1">{(activeSessionId ? "Sync Active" : "Local Engine")}</span>
             </div>
           </div>
 
@@ -64,14 +64,14 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
           <div className="flex items-center gap-2">
             <div className="flex items-center bg-card/60 border border-border/50 rounded-2xl overflow-hidden shadow-lg shadow-black/10 backdrop-blur-md">
               {/* CGPA */}
-              <div className="flex flex-col items-center px-3 lg:px-8 py-1.5 lg:py-2 border-r border-border/50">
-                <span className="text-[7px] lg:text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-0.5 lg:mb-1">CGPA</span>
-                <span className="text-sm lg:text-2xl font-black text-primary tracking-tighter leading-none">{results.cgpa.toFixed(2)}</span>
+              <div className="flex flex-col items-center px-4 lg:px-8 py-2 lg:py-2 border-r border-border/50">
+                <span className="text-[9px] lg:text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1 lg:mb-1">CGPA</span>
+                <span className="text-base lg:text-2xl font-black text-primary tracking-tighter leading-none">{results.cgpa.toFixed(2)}</span>
               </div>
               {/* Percentage */}
-              <div className="flex flex-col items-center px-3 lg:px-8 py-1.5 lg:py-2">
-                <span className="text-[7px] lg:text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-0.5 lg:mb-1">Equiv %</span>
-                <span className="text-sm lg:text-2xl font-black text-foreground tracking-tighter leading-none">{results.totalPercentage.toFixed(0)}%</span>
+              <div className="flex flex-col items-center px-4 lg:px-8 py-2 lg:py-2">
+                <span className="text-[9px] lg:text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1 lg:mb-1">Equiv %</span>
+                <span className="text-base lg:text-2xl font-black text-foreground tracking-tighter leading-none">{results.totalPercentage.toFixed(0)}%</span>
               </div>
             </div>
 
@@ -236,7 +236,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                         key={sem.id}
                         onClick={() => setExpandedSem(sem.id)}
                         className={cn(
-                          "whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all active:scale-90",
+                          "whitespace-nowrap px-5 py-2.5 rounded-xl text-xs lg:text-[10px] font-black uppercase tracking-widest border-2 transition-all active:scale-90",
                           isActive
                             ? "bg-emerald-500 border-emerald-500 text-black shadow-lg shadow-emerald-500/20"
                             : "bg-surface border-border/50 text-muted-foreground"

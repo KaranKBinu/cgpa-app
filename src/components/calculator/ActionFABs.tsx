@@ -36,7 +36,7 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
         className="lg:hidden fixed bottom-8 left-3 sm:left-4 z-[90]"
       >
         <div className="bg-background/80 backdrop-blur-2xl border-2 border-primary/20 rounded-full py-2 px-6 shadow-2xl flex flex-col items-center gap-0.5 min-w-[100px]">
-          <span className="text-[9px] font-black text-primary uppercase tracking-widest leading-none">SGPA</span>
+          <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">SGPA</span>
           <span className="text-xl font-black text-foreground tracking-tighter leading-none">
             {currentSemRes ? currentSemRes.sgpa.toFixed(2) : "0.00"}
           </span>
@@ -71,7 +71,7 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
           >
             <div className="flex flex-col items-center gap-0.5">
               {activeSessionId ? <History className="h-4 w-4" /> : <Save className="h-4 w-4" />}
-              <span className="text-[9px] font-black uppercase tracking-tighter">{activeSessionId ? "Update" : "Save"}</span>
+              <span className="text-[10px] font-black uppercase tracking-tighter">{activeSessionId ? "Update" : "Save"}</span>
             </div>
           </button>
         </Tooltip>

@@ -64,10 +64,10 @@ export default async function Home() {
           <Sparkles className="h-3 w-3" />
           The Ultimate SGPA/CGPA Companion
         </div>
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-4 text-foreground">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight mb-4 text-foreground leading-[1.1]">
           Calculate with <span className="gradient-text">Precision.</span>
         </h1>
-        <p className="text-lg text-muted-foreground leading-relaxed font-medium">
+        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-semibold">
           Select your program to get started. We have the complete Revision 2021 database pre-loaded for all Kerala Polytechnic courses.
         </p>
       </div>

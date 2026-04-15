@@ -72,14 +72,14 @@ export default function ProgramSelector({
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className={cn("font-semibold text-foreground transition-colors", isUserProgram ? "text-emerald-500" : "group-hover:text-emerald-500")}>{program.name}</h3>
+                        <h3 className={cn("font-bold lg:font-black text-foreground transition-colors", isUserProgram ? "text-emerald-500" : "group-hover:text-emerald-500")}>{program.name}</h3>
                         {isUserProgram && (
-                          <span className="text-[9px] font-black bg-emerald-500 text-black px-1.5 py-0.5 rounded-md uppercase tracking-widest shadow-lg shadow-emerald-500/20">
-                            Your Program
+                          <span className="text-[10px] font-black bg-emerald-500 text-black px-2 py-0.5 rounded-md uppercase tracking-widest shadow-lg shadow-emerald-500/20">
+                            Recommended
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground">{program.code} • Revision 2021</p>
+                      <p className="text-sm font-medium text-muted-foreground">{program.code} • Revision 2021</p>
                     </div>
                   </div>
                   <ChevronRight className={cn("h-5 w-5 transition-all group-hover:translate-x-1", isUserProgram ? "text-emerald-500" : "text-muted-foreground group-hover:text-emerald-500")} />

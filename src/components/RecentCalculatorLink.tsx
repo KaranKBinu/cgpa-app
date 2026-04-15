@@ -165,32 +165,32 @@ export default function RecentCalculatorLink({
                             </div>
 
                             <div className="text-left overflow-hidden flex-1">
-                                <div className="flex items-center gap-2 mb-1">
+                                <div className="flex items-center gap-2 mb-1.5">
                                     <span className={cn(
-                                        "px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest",
+                                        "px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest",
                                         currentItem.metadata?.isDraft ? "bg-amber-500/10 text-amber-500" : "bg-emerald-500/10 text-emerald-500"
                                     )}>
                                         {currentItem.metadata?.isDraft ? "Draft" : "Previous Session"}
                                     </span>
-                                    <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-widest">
+                                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest">
                                         {new Date(currentItem.timestamp).toLocaleDateString()}
                                     </span>
                                 </div>
 
-                                <h4 className="text-base lg:text-xl font-black text-foreground tracking-tight truncate leading-none mb-2">
+                                <h4 className="text-base lg:text-xl font-black text-foreground tracking-tight truncate leading-none mb-3">
                                     {currentItem.metadata?.label || currentItem.name}
                                 </h4>
 
                                 <div className="flex items-center gap-3">
                                     <div className="flex items-center gap-1.5">
                                         <div className="h-1 w-1 rounded-full bg-primary" />
-                                        <span className="text-[9px] font-black text-foreground/70 uppercase tracking-tighter">
+                                        <span className="text-[10px] font-black text-foreground/70 uppercase tracking-tighter">
                                             {currentItem.metadata?.cgpa ? `CGPA: ${currentItem.metadata.cgpa.toFixed(2)}` : "In Progress"}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                         <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
-                                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-tighter">
+                                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter">
                                             {Math.min(currentItem.metadata?.semesters || 0, 6)} Terms
                                         </span>
                                     </div>

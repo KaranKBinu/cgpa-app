@@ -94,9 +94,9 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
       <div className="p-4 lg:p-8 space-y-4 lg:space-y-6">
         {groupData ? (
           <div className="space-y-4">
-            <div className="space-y-1">
-              <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">{groupData.name}</p>
-              <p className="text-[11px] font-bold text-muted-foreground/60">
+            <div className="space-y-1.5">
+              <p className="text-[11px] lg:text-[10px] font-black text-primary uppercase tracking-[0.3em]">{groupData.name}</p>
+              <p className="text-xs lg:text-[11px] font-bold text-muted-foreground/60 leading-relaxed">
                 {groupData.selectedOpt 
                   ? "Switch to a different elective anytime." 
                   : `Choose your ${isOpenElective ? "inter-departmental" : "specific"} elective course.`}
@@ -115,12 +115,12 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
           </div>
         ) : (
           <div>
-            <div className="flex items-center justify-between mb-1 min-h-[20px]">
-               <span className="text-[8px] lg:text-[10px] font-black text-primary/60 uppercase tracking-[0.2em]">{currentSub.code || 'VAR'}</span>
-               {currentSub.isCustom && <span className="text-[8px] font-black bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full uppercase tracking-widest">Added</span>}
+            <div className="flex items-center justify-between mb-1.5 min-h-[20px]">
+               <span className="text-[10px] lg:text-[10px] font-black text-primary/60 uppercase tracking-[0.2em]">{currentSub.code || 'VAR'}</span>
+               {currentSub.isCustom && <span className="text-[9px] font-black bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full uppercase tracking-widest">Added</span>}
             </div>
-            <h3 className="text-sm lg:text-lg font-black text-foreground tracking-tight leading-tight line-clamp-2 md:line-clamp-none min-h-[2.5em] md:min-h-0">{currentSub.name}</h3>
-            <p className="text-[9px] lg:text-[11px] font-black text-muted-foreground mt-1 uppercase tracking-widest">{currentSub.credits} Credits</p>
+            <h3 className="text-base lg:text-lg font-black text-foreground tracking-tight leading-tight line-clamp-2 md:line-clamp-none min-h-[2.5em] md:min-h-0">{currentSub.name}</h3>
+            <p className="text-xs lg:text-[11px] font-black text-muted-foreground mt-1.5 uppercase tracking-widest">{currentSub.credits} Credits</p>
           </div>
         )}
 
@@ -129,18 +129,18 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
           <div className={cn("space-y-4", groupData && "pt-4 border-t border-border/20")}>
             {groupData && (
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black text-foreground uppercase tracking-widest">{groupData.selectedOpt?.name}</span>
-                <span className="text-[10px] font-black text-muted-foreground uppercase">{groupData.selectedOpt?.credits} Credits</span>
+                <span className="text-xs font-black text-foreground uppercase tracking-widest">{groupData.selectedOpt?.name}</span>
+                <span className="text-xs font-black text-muted-foreground uppercase">{groupData.selectedOpt?.credits} Credits</span>
               </div>
             )}
-            <div className="flex flex-wrap gap-1.5 lg:gap-2">
+            <div className="flex flex-wrap gap-2 lg:gap-2">
               {GRADES.map((g) => (
                 <button
                   key={g}
                   disabled={isExcluded}
                   onClick={() => onGradeChange(currentSub.id, g)}
                   className={cn(
-                    "h-8 w-8 lg:h-11 lg:w-11 rounded-lg lg:rounded-xl text-xs lg:text-sm font-black transition-all flex items-center justify-center border-2",
+                    "h-10 w-10 lg:h-11 lg:w-11 rounded-xl lg:rounded-xl text-sm lg:text-sm font-black transition-all flex items-center justify-center border-2",
                     grade === g
                       ? "bg-primary border-primary text-black shadow-lg shadow-primary/20 scale-110"
                       : "bg-surface border-border/50 text-muted-foreground hover:text-foreground hover:border-border active:scale-90"
