@@ -27,6 +27,11 @@ export function useCalculatorCore({
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
+  // Sync isLETMode with userIsLET prop (important for login/profile updates)
+  useEffect(() => {
+    setIsLETMode(userIsLET);
+  }, [userIsLET]);
+
   const displayedSemesters = useMemo(() => {
     return isLETMode 
       ? groupedSemesters.filter(s => s.number > 2)

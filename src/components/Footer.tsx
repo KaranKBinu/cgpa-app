@@ -22,7 +22,7 @@ const Footer = () => {
               Built with <Heart className="h-3 w-3 text-red-500 fill-red-500 animate-pulse" /> for Students
             </div>
             <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.2em]">
-              © {new Date().getFullYear()} PolyCGPA
+              © {new Date().getFullYear()} PolyGPA
             </p>
           </div>
 

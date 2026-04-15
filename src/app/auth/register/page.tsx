@@ -81,7 +81,7 @@ export default function RegisterPage() {
       >
         <div className="bg-card/50 backdrop-blur-xl border border-border/50 p-8 rounded-[2rem] shadow-2xl">
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-black font-outfit text-foreground mb-2">Join PolyCGPA Calculator</h1>
+            <h1 className="text-3xl font-black font-outfit text-foreground mb-2">Join PolyGPA Calculator</h1>
             <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Create your student account</p>
           </div>
 

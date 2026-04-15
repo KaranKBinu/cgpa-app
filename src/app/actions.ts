@@ -362,14 +362,14 @@ export async function getSettings() {
     if (!config) {
       logConfig.warn("No config found – seeding defaults");
       config = await prisma.configuration.create({
-        data: { id: "global", appName: "PolyCGPA Calculator", revision: "Revision 2021" },
+        data: { id: "global", appName: "PolyGPA Calculator", revision: "Revision 2021" },
       });
     }
 
     return config;
   } catch (error: any) {
     logConfig.error("Failed to load settings – returning defaults", { error: error.message });
-    return { appName: "PolyCGPA Calculator", revision: "Revision 2021" };
+    return { appName: "PolyGPA Calculator", revision: "Revision 2021" };
   }
 }
 

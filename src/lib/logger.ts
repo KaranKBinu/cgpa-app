@@ -1,5 +1,5 @@
 /**
- * Structured logger for PolyCGPA Calculator.
+ * Structured logger for PolyGPA Calculator.
  *
  * Format rules:
  *   - Deployed on Vercel  → JSON (Vercel's log aggregator can filter/search it)
