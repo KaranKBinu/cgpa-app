@@ -212,6 +212,17 @@ export function useCalculatorCore({
     return { semResults, cgpa, totalPercentage: cgpa > 0 ? (cgpa - 0.5) * 10 : 0 };
   }, [groupedSemesters, grades, exclusions, customSubjects, manualSgpas, isLETMode, selectedOptions, globalOpenElectives]);
 
+  const resetCalculator = () => {
+    setGrades({});
+    setExclusions({});
+    setCustomSubjects({});
+    setManualSgpas({});
+    setStudentName("");
+    setSelectedOptions({});
+    setActiveSessionId(null);
+    localStorage.removeItem(`poly-cgpa-${program.id}`);
+  };
+
   return {
     isLETMode, setIsLETMode,
     grades, setGrades,
@@ -222,6 +233,6 @@ export function useCalculatorCore({
     studentName, setStudentName,
     selectedOptions, setSelectedOptions,
     activeSessionId, setActiveSessionId,
-    results, displayedSemesters
+    results, displayedSemesters, resetCalculator
   };
 }

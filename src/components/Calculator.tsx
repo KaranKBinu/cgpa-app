@@ -241,6 +241,12 @@ export default function Calculator({
           {...core} program={program} results={core.results} {...actions} session={session} groupedSemesters={groupedSemesters}
           handleSave={() => setIsSaveModalOpen(true)}
           onImportClick={() => (document.getElementById('pdf-upload') as any)?.click()}
+          resetCalculator={() => {
+            if (window.confirm("Are you sure you want to clear current data and start a new calculation?")) {
+              core.resetCalculator();
+              router.replace(`/calculate/${program.code}`);
+            }
+          }}
         />
 
         <div className="px-3 sm:px-4 lg:px-10 py-6 lg:py-12 pb-32 lg:pb-12">

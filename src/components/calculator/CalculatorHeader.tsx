@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, FileUp, Download, Loader2, CheckCircle2, Save, Check } from 'lucide-react';
+import { LayoutDashboard, FileUp, Download, Loader2, CheckCircle2, Save, Check, UserPlus } from 'lucide-react';
 import { Tooltip } from '../Tooltip';
 import { Program, CalculatorResults } from '@/types/calculator';
 
@@ -21,6 +21,7 @@ interface CalculatorHeaderProps {
   expandedSem: string | null;
   setExpandedSem: (id: string | null) => void;
   groupedSemesters: any[];
+  resetCalculator: () => void;
 }
 
 export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
@@ -39,68 +40,81 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
   displayedSemesters,
   expandedSem,
   setExpandedSem,
-  groupedSemesters
+  groupedSemesters,
+  resetCalculator
 }) => {
   return (
     <header className="sticky top-0 z-[60] bg-background/80 backdrop-blur-3xl border-b border-border/50 py-2 lg:py-5 px-3 sm:px-4 lg:px-12 shadow-sm">
       <div className="max-w-4xl mx-auto w-full flex flex-col gap-2 lg:gap-4">
         <div className="flex items-center justify-between gap-3">
-          {/* Left: Program Identity */}
+          {/* Left: Program Identity & CGPA (Mobile Optimized) */}
           <div className="flex items-center gap-2 lg:gap-4 min-w-0">
             <div className="h-8 w-8 lg:h-12 lg:w-12 rounded-lg lg:rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center font-black text-black shadow-lg shadow-emerald-500/20 shrink-0">
               <LayoutDashboard className="h-4 w-4 lg:h-6 lg:w-6" />
             </div>
+            
             <div className="flex flex-col min-w-0">
-              <Tooltip content={program.name} position="bottom" variant="emerald">
-                <h1 className="text-xs sm:text-lg lg:text-xl font-black tracking-tight text-foreground sm:truncate max-w-[120px] sm:max-w-none leading-none cursor-help hover:text-emerald-500 transition-colors">
-                  {program.name}
+              <div className="flex items-center gap-2">
+                <h1 className="text-[10px] lg:text-xl font-black tracking-tighter text-foreground truncate max-w-[70px] lg:max-w-none uppercase lg:normal-case">
+                  {program.code}
                 </h1>
-              </Tooltip>
-              <span className="text-[10px] lg:text-[10px] font-black text-primary/60 uppercase tracking-widest mt-1">{(activeSessionId ? "Sync Active" : "Local Engine")}</span>
+                <div className="lg:hidden flex items-center gap-1.5 bg-primary/10 px-2 py-0.5 rounded-full">
+                  <span className="text-[11px] font-black text-primary whitespace-nowrap">{results.cgpa.toFixed(2)}</span>
+                  <span className="text-[9px] font-bold text-primary/60 whitespace-nowrap">{results.totalPercentage.toFixed(0)}%</span>
+                </div>
+              </div>
+              <span className="hidden lg:block text-xs font-black text-primary/60 uppercase tracking-widest mt-1">
+                {activeSessionId ? "Sync Active" : "Local Engine"}
+              </span>
+              <span className="lg:hidden text-[8px] font-black text-muted-foreground uppercase tracking-widest mt-0.5">
+                {activeSessionId ? "Cloud Synced" : "Local Engine"}
+              </span>
             </div>
           </div>
 
-          {/* Unified CGPA + % pill — visible on all screen sizes */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center bg-card/60 border border-border/50 rounded-2xl overflow-hidden shadow-lg shadow-black/10 backdrop-blur-md">
-              {/* CGPA */}
-              <div className="flex flex-col items-center px-4 lg:px-8 py-2 lg:py-2 border-r border-border/50">
-                <span className="text-[9px] lg:text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1 lg:mb-1">CGPA</span>
-                <span className="text-base lg:text-2xl font-black text-primary tracking-tighter leading-none">{results.cgpa.toFixed(2)}</span>
+          {/* Right: Actions & Stats */}
+          <div className="flex items-center gap-2 lg:gap-3 flex-1 justify-end">
+            {/* Desktop CGPA Pill */}
+            <div className="hidden lg:flex items-center bg-card/60 border border-border/50 rounded-2xl overflow-hidden shadow-lg shadow-black/10 backdrop-blur-md">
+              <div className="flex flex-col items-center px-8 py-2 border-r border-border/50">
+                <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">CGPA</span>
+                <span className="text-2xl font-black text-primary tracking-tighter leading-none">{results.cgpa.toFixed(2)}</span>
               </div>
-              {/* Percentage */}
-              <div className="flex flex-col items-center px-4 lg:px-8 py-2 lg:py-2">
-                <span className="text-[9px] lg:text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1 lg:mb-1">Equiv %</span>
-                <span className="text-base lg:text-2xl font-black text-foreground tracking-tighter leading-none">{results.totalPercentage.toFixed(0)}%</span>
+              <div className="flex flex-col items-center px-8 py-2">
+                <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Equiv %</span>
+                <span className="text-2xl font-black text-foreground tracking-tighter leading-none">{results.totalPercentage.toFixed(0)}%</span>
               </div>
             </div>
 
-            {/* Mobile-only action buttons beside the pill */}
-            <div className="lg:hidden flex items-center gap-1.5">
-              <Tooltip content="Import Transcripts" position="bottom" variant="emerald">
-                <button
-                  onClick={onImportClick}
-                  disabled={isProcessingPdf}
-                  className="h-9 w-9 flex items-center justify-center rounded-xl bg-primary text-black shadow-lg shadow-primary/20 active:scale-90 transition-transform"
-                >
-                  {isProcessingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4" />}
-                </button>
-              </Tooltip>
+            {/* Mobile Actions Block */}
+            <div className="lg:hidden flex items-center gap-1 px-1 py-1 rounded-xl bg-card/40 border border-border/40 backdrop-blur-md">
+              <button
+                onClick={onImportClick}
+                disabled={isProcessingPdf}
+                className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-primary/10 text-primary transition-colors active:scale-90"
+              >
+                {isProcessingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileUp className="h-3.5 w-3.5" />}
+              </button>
+              
+              <button
+                onClick={resetCalculator}
+                className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-primary/10 text-primary transition-colors active:scale-90"
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+              </button>
 
-              <Tooltip content="Full Report (PDF)" position="bottom" variant="emerald">
-                <button
-                  onClick={downloadAsPDF}
-                  disabled={results.cgpa === 0}
-                  className="h-9 w-9 flex items-center justify-center rounded-xl bg-surface border border-border/50 text-foreground shadow-lg active:scale-90 transition-transform disabled:opacity-50"
-                >
-                  <Download className="h-4 w-4" />
-                </button>
-              </Tooltip>
+              <div className="w-[1px] h-4 bg-border/40 mx-0.5" />
+
+              <button
+                onClick={downloadAsPDF}
+                disabled={results.cgpa === 0}
+                className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted/10 text-foreground transition-colors active:scale-90 disabled:opacity-30"
+              >
+                <Download className="h-3.5 w-3.5" />
+              </button>
             </div>
-          </div>
-
-          {/* Desktop Right Actions */}
-          <div className="flex items-center gap-2 lg:gap-3 lg:flex-1 justify-end">
+            
+            {/* Desktop & Additional Actions */}
             {/* Mobile LET Toggle Checkbox */}
             <div
               onClick={() => {
@@ -136,6 +150,15 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
             </div>
 
             <div className="hidden lg:flex items-center gap-2">
+              <Tooltip content="Reset for Next Student" variant="emerald">
+                <button
+                  onClick={resetCalculator}
+                  className="h-10 w-10 lg:h-12 lg:w-12 rounded-2xl bg-surface border border-border/50 text-foreground hover:border-primary hover:text-primary transition-all flex items-center justify-center active:scale-95"
+                >
+                  <UserPlus className="h-4 w-4 lg:h-5 lg:w-5" />
+                </button>
+              </Tooltip>
+              
               <Tooltip content={isLETMode ? "Normal Curriculum" : "Lateral Entry Mode"} variant="emerald">
                 <div
                   onClick={() => {
