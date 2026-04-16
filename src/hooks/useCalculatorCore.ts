@@ -118,7 +118,9 @@ export function useCalculatorCore({
 
       setGrades(histGrades); setCustomSubjects(histCustom); setExclusions(histExclusions);
       setManualSgpas(histManual); setSelectedOptions(histSelected);
-      setStudentName(historicalData.label || ""); setActiveSessionId(historicalData.id);
+      setStudentName(historicalData.label || ""); 
+      setActiveSessionId(historicalData.id);
+      if (historicalData.isLET !== undefined) setIsLETMode(historicalData.isLET);
       return;
     }
 
@@ -131,14 +133,15 @@ export function useCalculatorCore({
         if (data.manualSgpas) setManualSgpas(data.manualSgpas);
         if (data.selectedOptions) setSelectedOptions(data.selectedOptions);
         if (data.studentName) setStudentName(data.studentName);
+        if (data.isLETMode !== undefined) setIsLETMode(data.isLETMode);
       } catch (e) { console.error('Failed to load local state', e); }
     }
   }, [program.id, historicalData, groupedSemesters]);
 
   useEffect(() => {
-    const state = { grades, exclusions, customSubjects, manualSgpas, studentName, selectedOptions, updatedAt: Date.now() };
+    const state = { grades, exclusions, customSubjects, manualSgpas, studentName, selectedOptions, isLETMode, updatedAt: Date.now() };
     localStorage.setItem(`poly-cgpa-${program.id}`, JSON.stringify(state));
-  }, [program.id, grades, exclusions, customSubjects, manualSgpas, studentName, selectedOptions]);
+  }, [program.id, grades, exclusions, customSubjects, manualSgpas, studentName, selectedOptions, isLETMode]);
 
   const results = useMemo(() => {
     const semResults = groupedSemesters.map(sem => {

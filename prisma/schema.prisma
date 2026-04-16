@@ -70,6 +70,7 @@ model Calculation {
   id          String         @id @default(cuid())
   label       String         @default("My CGPA")
   cgpa        Float          @default(0)
+  isLET       Boolean        @default(false)
   programId   String?
   program     Program?       @relation(fields: [programId], references: [id])
   userId      String?

@@ -117,7 +117,8 @@ export function useCalculatorActions({
         label, 
         cgpa: results.cgpa, 
         semesters: semestersToSave, 
-        id: activeSessionId || undefined 
+        id: activeSessionId || undefined,
+        isLET: isLETMode
       }); 
       if (res.success) {
         setSaveStatus('success');
