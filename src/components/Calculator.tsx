@@ -35,7 +35,8 @@ export default function Calculator({
   const core = useCalculatorCore({ program, historicalData, globalOpenElectives, userIsLET, groupedSemesters });
   const actions = useCalculatorActions({
     ...core, program, session, router, groupedSemesters, globalOpenElectives,
-    setGrades: core.setGrades, setExclusions: core.setExclusions, setCustomSubjects: core.setCustomSubjects
+    setGrades: core.setGrades, setExclusions: core.setExclusions, setCustomSubjects: core.setCustomSubjects,
+    setActiveSessionId: core.setActiveSessionId
   });
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);

@@ -57,7 +57,7 @@ export function useCalculatorCore({
       const histSelected: Record<string, string> = {};
       
       historicalData.semesters.forEach((histSem: any) => {
-        const activeSem = groupedSemesters.find(s => s.number === histSem.number);
+        const activeSem = groupedSemesters.find(s => s.name === histSem.name) || groupedSemesters.find(s => s.number === histSem.number);
         if (!activeSem) return;
         const matchedInThisSem = new Set<string>();
         if (histSem.subjects.length === 0 && histSem.sgpa > 0) {

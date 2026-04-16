@@ -22,11 +22,12 @@ interface UseCalculatorActionsProps {
   setGrades: any;
   setExclusions: any;
   setCustomSubjects: any;
+  setActiveSessionId: any;
 }
 
 export function useCalculatorActions({
   program, results, grades, exclusions, customSubjects, manualSgpas, studentName, selectedOptions, activeSessionId, session, router, isLETMode, groupedSemesters, globalOpenElectives,
-  setGrades, setExclusions, setCustomSubjects
+  setGrades, setExclusions, setCustomSubjects, setActiveSessionId
 }: UseCalculatorActionsProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -110,7 +111,21 @@ export function useCalculatorActions({
         })
       };
     });
-    try { const res = await saveCalculation({ programId: program.id, label, cgpa: results.cgpa, semesters: semestersToSave, id: activeSessionId || undefined }); if (res.success) setSaveStatus('success'); else setSaveStatus('error'); }
+    try { 
+      const res = await saveCalculation({ 
+        programId: program.id, 
+        label, 
+        cgpa: results.cgpa, 
+        semesters: semestersToSave, 
+        id: activeSessionId || undefined 
+      }); 
+      if (res.success) {
+        setSaveStatus('success');
+        if (res.id) setActiveSessionId(res.id);
+      } else {
+        setSaveStatus('error');
+      }
+    }
     catch (e) { setSaveStatus('error'); }
     finally { setIsSaving(false); }
   };
