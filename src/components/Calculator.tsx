@@ -119,7 +119,7 @@ export default function Calculator({
             const normalizedCode = extracted.code?.trim().toUpperCase();
 
             // 1. Direct match with standard subjects
-            const directMatch = targetSem.subjects.find(sub => sub.code?.trim().toUpperCase() === normalizedCode);
+            const directMatch = targetSem.subjects.find(sub => !sub.isGroup && sub.code?.trim().toUpperCase() === normalizedCode);
             if (directMatch) {
               newGrades[directMatch.id] = extracted.grade;
               matchedDbSubjectIds.add(directMatch.id);
