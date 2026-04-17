@@ -41,8 +41,13 @@ export default function Navbar({ user, config }: NavbarProps) {
 
     const isAdmin = user && (user.role === 'TEACHER' || user.role === 'SUPERUSER');
 
+    const isCalculatorPage = pathname.startsWith('/calculate');
+
     return (
-        <header className="absolute top-0 left-0 right-0 z-[100] p-4 lg:p-6 pointer-events-none">
+        <header className={cn(
+            "left-0 right-0 z-[100] p-4 lg:p-6 pointer-events-none",
+            isCalculatorPage ? "absolute" : "fixed top-0"
+        )}>
             <nav className="mx-auto max-w-7xl pointer-events-auto">
                 <div className="h-16 lg:h-20 px-4 lg:px-8 rounded-2xl lg:rounded-[2.5rem] border border-border/50 bg-background/80 backdrop-blur-2xl shadow-2xl flex items-center justify-between transition-all">
                     {/* Brand */}

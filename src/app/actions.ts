@@ -62,7 +62,7 @@ export async function saveCalculation(data: {
         data: {
           label: data.label,
           cgpa: data.cgpa,
-          isLET: data.isLET,
+          isLET: data.isLET as any,
           userId,
           semesters: {
             deleteMany: {},
@@ -102,7 +102,7 @@ export async function saveCalculation(data: {
         where: { id: existing.id },
         data: {
           cgpa: data.cgpa,
-          isLET: data.isLET,
+          isLET: data.isLET as any,
           semesters: {
             deleteMany: {},
             create: data.semesters.map(sem => ({
@@ -134,7 +134,7 @@ export async function saveCalculation(data: {
         programId: data.programId,
         label: data.label,
         cgpa: data.cgpa,
-        isLET: data.isLET,
+        isLET: data.isLET as any,
         userId,
         semesters: {
           create: data.semesters.map(sem => ({
@@ -502,7 +502,7 @@ export async function updateProfile(formData: FormData) {
 export async function submitFeedback(data: { name: string; email: string; subject: string; message: string }) {
   logConfig.info("submitFeedback called", { name: data.name, email: data.email, subject: data.subject });
   try {
-    await prisma.feedback.create({ data });
+    await (prisma as any).feedback.create({ data });
     revalidatePath("/admin/feedback");
     logConfig.info("Feedback submitted successfully");
     return { success: true };
@@ -517,7 +517,7 @@ export async function getFeedbacks() {
   if ((session?.user as any)?.role !== "SUPERUSER") return [];
 
   try {
-    return await prisma.feedback.findMany({
+    return await (prisma as any).feedback.findMany({
       orderBy: { createdAt: "desc" },
     });
   } catch (error) {
@@ -530,7 +530,7 @@ export async function updateFeedbackStatus(id: string, status: string) {
   if ((session?.user as any)?.role !== "SUPERUSER") return { error: "Unauthorized" };
 
   try {
-    await prisma.feedback.update({
+    await (prisma as any).feedback.update({
       where: { id },
       data: { status },
     });
