@@ -496,3 +496,47 @@ export async function updateProfile(formData: FormData) {
     return { error: "Failed to update profile" };
   }
 }
+
+// ─── Feedback ─────────────────────────────────────────────────────────────
+
+export async function submitFeedback(data: { name: string; email: string; subject: string; message: string }) {
+  logConfig.info("submitFeedback called", { name: data.name, email: data.email, subject: data.subject });
+  try {
+    await prisma.feedback.create({ data });
+    revalidatePath("/admin/feedback");
+    logConfig.info("Feedback submitted successfully");
+    return { success: true };
+  } catch (error: any) {
+    logConfig.error("Failed to submit feedback", { error: error.message });
+    return { error: "Failed to submit feedback" };
+  }
+}
+
+export async function getFeedbacks() {
+  const session = await auth();
+  if ((session?.user as any)?.role !== "SUPERUSER") return [];
+
+  try {
+    return await prisma.feedback.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function updateFeedbackStatus(id: string, status: string) {
+  const session = await auth();
+  if ((session?.user as any)?.role !== "SUPERUSER") return { error: "Unauthorized" };
+
+  try {
+    await prisma.feedback.update({
+      where: { id },
+      data: { status },
+    });
+    revalidatePath("/admin/feedback");
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to update status" };
+  }
+}

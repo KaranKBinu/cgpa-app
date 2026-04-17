@@ -4,13 +4,14 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, MessageSquare, Mail, User, CheckCircle2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { submitFeedback } from '@/app/actions';
 
 export default function ContactPage() {
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        subject: 'Feedback',
+        subject: 'General Feedback',
         message: ''
     });
 
@@ -18,12 +19,14 @@ export default function ContactPage() {
         e.preventDefault();
         setStatus('loading');
         
-        // Simulate a small network delay for a better UX experience
-        setTimeout(() => {
-            console.log('Feedback received:', formData);
+        const res = await submitFeedback(formData);
+        
+        if (res.success) {
             setStatus('success');
-            // In a real app, you'd send this to a server action or API
-        }, 1500);
+            setFormData({ name: '', email: '', subject: 'General Feedback', message: '' });
+        } else {
+            setStatus('error');
+        }
     };
 
     return (

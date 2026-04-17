@@ -108,3 +108,13 @@ model Configuration {
   revision  String   @default("Revision 2021")
   updatedAt DateTime @updatedAt
 }
+
+model Feedback {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    String   @default("NEW") // NEW, READ, ARCHIVED
+  createdAt DateTime @default(now())
+}

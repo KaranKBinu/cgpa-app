@@ -34,6 +34,7 @@ export default function Navbar({ user, config }: NavbarProps) {
         { href: '/admin/programs', label: 'Programs', icon: BookOpen },
         ...(user?.role === 'SUPERUSER' ? [
             { href: '/admin/users', label: 'Users', icon: Users },
+            { href: '/admin/feedback', label: 'Feedback', icon: MessageSquare },
             { href: '/admin/settings', label: 'Settings', icon: Settings },
         ] : []),
     ];
