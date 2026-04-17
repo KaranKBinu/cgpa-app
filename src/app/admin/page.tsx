@@ -1,3 +1,4 @@
+import React from "react";
 import prisma from "@/lib/prisma";
 import { Users, BookOpen, Calculator, ShieldCheck, MessageSquare, Settings, ArrowRight, GraduationCap, Sparkles, TrendingUp, Clock, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
@@ -165,7 +166,9 @@ function QuickLink({ href, title, description, icon, color }: { href: string, ti
   return (
     <Link href={href} className="flex items-center gap-4 p-4 lg:p-6 rounded-[1.5rem] lg:rounded-[2rem] bg-card/30 border border-border/50 hover:border-emerald-500/30 transition-all group overflow-hidden relative">
       <div className={cn("h-10 w-10 lg:h-14 lg:w-14 rounded-xl lg:rounded-2xl bg-card border border-border/50 flex items-center justify-center text-muted-foreground group-hover:text-emerald-500 transition-all shadow-xl shrink-0")}>
-        {React.cloneElement(icon as React.ReactElement, { className: "h-5 w-5 lg:h-6 lg:w-6" })}
+        {React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement<any>, { 
+          className: cn((icon.props as any)?.className, "h-5 w-5 lg:h-6 lg:w-6") 
+        }) : icon}
       </div>
       <div className="min-w-0">
         <h4 className="text-[10px] lg:text-sm font-black text-foreground uppercase tracking-widest flex items-center gap-2">
