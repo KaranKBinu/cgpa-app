@@ -30,27 +30,27 @@ export default async function UserManagement({ searchParams }: { searchParams: P
   };
 
   return (
-    <div className="space-y-12 animate-fade-in pb-20">
+    <div className="space-y-8 lg:space-y-12 animate-fade-in pb-20 pt-16 lg:pt-8">
       {/* Premium Header */}
-      <div className="relative p-12 lg:p-16 rounded-[4rem] bg-gradient-to-br from-card/80 to-background border border-border/50 overflow-hidden shadow-2xl">
+      <div className="relative p-6 md:p-12 lg:p-16 rounded-[2.5rem] lg:rounded-[4rem] bg-gradient-to-br from-card/80 to-background border border-border/50 overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-emerald-500/5 blur-[120px] -z-10" />
         <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-emerald-500/5 rounded-full blur-[100px] -z-10" />
         
-        <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-12 relative z-10">
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black tracking-[0.4em] uppercase">
+        <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-8 lg:gap-12 relative z-10">
+          <div className="space-y-4 lg:space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[9px] lg:text-[10px] font-black tracking-[0.4em] uppercase">
               <Shield className="h-4 w-4" />
               Identity Infrastructure
             </div>
-            <h1 className="text-5xl md:text-7xl font-black text-foreground tracking-tighter leading-none">
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-foreground tracking-tighter leading-tight lg:leading-none">
               User <span className="text-emerald-500">Registry.</span>
             </h1>
-            <p className="text-muted-foreground font-medium text-lg md:text-xl max-w-2xl leading-relaxed">
-              Maintain the community ecosystem. Manage roles, audit access levels, and ensure institutional authority across the platform.
+            <p className="text-muted-foreground font-medium text-sm md:text-lg lg:text-xl max-w-2xl leading-relaxed">
+              Maintain the community ecosystem. Manage roles, audit access levels, and ensure authority.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 w-full xl:w-auto">
+          <div className="grid grid-cols-2 gap-3 lg:gap-4 w-full xl:w-auto">
             <QuickStat label="Total Entities" value={stats.total} icon={<UserIcon className="h-4 w-4" />} />
             <QuickStat label="Superusers" value={stats.admins} icon={<Star className="h-4 w-4" />} color="amber" />
             <QuickStat label="Instructors" value={stats.teachers} icon={<ShieldCheck className="h-4 w-4" />} color="purple" />
@@ -60,8 +60,8 @@ export default async function UserManagement({ searchParams }: { searchParams: P
       </div>
 
       {/* Advanced Control Bar */}
-      <div className="flex flex-col lg:flex-row items-center gap-6 justify-between bg-card/30 backdrop-blur-xl p-4 rounded-[2.5rem] border border-border/30">
-        <div className="flex items-center gap-2 bg-background/50 p-2 rounded-2xl border border-border/50 w-full lg:w-auto overflow-x-auto no-scrollbar">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 lg:gap-6 justify-between bg-card/30 backdrop-blur-xl p-3 lg:p-4 rounded-[1.5rem] lg:rounded-[2.5rem] border border-border/30">
+        <div className="flex items-center gap-2 bg-background/50 p-1.5 lg:p-2 rounded-xl lg:rounded-2xl border border-border/50 overflow-x-auto no-scrollbar scroll-smooth">
           <FilterLink active={roleFilter === 'ALL'} label="All Personnel" href="?role=ALL" />
           <FilterLink active={roleFilter === 'STUDENT'} label="Students" href="?role=STUDENT" />
           <FilterLink active={roleFilter === 'TEACHER'} label="Teachers" href="?role=TEACHER" />
@@ -75,25 +75,25 @@ export default async function UserManagement({ searchParams }: { searchParams: P
             <input 
               type="text" 
               name="q"
-              placeholder="Search by name or identity..."
+              placeholder="Search registry..."
               defaultValue={resolvedSearchParams.q}
-              className="w-full h-14 pl-12 pr-4 bg-background/50 border border-border/50 rounded-2xl text-sm font-bold focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-muted-foreground/50"
+              className="w-full h-12 lg:h-14 pl-12 pr-4 bg-background/50 border border-border/50 rounded-xl lg:rounded-2xl text-xs lg:text-sm font-bold focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-muted-foreground/30"
             />
           </form>
         </div>
       </div>
 
-      {/* Identity Directory (User List) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Intelligence Directory (User List) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
         {filteredUsers.map((user) => (
           <UserCard key={user.id} user={user} />
         ))}
         
         {filteredUsers.length === 0 && (
-          <div className="col-span-full py-40 text-center rounded-[4rem] border-2 border-dashed border-border/50 bg-card/10">
-            <Fingerprint className="h-20 w-20 mx-auto text-muted-foreground/20 mb-6" />
-            <h3 className="text-2xl font-black text-foreground mb-2">No Matching Entities.</h3>
-            <p className="text-muted-foreground font-medium uppercase tracking-widest text-[10px]">Your search did not return any identities in the current sector.</p>
+          <div className="col-span-full py-20 lg:py-40 text-center rounded-[2rem] lg:rounded-[4rem] border-2 border-dashed border-border/50 bg-card/10">
+            <Fingerprint className="h-12 w-12 lg:h-20 lg:w-20 mx-auto text-muted-foreground/20 mb-6" />
+            <h3 className="text-xl lg:text-2xl font-black text-foreground mb-2">No Matching Entities.</h3>
+            <p className="text-muted-foreground font-medium uppercase tracking-widest text-[8px] lg:text-[10px]">No identities found in this sector.</p>
           </div>
         )}
       </div>
@@ -103,42 +103,42 @@ export default async function UserManagement({ searchParams }: { searchParams: P
 
 function UserCard({ user }: { user: any }) {
   return (
-    <div className="group relative p-8 rounded-[3rem] bg-card/30 border border-border/50 backdrop-blur-2xl transition-all duration-500 hover:border-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/5 flex flex-col h-full overflow-hidden">
+    <div className="group relative p-6 lg:p-8 rounded-[2rem] lg:rounded-[3rem] bg-card/30 border border-border/50 backdrop-blur-2xl transition-all duration-500 hover:border-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/5 flex flex-col h-full overflow-hidden">
       <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[60px] -z-10 group-hover:bg-emerald-500/10 transition-colors" />
       
       {/* Identity Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-background to-card border border-border/50 flex items-center justify-center text-emerald-500 shadow-xl group-hover:scale-105 transition-transform duration-500">
-             <UserIcon className="h-7 w-7" />
+      <div className="flex items-start justify-between mb-6 lg:mb-8">
+        <div className="flex items-center gap-3 lg:gap-4">
+          <div className="h-12 w-12 lg:h-16 lg:w-16 rounded-xl lg:rounded-2xl bg-gradient-to-br from-background to-card border border-border/50 flex items-center justify-center text-emerald-500 shadow-xl group-hover:scale-105 transition-transform duration-500 shrink-0">
+             <UserIcon className="h-5 w-5 lg:h-7 lg:w-7" />
           </div>
           <div>
-            <h4 className="text-lg font-black text-foreground tracking-tight group-hover:text-emerald-500 transition-colors line-clamp-1">{user.name || "Anonymous User"}</h4>
-            <div className="flex items-center gap-2 text-muted-foreground">
-               <Mail className="h-3 w-3" />
-               <span className="text-[10px] font-bold truncate max-w-[140px]">{user.email}</span>
+            <h4 className="text-sm lg:text-lg font-black text-foreground tracking-tight group-hover:text-emerald-500 transition-colors line-clamp-1">{user.name || "Anonymous User"}</h4>
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+               <Mail className="h-2.5 w-2.5 lg:h-3 lg:w-3" />
+               <span className="text-[8px] lg:text-[10px] font-bold truncate max-w-[120px] lg:max-w-[140px]">{user.email}</span>
             </div>
           </div>
         </div>
         <RoleBadge role={user.role} />
       </div>
 
-      <div className="flex-1 space-y-6">
-         <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 border-b border-border/30 pb-4">
+      <div className="flex-1 space-y-4 lg:space-y-6">
+         <div className="flex items-center justify-between text-[8px] lg:text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 border-b border-border/30 pb-3 lg:pb-4">
             <span>Access Tier</span>
-            <span>Ref: {user.id.slice(-6).toUpperCase()}</span>
+            <span>ID: {user.id.slice(-6).toUpperCase()}</span>
          </div>
 
          {/* Access Control Action */}
-         <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-3">
-               <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground px-1">Modify Authorization</label>
+         <div className="space-y-3 lg:space-y-4">
+            <div className="grid grid-cols-1 gap-2 lg:gap-3">
+               <label className="text-[8px] lg:text-[9px] font-black uppercase tracking-widest text-muted-foreground px-1 opacity-50">Modify Authorization</label>
                <UserRoleAction userId={user.id} currentRole={user.role} />
             </div>
          </div>
       </div>
 
-      <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+      <div className="mt-6 lg:mt-8 flex items-center gap-2 text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-muted-foreground/30">
          <Calendar className="h-3 w-3" />
          Enrolled: {format(new Date(user.createdAt), 'MMM yyyy')}
       </div>
@@ -155,7 +155,7 @@ function RoleBadge({ role }: { role: string }) {
 
   return (
     <span className={cn(
-      "px-3 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-[0.2em] border",
+      "px-2 py-1 lg:px-3 lg:py-1.5 rounded-lg lg:rounded-xl text-[7px] lg:text-[8px] font-black uppercase tracking-[0.2em] border",
       styles[role] || styles.STUDENT
     )}>
       {role === 'SUPERUSER' ? 'Admin' : role.toLowerCase()}
@@ -172,13 +172,13 @@ function QuickStat({ label, value, icon, color }: { label: string, value: number
   };
   
   return (
-    <div className="p-4 rounded-3xl bg-background/40 border border-border/50 backdrop-blur-xl flex items-center gap-4">
-      <div className={cn("h-10 w-10 rounded-2xl flex items-center justify-center", colors[color || 'emerald'])}>
+    <div className="p-3 lg:p-4 rounded-2xl lg:rounded-3xl bg-background/40 border border-border/50 backdrop-blur-xl flex items-center gap-3 lg:gap-4 shrink-0">
+      <div className={cn("h-8 w-8 lg:h-10 lg:w-10 rounded-xl lg:rounded-2xl flex items-center justify-center shrink-0", colors[color || 'emerald'])}>
         {icon}
       </div>
       <div>
-        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground leading-none mb-1">{label}</p>
-        <p className="text-xl font-black text-foreground">{value}</p>
+        <p className="text-[7px] lg:text-[9px] font-black uppercase tracking-widest text-muted-foreground leading-none mb-1">{label}</p>
+        <p className="text-lg lg:text-xl font-black text-foreground">{value}</p>
       </div>
     </div>
   );
@@ -189,7 +189,7 @@ function FilterLink({ active, label, href }: { active: boolean, label: string, h
     <a 
       href={href}
       className={cn(
-        "px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
+        "px-4 py-2 lg:px-6 lg:py-2.5 rounded-lg lg:rounded-xl text-[8px] lg:text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
         active 
           ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/10" 
           : "text-muted-foreground hover:text-foreground hover:bg-card/50"
