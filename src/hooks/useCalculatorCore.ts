@@ -38,10 +38,13 @@ export function useCalculatorCore({
       : groupedSemesters;
   }, [groupedSemesters, isLETMode]);
 
-  // Initial expand
+  // Initial expand & Sync
   useEffect(() => {
-    if (!expandedSem && displayedSemesters.length > 0) {
-      setExpandedSem(displayedSemesters[0].id);
+    if (displayedSemesters.length > 0) {
+      const isCurrentValid = displayedSemesters.some(s => s.id === expandedSem);
+      if (!expandedSem || !isCurrentValid) {
+        setExpandedSem(displayedSemesters[0].id);
+      }
     }
   }, [displayedSemesters, expandedSem]);
 

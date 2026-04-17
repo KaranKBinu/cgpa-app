@@ -120,16 +120,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
             {/* Desktop & Additional Actions */}
             {/* Mobile LET Toggle Checkbox */}
             <div
-              onClick={() => {
-                const nextMode = !isLETMode;
-                setIsLETMode(nextMode);
-                if (nextMode && expandedSem) {
-                  const sem = (groupedSemesters as any).find((s: any) => s.id === expandedSem);
-                  if (sem && sem.number <= 2) {
-                    setExpandedSem(groupedSemesters[2]?.id || null);
-                  }
-                }
-              }}
+              onClick={() => setIsLETMode(!isLETMode)}
               className={cn(
                 "lg:hidden relative flex items-center border rounded-lg px-2.5 py-2.5 transition-all cursor-pointer select-none active:scale-95 shadow-sm",
                 isLETMode ? "border-emerald-500 bg-emerald-500/5" : "border-muted-foreground/30 bg-surface/30"
@@ -164,16 +155,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
 
               <Tooltip content={isLETMode ? "Normal Curriculum" : "Lateral Entry Mode"} variant="emerald">
                 <div
-                  onClick={() => {
-                    const nextMode = !isLETMode;
-                    setIsLETMode(nextMode);
-                    if (nextMode && expandedSem) {
-                      const sem = groupedSemesters.find(s => s.id === expandedSem);
-                      if (sem && sem.number <= 2) {
-                        setExpandedSem(groupedSemesters[2]?.id || null);
-                      }
-                    }
-                  }}
+                  onClick={() => setIsLETMode(!isLETMode)}
                   className={cn(
                     "relative flex items-center border rounded-xl px-4 py-3 transition-all cursor-pointer select-none active:scale-95 shadow-sm",
                     isLETMode ? "border-emerald-500 bg-emerald-500/5" : "border-muted-foreground/20 bg-card/10"
