@@ -17,7 +17,7 @@ export default async function Home() {
       where: { userId },
       orderBy: { updatedAt: 'desc' },
       take: 10,
-      include: { 
+      include: {
         program: true,
         _count: {
           select: { semesters: true }
@@ -35,22 +35,22 @@ export default async function Home() {
 
   // Priority: Latest calculation program > User Profile Department > alphabetical
   let userProgramId: string | undefined;
-  
+
   if (latestCalculation?.programId) {
     userProgramId = latestCalculation.programId;
   } else if (user?.department) {
-    const matched = allPrograms.find(p => 
-      p.code.toLowerCase() === user.department?.toLowerCase() || 
+    const matched = allPrograms.find(p =>
+      p.code.toLowerCase() === user.department?.toLowerCase() ||
       p.name.toLowerCase() === user.department?.toLowerCase()
     );
     if (matched) userProgramId = matched.id;
   }
 
-  const programs = userProgramId 
+  const programs = userProgramId
     ? [
-        ...allPrograms.filter(p => p.id === userProgramId),
-        ...allPrograms.filter(p => p.id !== userProgramId)
-      ]
+      ...allPrograms.filter(p => p.id === userProgramId),
+      ...allPrograms.filter(p => p.id !== userProgramId)
+    ]
     : allPrograms;
 
   return (
@@ -62,13 +62,13 @@ export default async function Home() {
       <div className="text-center space-y-4 mb-12 max-w-3xl">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-primary text-[10px] font-black tracking-[0.3em] uppercase mb-4">
           <Sparkles className="h-3 w-3" />
-          The Ultimate SGPA/CGPA Companion
+          Made with Love
         </div>
         <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight mb-4 text-foreground leading-[1.1]">
-          Calculate with <span className="gradient-text">Precision.</span>
+          GPA Calculator <span className="gradient-text">For Kerala Polytechnic</span>
         </h1>
         <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-semibold">
-          Select your program to get started. We have the complete Revision 2021 database pre-loaded for all Kerala Polytechnic courses.
+          Select your program to get started. We have the advanced GPA Calculator for all Kerala Polytechnic courses.
         </p>
       </div>
 
@@ -77,20 +77,20 @@ export default async function Home() {
       <RecentCalculatorLink programs={programs} recentCalculations={recentCalculations} />
 
       <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full">
-        <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3">
-          <div className="text-primary font-black uppercase text-[10px] tracking-widest">01. Discovery</div>
-          <h3 className="text-lg font-bold text-foreground">Select Program</h3>
-          <p className="text-sm text-muted-foreground">Find your specific diploma course from our extensive database of 43+ programs.</p>
+        <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3 group hover:border-emerald-500/30 transition-colors">
+          <div className="text-primary font-black uppercase text-[10px] tracking-widest">01. The Fast-Track</div>
+          <h3 className="text-xl font-black text-foreground">Skip the Typing</h3>
+          <p className="text-sm text-muted-foreground font-medium">Listen, rookie: don't waste time entering subjects. Just drop your PDF transcripts and let our parser scrape every grade and credit automatically. It's built to handle the boring stuff for you.</p>
         </div>
-        <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3">
-          <div className="text-primary font-black uppercase text-[10px] tracking-widest">02. Computation</div>
-          <h3 className="text-lg font-bold text-foreground">Enter Grades</h3>
-          <p className="text-sm text-muted-foreground">Simply select your grades for each subject. Credits and weights are handled automatically.</p>
+        <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3 group hover:border-emerald-500/30 transition-colors">
+          <div className="text-primary font-black uppercase text-[10px] tracking-widest">02. The Logic Flip</div>
+          <h3 className="text-xl font-black text-foreground">Context is Everything</h3>
+          <p className="text-sm text-muted-foreground font-medium">Lateral Entry student? Just toggle LET Mode and we'll handle the Sem-3 skip. Adding a custom elective? Do it on the fly. We adapt the engine to your specific academic pathway in real-time.</p>
         </div>
-        <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3">
-          <div className="text-primary font-black uppercase text-[10px] tracking-widest">03. Outcome</div>
-          <h3 className="text-lg font-bold text-foreground">Get Result</h3>
-          <p className="text-sm text-muted-foreground">View your SGPA and CGPA instantly with detailed subject breakdown and analysis.</p>
+        <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3 group hover:border-emerald-500/30 transition-colors">
+          <div className="text-primary font-black uppercase text-[10px] tracking-widest">03. The Safety Net</div>
+          <h3 className="text-xl font-black text-foreground">Zero Data Loss</h3>
+          <p className="text-sm text-muted-foreground font-medium">Close the tab? No stress. Every single grade you enter is instantly locked into a local draft. Log in for cloud sync, or stay local—either way, your progress is exactly where you left it.</p>
         </div>
       </div>
     </div>
