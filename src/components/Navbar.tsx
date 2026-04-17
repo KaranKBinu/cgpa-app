@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, History, User as UserIcon, MessageSquare, LogOut, Menu, X, Sparkles } from 'lucide-react';
+import { Home, History, User as UserIcon, MessageSquare, LogOut, Menu, X, Sparkles, ShieldAlert, ChevronDown, LayoutDashboard, BookOpen, Users, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from './ThemeToggle';
 import { signOut } from 'next-auth/react';
@@ -19,6 +19,7 @@ interface NavbarProps {
 
 export default function Navbar({ user, config }: NavbarProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const [isAdminOpen, setIsAdminOpen] = useState(false);
     const pathname = usePathname();
 
     const navLinks = [
@@ -27,6 +28,17 @@ export default function Navbar({ user, config }: NavbarProps) {
         { href: '/contact', label: 'Feedback', icon: MessageSquare },
         ...(user ? [{ href: '/profile', label: 'Profile', icon: UserIcon }] : []),
     ];
+
+    const adminLinks = [
+        { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+        { href: '/admin/programs', label: 'Programs', icon: BookOpen },
+        ...(user?.role === 'SUPERUSER' ? [
+            { href: '/admin/users', label: 'Users', icon: Users },
+            { href: '/admin/settings', label: 'Settings', icon: Settings },
+        ] : []),
+    ];
+
+    const isAdmin = user && (user.role === 'TEACHER' || user.role === 'SUPERUSER');
 
     return (
         <header className="absolute top-0 left-0 right-0 z-[100] p-4 lg:p-6 pointer-events-none">
@@ -64,6 +76,57 @@ export default function Navbar({ user, config }: NavbarProps) {
                                 </Link>
                             );
                         })}
+
+                        {/* Admin Dropdown */}
+                        {isAdmin && (
+                            <div className="relative" onMouseEnter={() => setIsAdminOpen(true)} onMouseLeave={() => setIsAdminOpen(false)}>
+                                <button
+                                    className={cn(
+                                        "flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm group mr-1",
+                                        pathname.startsWith('/admin')
+                                            ? "text-emerald-500 bg-emerald-500/10"
+                                            : "text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/5"
+                                    )}
+                                >
+                                    <ShieldAlert className={cn("h-4 w-4 transition-transform group-hover:scale-110", pathname.startsWith('/admin') && "scale-110")} />
+                                    <span>Admin Panel</span>
+                                    <ChevronDown className={cn("h-3 w-3 transition-transform", isAdminOpen && "rotate-180")} />
+                                </button>
+
+                                <AnimatePresence>
+                                    {isAdminOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            className="absolute top-full left-0 mt-2 w-56 p-2 rounded-2xl border border-border/50 bg-background/90 backdrop-blur-3xl shadow-2xl z-[120]"
+                                        >
+                                            {adminLinks.map((link) => {
+                                                const Icon = link.icon;
+                                                const isActive = pathname === link.href;
+                                                return (
+                                                    <Link
+                                                        key={link.href}
+                                                        href={link.href}
+                                                        className={cn(
+                                                            "flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm group",
+                                                            isActive
+                                                                ? "text-emerald-500 bg-emerald-500/10"
+                                                                : "text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/5"
+                                                        )}
+                                                    >
+                                                        <div className={cn("p-1.5 rounded-lg bg-card/50 transition-colors group-hover:bg-emerald-500/10", isActive && "bg-emerald-500/10 text-emerald-500")}>
+                                                          <Icon className="h-4 w-4" />
+                                                        </div>
+                                                        <span>{link.label}</span>
+                                                    </Link>
+                                                );
+                                            })}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        )}
 
                         <div className="w-px h-6 bg-border mx-2" />
                         <ThemeToggle />
@@ -130,6 +193,33 @@ export default function Navbar({ user, config }: NavbarProps) {
                                         </Link>
                                     );
                                 })}
+
+                                {isAdmin && (
+                                  <>
+                                    <div className="h-px bg-border my-2" />
+                                    <p className="px-4 text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Administrative</p>
+                                    {adminLinks.map((link) => {
+                                        const Icon = link.icon;
+                                        const isActive = pathname === link.href;
+                                        return (
+                                            <Link
+                                                key={link.href}
+                                                href={link.href}
+                                                onClick={() => setIsOpen(false)}
+                                                className={cn(
+                                                    "flex items-center gap-4 p-4 rounded-2xl transition-all font-bold",
+                                                    isActive
+                                                        ? "text-emerald-500 bg-emerald-500/10 border border-emerald-500/20"
+                                                        : "text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/5"
+                                                )}
+                                            >
+                                                <Icon className="h-5 w-5" />
+                                                <span>{link.label}</span>
+                                            </Link>
+                                        );
+                                    })}
+                                  </>
+                                )}
 
                                 <div className="h-px bg-border my-2" />
 

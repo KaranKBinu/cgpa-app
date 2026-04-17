@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { History, LogOut } from 'lucide-react';
+import { History, LogOut, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { Semester, SemResult } from '@/types/calculator';
 
@@ -80,6 +80,12 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       </nav>
 
       <div className="p-4 border-t border-border bg-card/50 space-y-2">
+        {session?.user && (session.user.role === 'TEACHER' || session.user.role === 'SUPERUSER') && (
+          <Link href="/admin" className="flex items-center justify-start gap-3 p-3 rounded-xl text-emerald-500 hover:bg-emerald-500/10 transition-all">
+            <ShieldAlert className="h-5 w-5" />
+            <span className="font-bold text-sm">Admin Panel</span>
+          </Link>
+        )}
         <Link href="/history" className="flex items-center justify-start gap-3 p-3 rounded-xl text-muted-foreground hover:bg-card/50 hover:text-foreground transition-all">
           <History className="h-5 w-5" />
           <span className="font-bold text-sm">History</span>

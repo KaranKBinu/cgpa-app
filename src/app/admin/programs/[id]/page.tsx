@@ -1,9 +1,11 @@
+import React from "react";
 import prisma from "@/lib/prisma";
 import { ArrowLeft, Plus, Trash2, BookOpen, Layers, GraduationCap, ChevronRight, Save } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { addSemester, deleteSemester, addSubject, deleteSubject } from "@/app/actions";
+import { addSemester, deleteSemester, addSubject } from "@/app/actions";
 import { groupSemesters } from "@/lib/calculator";
+import SubjectRow from "@/components/admin/SubjectRow";
 
 export default async function ProgramDetailPage({ params }: { params: { id: string } }) {
   const { id } = await params;
@@ -25,6 +27,26 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
 
   const groupedSemesters = groupSemesters(rawProgram.semesters);
 
+  // Nest subjects into hierarchy (Groups -> Options)
+  const nestedSemesters = groupedSemesters.map(sem => {
+    const rootSubjects = sem.subjects.filter(s => !s.parentId);
+    const optionsMap: Record<string, any[]> = {};
+    sem.subjects.forEach(s => {
+      if (s.parentId) {
+        if (!optionsMap[s.parentId]) optionsMap[s.parentId] = [];
+        optionsMap[s.parentId].push(s);
+      }
+    });
+
+    return {
+      ...sem,
+      rootSubjects: rootSubjects.map(root => ({
+        ...root,
+        options: optionsMap[root.id] || []
+      }))
+    };
+  });
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -38,7 +60,7 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
           </h1>
           <p className="text-muted-foreground font-medium">{rawProgram.name} — {rawProgram.scheme}</p>
         </div>
-
+        
         <form action={async () => {
           "use server";
           await addSemester(id, `Semester ${rawProgram.semesters.length + 1}`, rawProgram.semesters.length + 1);
@@ -51,7 +73,7 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
       </div>
 
       <div className="space-y-6">
-        {groupedSemesters.map((sem) => (
+        {nestedSemesters.map((sem) => (
           <div key={sem.id} className="bg-card/50 border border-border/50 rounded-[2.5rem] overflow-hidden group/sem">
             <div className="p-8 lg:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-card/30 border-b border-border/50">
               <div className="flex items-center gap-6">
@@ -91,25 +113,15 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
                     </tr>
                   </thead>
                   <tbody>
-                    {sem.subjects.map((sub) => (
-                      <tr key={sub.id} className="border-b border-border/30 group/row">
-                        <td className="px-4 py-4 font-mono text-sm text-emerald-500 font-bold">{sub.code}</td>
-                        <td className="px-4 py-4 text-foreground font-bold">{sub.name}</td>
-                        <td className="px-4 py-4 text-center font-black text-muted-foreground">{sub.credits}</td>
-                        <td className="px-4 py-4 text-right">
-                          <form action={async () => {
-                            "use server";
-                            await deleteSubject(sub.id, id);
-                          }}>
-                            <button type="submit" className="p-2 text-muted-foreground hover:text-red-500 transition-all">
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </form>
-                        </td>
-                      </tr>
+                    {sem.rootSubjects.map((root: any) => (
+                      <React.Fragment key={root.id}>
+                        <SubjectRow subject={root} programId={id} />
+                        {root.options?.map((opt: any) => (
+                          <SubjectRow key={opt.id} subject={opt} programId={id} isOption />
+                        ))}
+                      </React.Fragment>
                     ))}
-                    
-                    {/* Add Subject Row */}
+                                        {/* Add Subject Row */}
                     <tr className="bg-emerald-500/[0.02]">
                        <td colSpan={4} className="p-4">
                           <form action={async (formData) => {
@@ -117,14 +129,26 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
                             const name = formData.get("name") as string;
                             const code = formData.get("code") as string;
                             const credits = parseFloat(formData.get("credits") as string);
+                            const category = formData.get("category") as string;
+                            const isGroup = formData.get("isGroup") === "on";
+                            
                             // Add subject to the LAST original semester in the group (usually the normal one)
                              const targetSemId = sem.originalIds[sem.originalIds.length - 1];
-                            await addSubject(targetSemId, id, { name, code, credits });
+                            await addSubject(targetSemId, id, { name, code, credits, category, isGroup });
                           }} className="flex flex-col lg:flex-row items-center gap-4">
                              <input name="code" placeholder="Code (e.g. 1021)" className="flex-1 lg:max-w-[120px] bg-background border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground focus:border-emerald-500/50 outline-none" required />
-                             <input name="name" placeholder="Subject Name" className="flex-[3] bg-background border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground focus:border-emerald-500/50 outline-none" required />
-                             <input name="credits" type="number" step="0.5" placeholder="CR" className="w-20 bg-background border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground focus:border-emerald-500/50 outline-none" required />
-                             <button type="submit" className="h-11 px-6 rounded-xl bg-emerald-500 text-black font-black uppercase tracking-widest text-[10px] hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                             <div className="flex-[3] flex flex-col gap-2 w-full">
+                               <input name="name" placeholder="Subject Name" className="w-full bg-background border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground focus:border-emerald-500/50 outline-none" required />
+                               <input name="category" placeholder="Category (e.g. Core, Elective)" className="w-full bg-background/50 border border-border/30 rounded-xl px-4 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest outline-none focus:border-emerald-500/30" />
+                             </div>
+                             <div className="flex items-center gap-4">
+                               <input name="credits" type="number" step="0.5" placeholder="CR" className="w-20 bg-background border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground focus:border-emerald-500/50 outline-none text-center font-bold" required />
+                               <label className="flex items-center gap-2 cursor-pointer select-none">
+                                 <input type="checkbox" name="isGroup" className="h-4 w-4 rounded border-border text-emerald-500 focus:ring-emerald-500 bg-background" />
+                                 <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Group</span>
+                               </label>
+                             </div>
+                             <button type="submit" className="h-11 px-6 rounded-xl bg-emerald-500 text-black font-black uppercase tracking-widest text-[10px] hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/10 shrink-0">
                                 <Plus className="h-4 w-4" /> Add
                              </button>
                           </form>

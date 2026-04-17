@@ -312,7 +312,7 @@ export async function deleteSemester(id: string, programId: string) {
 export async function addSubject(
   semesterId: string,
   programId: string,
-  data: { name: string; code: string; credits: number }
+  data: { name: string; code: string; credits: number; isGroup?: boolean; category?: string | null; parentId?: string | null }
 ) {
   const session = await auth();
   const role = (session?.user as any)?.role;
@@ -354,6 +354,32 @@ export async function deleteSubject(id: string, programId: string) {
   } catch (error: any) {
     logAdmin.error("Failed to delete subject", { subjectId: id, error: error.message });
     return { error: "Failed to delete subject" };
+  }
+}
+
+export async function updateSubject(
+  id: string,
+  programId: string,
+  data: { name: string; code: string; credits: number; isGroup?: boolean; category?: string | null; parentId?: string | null }
+) {
+  const session = await auth();
+  const role = (session?.user as any)?.role;
+
+  logAdmin.info("updateSubject called", { subjectId: id, programId, code: data.code, actorRole: role });
+
+  if (role !== "TEACHER" && role !== "SUPERUSER") {
+    logAdmin.warn("updateSubject unauthorised", { actorRole: role });
+    return { error: "Unauthorized" };
+  }
+
+  try {
+    await prisma.syllabusSubject.update({ where: { id }, data });
+    revalidatePath(`/admin/programs/${programId}`);
+    logAdmin.info("Subject updated", { subjectId: id, code: data.code });
+    return { success: true };
+  } catch (error: any) {
+    logAdmin.error("Failed to update subject", { subjectId: id, error: error.message });
+    return { error: "Failed to update subject" };
   }
 }
 
