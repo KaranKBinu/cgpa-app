@@ -1,0 +1,160 @@
+"use client";
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Home, History, User as UserIcon, MessageSquare, LogOut, Menu, X, Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { ThemeToggle } from './ThemeToggle';
+import { signOut } from 'next-auth/react';
+
+interface NavbarProps {
+    user: any;
+    config: {
+        appName: string;
+        revision: string;
+    };
+}
+
+export default function Navbar({ user, config }: NavbarProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    const pathname = usePathname();
+
+    const navLinks = [
+        { href: '/', label: 'Home', icon: Home },
+        { href: '/history', label: 'History', icon: History },
+        { href: '/contact', label: 'Feedback', icon: MessageSquare },
+        ...(user ? [{ href: '/profile', label: 'Profile', icon: UserIcon }] : []),
+    ];
+
+    return (
+        <header className="absolute top-0 left-0 right-0 z-[100] p-4 lg:p-6 pointer-events-none">
+            <nav className="mx-auto max-w-7xl pointer-events-auto">
+                <div className="h-16 lg:h-20 px-4 lg:px-8 rounded-2xl lg:rounded-[2.5rem] border border-border/50 bg-background/80 backdrop-blur-2xl shadow-2xl flex items-center justify-between transition-all">
+                    {/* Brand */}
+                    <Link href="/" className="flex items-center gap-2 group transition-all active:scale-95 shrink-0">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 font-extrabold text-black shadow-lg shadow-emerald-500/20 group-hover:rotate-6 transition-transform">
+                            G
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-lg font-black tracking-tight text-foreground leading-none">{config.appName}</span>
+                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-1 hidden sm:block">{config.revision}</span>
+                        </div>
+                    </Link>
+
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:flex items-center gap-1 lg:gap-2">
+                        {navLinks.map((link) => {
+                            const Icon = link.icon;
+                            const isActive = pathname === link.href;
+                            return (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className={cn(
+                                        "flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm group",
+                                        isActive
+                                            ? "text-emerald-500 bg-emerald-500/10"
+                                            : "text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/5"
+                                    )}
+                                >
+                                    <Icon className={cn("h-4 w-4 transition-transform group-hover:scale-110", isActive && "scale-110")} />
+                                    <span>{link.label}</span>
+                                </Link>
+                            );
+                        })}
+
+                        <div className="w-px h-6 bg-border mx-2" />
+                        <ThemeToggle />
+                        <div className="w-px h-6 bg-border mx-2" />
+
+                        {user ? (
+                            <button
+                                onClick={() => signOut()}
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all font-bold text-sm group"
+                            >
+                                <LogOut className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                                <span>Sign Out</span>
+                            </button>
+                        ) : (
+                            <Link
+                                href="/auth/login"
+                                className="px-5 py-2 rounded-xl bg-emerald-500 text-black font-black uppercase tracking-widest text-[10px] shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all"
+                            >
+                                Login
+                            </Link>
+                        )}
+                    </div>
+
+                    {/* Mobile Controls */}
+                    <div className="flex md:hidden items-center gap-2">
+                        <ThemeToggle />
+                        <button
+                            onClick={() => setIsOpen(!isOpen)}
+                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 transition-all active:scale-90"
+                        >
+                            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Mobile Menu Overlay */}
+                <AnimatePresence>
+                    {isOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            className="absolute top-24 left-4 right-4 p-4 rounded-3xl border border-border/50 bg-background/90 backdrop-blur-3xl shadow-2xl md:hidden z-[110]"
+                        >
+                            <div className="flex flex-col gap-2">
+                                {navLinks.map((link) => {
+                                    const Icon = link.icon;
+                                    const isActive = pathname === link.href;
+                                    return (
+                                        <Link
+                                            key={link.href}
+                                            href={link.href}
+                                            onClick={() => setIsOpen(false)}
+                                            className={cn(
+                                                "flex items-center gap-4 p-4 rounded-2xl transition-all font-bold",
+                                                isActive
+                                                    ? "text-emerald-500 bg-emerald-500/10 border border-emerald-500/20"
+                                                    : "text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/5"
+                                            )}
+                                        >
+                                            <Icon className="h-5 w-5" />
+                                            <span>{link.label}</span>
+                                        </Link>
+                                    );
+                                })}
+
+                                <div className="h-px bg-border my-2" />
+
+                                {user ? (
+                                    <button
+                                        onClick={() => { setIsOpen(false); signOut(); }}
+                                        className="flex items-center gap-4 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 transition-all font-bold w-full"
+                                    >
+                                        <LogOut className="h-5 w-5" />
+                                        <span>Sign Out</span>
+                                    </button>
+                                ) : (
+                                    <Link
+                                        href="/auth/login"
+                                        onClick={() => setIsOpen(false)}
+                                        className="flex items-center justify-center p-4 rounded-2xl bg-emerald-500 text-black font-black uppercase tracking-widest text-xs transition-all w-full"
+                                    >
+                                        Login to PolyGrade
+                                    </Link>
+                                )}
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </nav>
+        </header>
+    );
+}
