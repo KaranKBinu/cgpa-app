@@ -29,13 +29,13 @@ export default function ProgramSelector({
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">
       <div className="relative group">
-        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-muted-foreground group-focus-within:text-emerald-500 transition-colors" />
+        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none z-10">
+          <Search className="h-5 w-5 text-emerald-500 transition-colors" />
         </div>
         <input
           type="text"
           placeholder="Search your program (e.g. Computer Science)"
-          className="w-full h-14 bg-card/50 backdrop-blur-xl border border-border/50 rounded-2xl pl-12 pr-4 text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all placeholder:text-muted-foreground"
+          className="w-full h-14 bg-card/60 backdrop-blur-xl border border-emerald-500/30 rounded-2xl pl-12 pr-4 text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all placeholder:text-muted-foreground shadow-[0_0_40px_rgba(16,185,129,0.28)] ring-1 ring-white/5"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
