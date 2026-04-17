@@ -66,7 +66,7 @@ export const SemesterHUD: React.FC<SemesterHUDProps> = ({
                 <div className="h-4 lg:h-8 w-px bg-primary/20" />
                 <div className="text-right">
                   <p className="text-[10px] lg:text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1 whitespace-nowrap">%</p>
-                  <p className="text-xl lg:text-3xl font-black text-foreground tracking-tighter leading-none">{currentSemRes.percentage.toFixed(0)}</p>
+                  <p className="text-xl lg:text-3xl font-black text-foreground tracking-tighter leading-none">{currentSemRes.percentage.toFixed(2)}</p>
                 </div>
               </div>
             ) : (
