@@ -47,12 +47,24 @@ export const ElectiveSelector: React.FC<ElectiveSelectorProps> = ({
     const query = search.toLowerCase().trim();
     if (!query) return groupedOptions;
 
+    const terms = query.split(/\s+/).filter(t => t.length > 0);
+
+    const match = (name: string, code?: string) => {
+      const lowerName = name.toLowerCase();
+      const lowerCode = code?.toLowerCase() || "";
+      const acronym = name.split(/\s+/).map(w => w[0]).join('').toLowerCase();
+      
+      // Every term in the query must be found in either the name, code, or as an acronym
+      return terms.every(term => 
+        lowerName.includes(term) || 
+        lowerCode.includes(term) ||
+        acronym.includes(term)
+      );
+    };
+
     const result: Record<string, Option[]> = {};
     Object.entries(groupedOptions).forEach(([groupName, groupOptions]) => {
-      const filtered = groupOptions.filter(o => 
-        o.name.toLowerCase().includes(query) || 
-        o.code?.toLowerCase().includes(query)
-      );
+      const filtered = groupOptions.filter(o => match(o.name, o.code));
       if (filtered.length > 0) result[groupName] = filtered;
     });
     return result;
@@ -61,10 +73,20 @@ export const ElectiveSelector: React.FC<ElectiveSelectorProps> = ({
   const filteredOptions = useMemo(() => {
     const query = search.toLowerCase().trim();
     if (!query) return options;
-    return options.filter(o => 
-      o.name.toLowerCase().includes(query) || 
-      o.code?.toLowerCase().includes(query)
-    );
+    
+    const terms = query.split(/\s+/).filter(t => t.length > 0);
+
+    return options.filter(o => {
+      const lowerName = o.name.toLowerCase();
+      const lowerCode = o.code?.toLowerCase() || "";
+      const acronym = o.name.split(/\s+/).map(w => w[0]).join('').toLowerCase();
+
+      return terms.every(term => 
+        lowerName.includes(term) || 
+        lowerCode.includes(term) ||
+        acronym.includes(term)
+      );
+    });
   }, [options, search]);
 
   const hasAnyResults = filteredOptions.length > 0 || Object.keys(filteredGroupedOptions).length > 0;
