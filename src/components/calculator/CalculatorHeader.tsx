@@ -60,7 +60,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 </h1>
                 <div className="lg:hidden flex items-center gap-1.5 bg-primary/10 px-2 py-0.5 rounded-full">
                   <span className="text-[13px] font-black text-primary whitespace-nowrap">{results.cgpa.toFixed(2)}</span>
-                  <span className="text-[11px] font-bold text-primary/60 whitespace-nowrap">{results.totalPercentage.toFixed(0)}%</span>
+                  <span className="text-[11px] font-bold text-white whitespace-nowrap bg-emerald-500/10 px-2 py-0.5 rounded-full">{results.totalPercentage.toFixed(0)}%</span>
                 </div>
               </div>
               <span className="hidden lg:block text-xs font-black text-primary/60 uppercase tracking-widest mt-1">
