@@ -150,7 +150,7 @@ export function useCalculatorCore({
         const officialCredits = sem.subjects.reduce((acc, sub) => acc + (sub.credits || 0), 0);
         return {
           id: sem.id, name: sem.name, sgpa: manualEntry.sgpa,
-          percentage: manualEntry.sgpa > 0 ? (manualEntry.sgpa - 0.5) * 10 : 0,
+          percentage: manualEntry.sgpa > 0 ? manualEntry.sgpa * 9.5 : 0,
           totalCredits: officialCredits, earnedCredits: officialCredits,
           attemptedCredits: officialCredits, number: sem.number,
           isComplete: true, isManual: true
@@ -201,7 +201,7 @@ export function useCalculatorCore({
         id: sem.id, 
         name: sem.name, 
         sgpa, 
-        percentage: sgpa > 0 ? (sgpa - 0.5) * 10 : 0, 
+        percentage: sgpa > 0 ? sgpa * 9.5 : 0, 
         totalCredits, 
         earnedCredits, 
         attemptedCredits, 
@@ -212,7 +212,7 @@ export function useCalculatorCore({
     });
     const relevantSems = isLETMode ? semResults.filter(s => s.sgpa > 0 && s.number > 2) : semResults.filter(s => s.sgpa > 0);
     const cgpa = calculateCGPA(relevantSems.map(s => ({ sgpa: s.sgpa, totalCredits: s.attemptedCredits })));
-    return { semResults, cgpa, totalPercentage: cgpa > 0 ? (cgpa - 0.5) * 10 : 0 };
+    return { semResults, cgpa, totalPercentage: cgpa > 0 ? cgpa * 9.5 : 0 };
   }, [groupedSemesters, grades, exclusions, customSubjects, manualSgpas, isLETMode, selectedOptions, globalOpenElectives]);
 
   const resetCalculator = () => {

@@ -52,15 +52,15 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
             <div className="h-8 w-8 lg:h-12 lg:w-12 rounded-lg lg:rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center font-black text-black shadow-lg shadow-emerald-500/20 shrink-0">
               <LayoutDashboard className="h-4 w-4 lg:h-6 lg:w-6" />
             </div>
-            
+
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-2">
                 <h1 className="text-[10px] lg:text-xl font-black tracking-tighter text-foreground truncate max-w-[70px] lg:max-w-none uppercase lg:normal-case">
                   {program.code}
                 </h1>
                 <div className="lg:hidden flex items-center gap-1.5 bg-primary/10 px-2 py-0.5 rounded-full">
-                  <span className="text-[11px] font-black text-primary whitespace-nowrap">{results.cgpa.toFixed(2)}</span>
-                  <span className="text-[9px] font-bold text-primary/60 whitespace-nowrap">{results.totalPercentage.toFixed(0)}%</span>
+                  <span className="text-[13px] font-black text-primary whitespace-nowrap">{results.cgpa.toFixed(2)}</span>
+                  <span className="text-[11px] font-bold text-primary/60 whitespace-nowrap">{results.totalPercentage.toFixed(0)}%</span>
                 </div>
               </div>
               <span className="hidden lg:block text-xs font-black text-primary/60 uppercase tracking-widest mt-1">
@@ -95,7 +95,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
               >
                 {isProcessingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileUp className="h-3.5 w-3.5" />}
               </button>
-              
+
               <button
                 onClick={resetCalculator}
                 className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-primary/10 text-primary transition-colors active:scale-90"
@@ -113,7 +113,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 <Download className="h-3.5 w-3.5" />
               </button>
             </div>
-            
+
             {/* Desktop & Additional Actions */}
             {/* Mobile LET Toggle Checkbox */}
             <div
@@ -158,7 +158,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                   <UserPlus className="h-4 w-4 lg:h-5 lg:w-5" />
                 </button>
               </Tooltip>
-              
+
               <Tooltip content={isLETMode ? "Normal Curriculum" : "Lateral Entry Mode"} variant="emerald">
                 <div
                   onClick={() => {
