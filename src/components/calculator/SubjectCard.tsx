@@ -14,7 +14,7 @@ interface SubjectCardProps {
   onGradeChange: (id: string, grade: Grade) => void;
   onExclude: (id: string, type: 'not-published' | 'not-taken' | null) => void;
   onRemoveCustom?: (id: string) => void;
-  
+
   // Elective selection props
   selectedOptionId?: string;
   onSelectOption?: (groupId: string, optionId: string) => void;
@@ -36,7 +36,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
 }) => {
   const [isSelectorOpen, setIsSelectorOpen] = React.useState(false);
   const isExcluded = !!exclusion;
-  
+
   // If it's a group, we might have a selected option or not.
   // The 'sub' passed from SubjectsView now contains { ...group, selectedOpt }
   const groupData = sub.isGroup ? sub : null;
@@ -50,11 +50,11 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
       animate={{ opacity: 1, scale: 1 }}
       className={cn(
         "group relative rounded-[2.5rem] border-2 transition-all duration-300 hover:z-10",
-        isSelectorOpen 
-          ? "z-50 bg-card border-primary ring-4 ring-primary/10 shadow-2xl" 
-          : isExcluded 
-            ? "bg-muted/40 border-border/20 grayscale opacity-60 z-0" 
-            : groupData 
+        isSelectorOpen
+          ? "z-50 bg-card border-primary ring-4 ring-primary/10 shadow-2xl"
+          : isExcluded
+            ? "bg-muted/40 border-border/20 grayscale opacity-60 z-0"
+            : groupData
               ? "bg-primary/5 border-primary/20 hover:border-primary/40 shadow-lg shadow-primary/5 z-0"
               : "bg-surface border-border/50 hover:border-primary/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] z-0"
       )}
@@ -71,7 +71,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
             NP
           </button>
         </Tooltip>
-        
+
         <Tooltip content={currentSub.isCustom ? "Remove Subject" : "Skip Subject"} position="top" variant="emerald">
           <button
             onClick={() => {
@@ -97,14 +97,14 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
             <div className="space-y-1.5">
               <p className="text-[11px] lg:text-[10px] font-black text-primary uppercase tracking-[0.3em]">{groupData.name}</p>
               <p className="text-xs lg:text-[11px] font-bold text-muted-foreground/60 leading-relaxed">
-                {groupData.selectedOpt 
-                  ? "Switch to a different elective anytime." 
+                {groupData.selectedOpt
+                  ? "Switch to a different elective anytime."
                   : `Choose your ${isOpenElective ? "inter-departmental" : "specific"} elective course.`}
               </p>
             </div>
 
-            <ElectiveSelector 
-              label={isOpenElective ? "Search All Departments" : "Select Elective"}
+            <ElectiveSelector
+              label={isOpenElective ? "Search your Open Elective" : "Select Elective"}
               options={groupData.options}
               groupedOptions={isOpenElective ? groupedOpenElectives : undefined}
               selectedId={selectedOptionId}
@@ -116,8 +116,8 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
         ) : (
           <div>
             <div className="flex items-center justify-between mb-1.5 min-h-[20px]">
-               <span className="text-[10px] lg:text-[10px] font-black text-primary/60 uppercase tracking-[0.2em]">{currentSub.code || 'VAR'}</span>
-               {currentSub.isCustom && <span className="text-[9px] font-black bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full uppercase tracking-widest">Added</span>}
+              <span className="text-[10px] lg:text-[10px] font-black text-primary/60 uppercase tracking-[0.2em]">{currentSub.code || 'VAR'}</span>
+              {currentSub.isCustom && <span className="text-[9px] font-black bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full uppercase tracking-widest">Added</span>}
             </div>
             <h3 className="text-base lg:text-lg font-black text-foreground tracking-tight leading-tight line-clamp-2 md:line-clamp-none min-h-[2.5em] md:min-h-0">{currentSub.name}</h3>
             <p className="text-xs lg:text-[11px] font-black text-muted-foreground mt-1.5 uppercase tracking-widest">{currentSub.credits} Credits</p>
