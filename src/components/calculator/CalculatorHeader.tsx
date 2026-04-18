@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, FileUp, Download, Loader2, CheckCircle2, Save, Check, UserPlus, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, FileUp, Download, Loader2, CheckCircle2, Save, Check, RotateCcw, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { Tooltip } from '../Tooltip';
 import { Program, CalculatorResults } from '@/types/calculator';
@@ -104,9 +104,9 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 onClick={resetCalculator}
                 className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-primary/10 text-primary transition-colors active:scale-90"
               >
-                <UserPlus className="h-3.5 w-3.5" />
+                <RotateCcw className="h-3.5 w-3.5" />
               </button>
-              
+
               {session?.user && (session.user.role === 'TEACHER' || session.user.role === 'SUPERUSER') && (
                 <Link
                   href="/admin"
@@ -154,25 +154,25 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
             </div>
 
             <div className="hidden lg:flex items-center gap-2">
-              <Tooltip content="Reset for Next Student" variant="emerald">
+              <Tooltip content="Reset Marks" variant="emerald">
                 <button
                   onClick={resetCalculator}
                   className="h-10 w-10 lg:h-12 lg:w-12 rounded-2xl bg-surface border border-border/50 text-foreground hover:border-primary hover:text-primary transition-all flex items-center justify-center active:scale-95"
                 >
-                  <UserPlus className="h-4 w-4 lg:h-5 lg:w-5" />
+                  <RotateCcw className="h-4 w-4 lg:h-5 lg:w-5" />
                 </button>
               </Tooltip>
 
-            {session?.user && (session.user.role === 'TEACHER' || session.user.role === 'SUPERUSER') && (
-              <Tooltip content="Admin Dashboard" variant="emerald">
-                <Link
-                  href="/admin"
-                  className="h-10 w-10 lg:h-12 lg:w-12 rounded-2xl bg-surface border border-border/50 text-emerald-500 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all flex items-center justify-center active:scale-95"
-                >
-                  <ShieldAlert className="h-4 w-4 lg:h-5 lg:w-5" />
-                </Link>
-              </Tooltip>
-            )}
+              {session?.user && (session.user.role === 'TEACHER' || session.user.role === 'SUPERUSER') && (
+                <Tooltip content="Admin Dashboard" variant="emerald">
+                  <Link
+                    href="/admin"
+                    className="h-10 w-10 lg:h-12 lg:w-12 rounded-2xl bg-surface border border-border/50 text-emerald-500 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all flex items-center justify-center active:scale-95"
+                  >
+                    <ShieldAlert className="h-4 w-4 lg:h-5 lg:w-5" />
+                  </Link>
+                </Tooltip>
+              )}
 
               <Tooltip content={isLETMode ? "Normal Curriculum" : "Lateral Entry Mode"} variant="emerald">
                 <div
