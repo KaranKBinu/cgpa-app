@@ -76,7 +76,7 @@ export default function ProgramSelector({
   }, [search, userProgramId, isOpen, filteredPrograms.length]);
 
   return (
-    <div ref={containerRef} className="w-full max-w-3xl mx-auto relative z-[100]">
+    <div ref={containerRef} className="w-full max-w-3xl mx-auto relative z-[30]">
       {/* Search Trigger / Input */}
       <div className="relative group">
         <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none z-20">
@@ -155,7 +155,7 @@ export default function ProgramSelector({
             initial={{ opacity: 0, y: 10, scale: 0.98 }}
             animate={{ opacity: 1, y: 15, scale: 1 }}
             exit={{ opacity: 0, y: 5, scale: 0.98 }}
-            className="absolute left-0 right-0 overflow-hidden rounded-[2.5rem] bg-card/90 backdrop-blur-3xl border border-emerald-500/20 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] z-50 ring-1 ring-white/5"
+            className="absolute left-0 right-0 overflow-hidden rounded-[2.5rem] bg-card/90 backdrop-blur-3xl border border-emerald-500/20 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] z-40 ring-1 ring-white/5"
           >
             <div className="max-h-[460px] overflow-y-auto p-3 custom-scrollbar">
               {filteredPrograms.length > 0 ? (
