@@ -21,7 +21,7 @@ export default function ProgramSelector({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -48,9 +48,9 @@ export default function ProgramSelector({
       setSelectedIndex(prev => Math.min(prev + 1, filteredPrograms.length - 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex(prev => Math.max(prev - 1, 0));
+      setSelectedIndex(prev => Math.max(prev - 1, -1));
     } else if (e.key === 'Enter') {
-      if (filteredPrograms[selectedIndex]) {
+      if (selectedIndex >= 0 && filteredPrograms[selectedIndex]) {
         window.location.href = `/calculate/${filteredPrograms[selectedIndex].code}`;
       }
     } else if (e.key === 'Escape') {
@@ -59,35 +59,66 @@ export default function ProgramSelector({
   };
 
   useEffect(() => {
-    setSelectedIndex(0);
-  }, [search]);
+    if (!isOpen) {
+      setSelectedIndex(-1);
+      return;
+    }
+
+    if (search.trim()) {
+      setSelectedIndex(0);
+    } else if (userProgramId) {
+      // Find index of user program if it exists in current filtered list
+      const idx = filteredPrograms.findIndex(p => p.id === userProgramId);
+      setSelectedIndex(idx >= 0 ? idx : -1);
+    } else {
+      setSelectedIndex(-1);
+    }
+  }, [search, userProgramId, isOpen, filteredPrograms.length]);
 
   return (
     <div ref={containerRef} className="w-full max-w-3xl mx-auto relative z-[100]">
       {/* Search Trigger / Input */}
       <div className="relative group">
-        <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+        <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none z-20">
           <Search className={cn(
-            "h-5 w-5 transition-colors duration-300",
-            isOpen ? "text-emerald-500" : "text-muted-foreground/50 group-hover:text-emerald-500/50"
+            "h-6 w-6 transition-all duration-300",
+            isOpen ? "text-emerald-500 scale-110" : "text-emerald-500/40 group-hover:text-emerald-500/70"
           )} />
         </div>
         
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="Click to find your program (e.g. Computer Science)"
-          className={cn(
-            "w-full h-16 bg-card/40 backdrop-blur-2xl border-2 pl-14 pr-16 text-lg font-bold text-foreground focus:outline-none transition-all duration-500 rounded-3xl",
-            isOpen 
-              ? "border-emerald-500 shadow-[0_0_60px_rgba(16,185,129,0.25)] ring-4 ring-emerald-500/10 placeholder:opacity-50" 
-              : "border-border/50 hover:border-emerald-500/20 hover:bg-card/60 shadow-xl placeholder:text-muted-foreground/30"
-          )}
-          value={search}
-          onFocus={() => setIsOpen(true)}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
+        <motion.div
+           animate={isOpen ? {
+             boxShadow: [
+               "0 0 40px -10px rgba(16, 185, 129, 0.2)",
+               "0 0 60px -5px rgba(16, 185, 129, 0.4)",
+               "0 0 40px -10px rgba(16, 185, 129, 0.2)"
+             ]
+           } : {
+             boxShadow: "0 10px 30px -10px rgba(0, 0, 0, 0.3)"
+           }}
+           transition={isOpen ? {
+             duration: 2,
+             repeat: Infinity,
+             ease: "easeInOut"
+           } : {}}
+           className="rounded-[2rem]"
+        >
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="Select your program (e.g. Computer Science)"
+            className={cn(
+              "w-full h-16 sm:h-20 bg-card/60 backdrop-blur-3xl border-2 pl-16 pr-16 text-lg sm:text-xl font-black text-foreground focus:outline-none transition-all duration-500 rounded-[2rem] relative z-10",
+              isOpen 
+                ? "border-emerald-500/50 ring-8 ring-emerald-500/5" 
+                : "border-emerald-500/20 hover:border-emerald-500/40 hover:bg-card/80 shadow-none"
+            )}
+            value={search}
+            onFocus={() => setIsOpen(true)}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+        </motion.div>
 
         <div className="absolute inset-y-0 right-5 flex items-center gap-2">
             <AnimatePresence mode="wait">
