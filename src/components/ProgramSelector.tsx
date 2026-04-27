@@ -24,6 +24,23 @@ export default function ProgramSelector({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Prevent scroll when search is open on mobile
+  useEffect(() => {
+    if (isOpen && isMobile) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [isOpen, isMobile]);
 
   const filteredPrograms = programs.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -76,17 +93,22 @@ export default function ProgramSelector({
   }, [search, userProgramId, isOpen, filteredPrograms.length]);
 
   return (
-    <div ref={containerRef} className="w-full max-w-3xl mx-auto relative z-[30]">
+    <div 
+      ref={containerRef} 
+      className="w-full max-w-3xl mx-auto relative z-[30]"
+    >
+
       {/* Search Trigger / Input */}
       <div className="relative group">
         <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none z-20">
           <Search className={cn(
-            "h-6 w-6 transition-all duration-300",
+            "h-5 w-5 sm:h-6 sm:w-6 transition-all duration-300",
             isOpen ? "text-emerald-500 scale-110" : "text-emerald-500/40 group-hover:text-emerald-500/70"
           )} />
         </div>
         
         <motion.div
+           layout
            animate={isOpen ? {
              boxShadow: [
                "0 0 40px -10px rgba(16, 185, 129, 0.2)",
@@ -101,16 +123,16 @@ export default function ProgramSelector({
              repeat: Infinity,
              ease: "easeInOut"
            } : {}}
-           className="rounded-[2rem]"
+           className="rounded-3xl sm:rounded-[2rem]"
         >
           <input
             ref={inputRef}
             type="text"
-            placeholder="Select your program (e.g. Computer Science)"
+            placeholder={isMobile ? "Search department..." : "Select your program (e.g. Computer Science)"}
             className={cn(
-              "w-full h-16 sm:h-20 bg-card/60 backdrop-blur-3xl border-2 pl-16 pr-16 text-lg sm:text-xl font-black text-foreground focus:outline-none transition-all duration-500 rounded-[2rem] relative z-10",
+              "w-full h-14 sm:h-20 bg-card/60 backdrop-blur-3xl border-2 pl-14 sm:pl-16 pr-14 sm:pr-16 text-base sm:text-xl font-black text-foreground focus:outline-none transition-all duration-500 rounded-3xl sm:rounded-[2rem] relative z-10",
               isOpen 
-                ? "border-emerald-500/50 ring-8 ring-emerald-500/5" 
+                ? "border-emerald-500/50 ring-8 ring-emerald-500/5 bg-card/80" 
                 : "border-emerald-500/20 hover:border-emerald-500/40 hover:bg-card/80 shadow-none"
             )}
             value={search}
@@ -148,16 +170,56 @@ export default function ProgramSelector({
         </div>
       </div>
 
-      {/* Option Pane (Floating Results) */}
+      {/* Results Overlay */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 15, scale: 1 }}
-            exit={{ opacity: 0, y: 5, scale: 0.98 }}
-            className="absolute left-0 right-0 overflow-hidden rounded-[2.5rem] bg-card/90 backdrop-blur-3xl border border-emerald-500/20 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] z-40 ring-1 ring-white/5"
+            initial={isMobile ? { opacity: 0 } : { opacity: 0, y: 10, scale: 0.98 }}
+            animate={isMobile ? { opacity: 1 } : { opacity: 1, y: 15, scale: 1 }}
+            exit={isMobile ? { opacity: 0 } : { opacity: 0, y: 5, scale: 0.98 }}
+            className={cn(
+              "overflow-hidden bg-background/95 backdrop-blur-3xl border border-emerald-500/20 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] z-[150] ring-1 ring-white/5",
+              isMobile 
+                ? "fixed inset-0 p-4 flex flex-col" 
+                : "absolute left-0 right-0 mt-4 rounded-[2.5rem]"
+            )}
           >
-            <div className="max-h-[460px] overflow-y-auto p-3 custom-scrollbar">
+            {/* Mobile Header (Search Input + Close) */}
+            {isMobile && (
+               <div className="flex flex-col gap-4 mb-4">
+                  <div className="flex items-center justify-between px-2 pt-2">
+                    <div className="flex flex-col">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500">Program Finder</span>
+                        <h2 className="text-xl font-black text-foreground">Select Department</h2>
+                    </div>
+                    <button 
+                      onClick={() => setIsOpen(false)}
+                      className="h-10 w-10 flex items-center justify-center rounded-2xl bg-muted/10 border border-border/50 text-foreground"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                  
+                  {/* Re-render input inside overlay for full screen experience */}
+                  <div className="relative">
+                    <Search className="absolute left-6 inset-y-0 h-5 w-5 my-auto text-emerald-500" />
+                    <input
+                      autoFocus
+                      type="text"
+                      placeholder="Search department..."
+                      className="w-full h-16 bg-card/60 border-2 border-emerald-500/50 pl-16 pr-6 text-lg font-black text-foreground focus:outline-none rounded-[2rem] ring-8 ring-emerald-500/5"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                    />
+                  </div>
+               </div>
+            )}
+
+            <div className={cn(
+                "overflow-y-auto custom-scrollbar",
+                isMobile ? "flex-1 px-1" : "max-h-[460px] p-3"
+            )}>
               {filteredPrograms.length > 0 ? (
                 <div className="grid grid-cols-1 gap-1">
                   {filteredPrograms.map((program, index) => {
@@ -168,6 +230,10 @@ export default function ProgramSelector({
                       <Link
                         key={program.id}
                         href={`/calculate/${program.code}`}
+                        onClick={() => {
+                          setIsOpen(false);
+                          if (isMobile) document.body.style.overflow = 'unset';
+                        }}
                         onMouseEnter={() => setSelectedIndex(index)}
                         className={cn(
                           "flex items-center justify-between p-4 transition-all duration-300 group rounded-2xl relative",
