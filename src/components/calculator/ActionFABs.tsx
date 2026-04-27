@@ -4,6 +4,9 @@ import { Download, History, Save, X } from 'lucide-react';
 import { Tooltip } from '../Tooltip';
 import { cn } from '@/lib/utils';
 import { SemResult } from '@/types/calculator';
+import confetti from 'canvas-confetti';
+import Link from 'next/link';
+import { useEffect } from 'react';
 
 interface ActionFABsProps {
   results: any;
@@ -14,6 +17,16 @@ interface ActionFABsProps {
   setIsSaveModalOpen: (open: boolean) => void;
   isSaving: boolean;
   saveStatus: string;
+  programCode: string;
+  triggerConfetti?: boolean;
+  // New props for full PDF context
+  program: any;
+  grades: any;
+  exclusions: any;
+  customSubjects: any;
+  selectedOptions: any;
+  isLETMode: boolean;
+  globalOpenElectives: any;
 }
 
 export const ActionFABs: React.FC<ActionFABsProps> = ({
@@ -24,8 +37,52 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
   activeSessionId,
   setIsSaveModalOpen,
   isSaving,
-  saveStatus
+  saveStatus,
+  programCode,
+  triggerConfetti,
+  program,
+  grades,
+  exclusions,
+  customSubjects,
+  selectedOptions,
+  isLETMode,
+  globalOpenElectives
 }) => {
+  useEffect(() => {
+    if (saveStatus === 'success' || triggerConfetti) {
+      const duration = 3 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+
+      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+      const interval: any = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+        // Pop from bottom corners
+        confetti({ 
+          ...defaults, 
+          particleCount, 
+          origin: { x: randomInRange(0.1, 0.3), y: 0.7 },
+          colors: ['#10b981', '#3b82f6', '#ffffff'] 
+        });
+        confetti({ 
+          ...defaults, 
+          particleCount, 
+          origin: { x: randomInRange(0.7, 0.9), y: 0.7 },
+          colors: ['#10b981', '#3b82f6', '#ffffff'] 
+        });
+      }, 250);
+      
+      return () => clearInterval(interval);
+    }
+  }, [saveStatus, triggerConfetti]);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -35,12 +92,33 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
         exit={{ opacity: 0, x: -50, scale: 0.8 }}
         className="lg:hidden fixed bottom-8 left-3 sm:left-4 z-[90]"
       >
-        <div className="bg-background/80 backdrop-blur-2xl border-2 border-primary/20 rounded-full py-2 px-6 shadow-2xl flex flex-col items-center gap-0.5 min-w-[100px]">
-          <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">SGPA</span>
-          <span className="text-xl font-black text-foreground tracking-tighter leading-none">
-            {currentSemRes ? currentSemRes.sgpa.toFixed(2) : "0.00"}
-          </span>
-        </div>
+        <Link 
+          href={`/calculate/${programCode}/summary`}
+          onClick={() => {
+            // Save full state to localStorage so summary page can generate the same PDF
+            if (typeof window !== 'undefined') {
+              const fullState = {
+                results,
+                program,
+                grades,
+                exclusions,
+                customSubjects,
+                selectedOptions,
+                isLETMode,
+                globalOpenElectives
+              };
+              localStorage.setItem('summary_context', JSON.stringify(fullState));
+            }
+          }}
+          className="block active:scale-95 transition-transform"
+        >
+          <div className="bg-background/80 backdrop-blur-2xl border-2 border-primary/20 rounded-full py-2 px-6 shadow-2xl flex flex-col items-center gap-0.5 min-w-[100px] cursor-pointer hover:border-primary/50 transition-colors">
+            <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">SGPA</span>
+            <span className="text-xl font-black text-foreground tracking-tighter leading-none">
+              {currentSemRes ? currentSemRes.sgpa.toFixed(2) : "0.00"}
+            </span>
+          </div>
+        </Link>
       </motion.div>
       <motion.div
         key="action-pills"

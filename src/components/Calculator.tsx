@@ -56,6 +56,8 @@ export default function Calculator({
     if (actions.saveStatus === 'success') {
       setIsSaveModalOpen(false);
       addToast("Progress saved to your account!", 'success');
+      setTriggerConfetti(true);
+      setTimeout(() => setTriggerConfetti(false), 3000);
       actions.resetSaveStatus();
     } else if (actions.saveStatus === 'error') {
       addToast("Failed to save progress.", 'error');
@@ -75,6 +77,8 @@ export default function Calculator({
     });
     return groups;
   }, [globalOpenElectives]);
+
+  const [triggerConfetti, setTriggerConfetti] = useState(false);
 
   const handleImportConfirm = async () => {
     actions.setIsProcessingPdf(true);
@@ -217,6 +221,8 @@ export default function Calculator({
           actions.setPendingFiles([]); 
           actions.setPdfPassword(""); 
           actions.setIsProcessingPdf(false);
+          setTriggerConfetti(true);
+          setTimeout(() => setTriggerConfetti(false), 3000);
         } else {
           // No subjects found and no password error
           actions.setPdfErrorMessage("Could not find any subjects to import. Please check if the PDF is correct.");
@@ -238,7 +244,17 @@ export default function Calculator({
 
       <main className="flex-1 flex flex-col min-w-0">
         <CalculatorHeader 
-          {...core} program={program} results={core.results} {...actions} session={session} groupedSemesters={groupedSemesters}
+          {...core} 
+          program={program} 
+          results={core.results} 
+          {...actions} 
+          session={session} 
+          groupedSemesters={groupedSemesters}
+          grades={core.grades}
+          exclusions={core.exclusions}
+          customSubjects={core.customSubjects}
+          selectedOptions={core.selectedOptions}
+          globalOpenElectives={globalOpenElectives}
           handleSave={() => setIsSaveModalOpen(true)}
           onImportClick={() => (document.getElementById('pdf-upload') as any)?.click()}
           resetCalculator={() => {
@@ -287,7 +303,21 @@ export default function Calculator({
           </div>
         </div>
 
-        <ActionFABs {...core} {...actions} currentSemRes={currentSemRes} setIsSaveModalOpen={setIsSaveModalOpen} />
+        <ActionFABs 
+          {...core} 
+          {...actions} 
+          currentSemRes={currentSemRes} 
+          setIsSaveModalOpen={setIsSaveModalOpen} 
+          programCode={program.code} 
+          triggerConfetti={triggerConfetti} 
+          program={program}
+          grades={core.grades}
+          exclusions={core.exclusions}
+          customSubjects={core.customSubjects}
+          selectedOptions={core.selectedOptions}
+          isLETMode={core.isLETMode}
+          globalOpenElectives={globalOpenElectives}
+        />
       </main>
 
       <input type="file" id="pdf-upload" multiple accept=".pdf" className="hidden" 

@@ -23,6 +23,12 @@ interface CalculatorHeaderProps {
   setExpandedSem: (id: string | null) => void;
   groupedSemesters: any[];
   resetCalculator: () => void;
+  // Full context for summary page
+  grades: any;
+  exclusions: any;
+  customSubjects: any;
+  selectedOptions: any;
+  globalOpenElectives: any;
 }
 
 export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
@@ -42,8 +48,29 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
   expandedSem,
   setExpandedSem,
   groupedSemesters,
-  resetCalculator
+  resetCalculator,
+  grades,
+  exclusions,
+  customSubjects,
+  selectedOptions,
+  globalOpenElectives
 }) => {
+  const saveSummaryContext = () => {
+    if (typeof window !== 'undefined') {
+      const fullState = {
+        results,
+        program,
+        grades,
+        exclusions,
+        customSubjects,
+        selectedOptions,
+        isLETMode,
+        globalOpenElectives
+      };
+      localStorage.setItem('summary_context', JSON.stringify(fullState));
+    }
+  };
+
   return (
     <header className="sticky top-0 z-[60] bg-background/80 backdrop-blur-3xl border-b border-border/50 py-2 lg:py-5 px-3 sm:px-4 lg:px-12 shadow-sm">
       <div className="max-w-4xl mx-auto w-full flex flex-col gap-2 lg:gap-4">
@@ -79,16 +106,20 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
           {/* Right: Actions & Stats */}
           <div className="flex items-center gap-2 lg:gap-3 flex-1 justify-end">
             {/* Desktop CGPA Pill */}
-            <div className="hidden lg:flex items-center bg-card/60 border border-border/50 rounded-2xl overflow-hidden shadow-lg shadow-black/10 backdrop-blur-md">
-              <div className="flex flex-col items-center px-8 py-2 border-r border-border/50">
+            <Link 
+              href={`/calculate/${program.code}/summary`}
+              onClick={saveSummaryContext}
+              className="hidden lg:flex items-center bg-card/60 border border-border/50 rounded-2xl overflow-hidden shadow-lg shadow-black/10 backdrop-blur-md hover:border-primary/50 transition-colors group active:scale-95"
+            >
+              <div className="flex flex-col items-center px-8 py-2 border-r border-border/50 group-hover:bg-primary/5 transition-colors">
                 <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">CGPA</span>
                 <span className="text-2xl font-black text-primary tracking-tighter leading-none">{results.cgpa.toFixed(2)}</span>
               </div>
-              <div className="flex flex-col items-center px-8 py-2">
+              <div className="flex flex-col items-center px-8 py-2 group-hover:bg-primary/5 transition-colors">
                 <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Equiv %</span>
                 <span className="text-2xl font-black text-foreground tracking-tighter leading-none">{results.totalPercentage.toFixed(2)}%</span>
               </div>
-            </div>
+            </Link>
 
             {/* Mobile Actions Block */}
             <div className="lg:hidden flex items-center gap-1 px-1 py-1 rounded-xl bg-card/40 border border-border/40 backdrop-blur-md">
