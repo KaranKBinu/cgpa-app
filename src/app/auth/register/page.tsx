@@ -21,7 +21,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [openDept, setOpenDept] = useState(false);
-  const [departments, setDepartments] = useState<string[]>([]);
+  const [departments, setDepartments] = useState<{name: string, code: string}[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
@@ -29,15 +29,40 @@ export default function RegisterPage() {
     async function loadDepts() {
       const res = await getPrograms();
       if (res.success && res.programs) {
-        setDepartments(res.programs.map(p => p.name));
+        setDepartments(res.programs.map(p => ({ name: p.name, code: p.code })));
       }
     }
     loadDepts();
   }, []);
 
-  const filteredDepartments = departments.filter(dept => 
-    dept.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredDepartments = departments
+    .filter(dept => 
+      dept.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      dept.code.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const term = searchTerm.toLowerCase();
+      if (!term) return 0;
+
+      const aCode = a.code.toLowerCase();
+      const bCode = b.code.toLowerCase();
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+
+      // 1. Exact code match
+      if (aCode === term && bCode !== term) return -1;
+      if (bCode === term && aCode !== term) return 1;
+
+      // 2. Starts with code match
+      if (aCode.startsWith(term) && !bCode.startsWith(term)) return -1;
+      if (bCode.startsWith(term) && !aCode.startsWith(term)) return 1;
+
+      // 3. Starts with name match
+      if (aName.startsWith(term) && !bName.startsWith(term)) return -1;
+      if (bName.startsWith(term) && !aName.startsWith(term)) return 1;
+
+      return 0;
+    });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,9 +97,16 @@ export default function RegisterPage() {
     }
   };
 
+  const isFormValid =
+    name.length > 0 &&
+    email.length > 0 &&
+    password.length >= 6 &&
+    password === confirmPassword &&
+    department.length > 0;
+
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
@@ -163,8 +195,8 @@ export default function RegisterPage() {
                     confirmPassword && confirmPassword !== password
                       ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/10"
                       : confirmPassword && confirmPassword === password
-                      ? "border-emerald-500/50 focus:border-emerald-500/50 focus:ring-emerald-500/10"
-                      : "border-border/50 focus:border-emerald-500/50 focus:ring-emerald-500/10"
+                        ? "border-emerald-500/50 focus:border-emerald-500/50 focus:ring-emerald-500/10"
+                        : "border-border/50 focus:border-emerald-500/50 focus:ring-emerald-500/10"
                   )}
                   placeholder="••••••••"
                   required
@@ -214,7 +246,7 @@ export default function RegisterPage() {
                       className="absolute left-0 right-0 top-full mt-2 z-50 bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden"
                     >
                       <div className="p-2 border-b border-border/50">
-                        <input 
+                        <input
                           type="text"
                           placeholder="Search department..."
                           value={searchTerm}
@@ -227,21 +259,25 @@ export default function RegisterPage() {
                         {filteredDepartments.length > 0 ? (
                           filteredDepartments.map((dept) => (
                             <button
-                              key={dept}
+                              key={dept.code}
                               type="button"
                               onClick={() => {
-                                setDepartment(dept);
+                                setDepartment(dept.name);
                                 setOpenDept(false);
                                 setSearchTerm("");
                               }}
                               className={cn(
-                                "w-full text-left px-4 py-3 rounded-xl text-[11px] font-black uppercase tracking-tight transition-all",
-                                department === dept 
-                                  ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20" 
+                                "w-full text-left px-4 py-3 rounded-xl transition-all flex flex-col gap-0.5",
+                                department === dept.name
+                                  ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20"
                                   : "text-muted-foreground hover:bg-emerald-500/10 hover:text-foreground"
                               )}
                             >
-                              {dept}
+                              <span className="text-[11px] font-black uppercase tracking-tight leading-tight">{dept.name}</span>
+                              <span className={cn(
+                                "text-[9px] font-bold uppercase tracking-[0.2em]",
+                                department === dept.name ? "text-black/60" : "text-emerald-500/60"
+                              )}>{dept.code}</span>
                             </button>
                           ))
                         ) : (
@@ -265,10 +301,18 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <button
+            <motion.button
               type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-emerald-600 to-emerald-800 text-black font-black py-4 rounded-2xl shadow-xl shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100 transition-all flex items-center justify-center gap-2 mt-6 uppercase tracking-widest"
+              disabled={loading || !isFormValid}
+              animate={isFormValid ? { scale: [1, 1.02, 1] } : {}}
+              transition={{ duration: 2, repeat: Infinity }}
+              className={`
+                w-full font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 mt-6 uppercase tracking-widest
+                ${isFormValid
+                  ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-xl shadow-emerald-500/40 hover:scale-[1.02] active:scale-95 border-t border-white/20"
+                  : "bg-emerald-950/20 text-emerald-900/50 border border-emerald-900/10 cursor-not-allowed"
+                }
+              `}
             >
               {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -278,13 +322,13 @@ export default function RegisterPage() {
                   <ArrowRight className="h-5 w-5" />
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
 
           <p className="mt-8 text-center text-muted-foreground text-sm font-medium">
             Already have an account?{" "}
             <Link href="/auth/login" className="text-emerald-500 hover:text-emerald-400 font-bold transition-colors">
-              Sign in here
+              Login Here
             </Link>
           </p>
         </div>

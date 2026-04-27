@@ -40,6 +40,8 @@ export default function LoginPage() {
     }
   };
 
+  const isFormValid = email.length > 0 && password.length > 0;
+
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">
       <motion.div 
@@ -99,10 +101,18 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <button
+            <motion.button
               type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-emerald-600 to-emerald-800 text-black font-black py-4 rounded-2xl shadow-xl shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100 transition-all flex items-center justify-center gap-2 mt-6 uppercase tracking-widest"
+              disabled={loading || !isFormValid}
+              animate={isFormValid ? { scale: [1, 1.02, 1] } : {}}
+              transition={{ duration: 2, repeat: Infinity }}
+              className={`
+                w-full font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 mt-6 uppercase tracking-widest
+                ${isFormValid 
+                  ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-xl shadow-emerald-500/40 hover:scale-[1.02] active:scale-95 border-t border-white/20" 
+                  : "bg-emerald-950/20 text-emerald-900/50 border border-emerald-900/10 cursor-not-allowed"
+                }
+              `}
             >
               {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -112,7 +122,7 @@ export default function LoginPage() {
                   <ArrowRight className="h-5 w-5" />
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
 
           <p className="mt-8 text-center text-muted-foreground text-sm font-medium">

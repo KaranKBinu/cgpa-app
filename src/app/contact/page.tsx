@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, MessageSquare, Mail, User, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Send, MessageSquare, Mail, User, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { submitFeedback } from '@/app/actions';
 
@@ -28,6 +28,8 @@ export default function ContactPage() {
             setStatus('error');
         }
     };
+
+    const isFormValid = formData.name.length > 0 && formData.email.length > 0 && formData.message.length > 0;
 
     return (
         <div className="max-w-4xl mx-auto px-6">
@@ -177,10 +179,17 @@ export default function ContactPage() {
                                             />
                                         </div>
 
-                                        <button 
-                                            disabled={status === 'loading'}
+                                        <motion.button 
+                                            disabled={status === 'loading' || !isFormValid}
                                             type="submit"
-                                            className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-black font-black uppercase tracking-[0.2em] rounded-2xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3 group"
+                                            animate={isFormValid ? { scale: [1, 1.02, 1] } : {}}
+                                            transition={{ duration: 2, repeat: Infinity }}
+                                            className={cn(
+                                                "w-full h-14 font-black uppercase tracking-[0.2em] rounded-2xl transition-all flex items-center justify-center gap-3 group",
+                                                isFormValid 
+                                                    ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-lg shadow-emerald-500/40 active:scale-[0.98] border-t border-white/20" 
+                                                    : "bg-emerald-950/20 text-emerald-900/50 border border-emerald-900/10 cursor-not-allowed"
+                                            )}
                                         >
                                             {status === 'loading' ? (
                                                 <div className="h-5 w-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
@@ -190,7 +199,7 @@ export default function ContactPage() {
                                                     <Send className="h-4 w-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                                                 </>
                                             )}
-                                        </button>
+                                        </motion.button>
                                     </motion.form>
                                 )}
                             </AnimatePresence>

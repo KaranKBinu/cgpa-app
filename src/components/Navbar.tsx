@@ -122,7 +122,7 @@ export default function Navbar({ user, config }: NavbarProps) {
                                                         )}
                                                     >
                                                         <div className={cn("p-1.5 rounded-lg bg-card/50 transition-colors group-hover:bg-emerald-500/10", isActive && "bg-emerald-500/10 text-emerald-500")}>
-                                                          <Icon className="h-4 w-4" />
+                                                            <Icon className="h-4 w-4" />
                                                         </div>
                                                         <span>{link.label}</span>
                                                     </Link>
@@ -138,7 +138,23 @@ export default function Navbar({ user, config }: NavbarProps) {
                         <ThemeToggle />
                         <div className="w-px h-6 bg-border mx-2" />
 
-                        {user ? (
+                        {!user && (
+                            <div className="flex items-center gap-2.5">
+                                <Link
+                                    href="/auth/login"
+                                    className="px-5 py-2 rounded-xl border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/5 transition-all font-black uppercase tracking-widest text-[10px]"
+                                >
+                                    Login
+                                </Link>
+                                <Link
+                                    href="/auth/register"
+                                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-black font-black uppercase tracking-widest text-[10px] shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all border-t border-white/20"
+                                >
+                                    Register
+                                </Link>
+                            </div>
+                        )}
+                        {user && (
                             <button
                                 onClick={() => signOut()}
                                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all font-bold text-sm group"
@@ -146,13 +162,6 @@ export default function Navbar({ user, config }: NavbarProps) {
                                 <LogOut className="h-4 w-4 group-hover:scale-110 transition-transform" />
                                 <span>Sign Out</span>
                             </button>
-                        ) : (
-                            <Link
-                                href="/auth/login"
-                                className="px-5 py-2 rounded-xl bg-emerald-500 text-black font-black uppercase tracking-widest text-[10px] shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all"
-                            >
-                                Login
-                            </Link>
                         )}
                     </div>
 
@@ -201,30 +210,30 @@ export default function Navbar({ user, config }: NavbarProps) {
                                 })}
 
                                 {isAdmin && (
-                                  <>
-                                    <div className="h-px bg-border my-2" />
-                                    <p className="px-4 text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Administrative</p>
-                                    {adminLinks.map((link) => {
-                                        const Icon = link.icon;
-                                        const isActive = pathname === link.href;
-                                        return (
-                                            <Link
-                                                key={link.href}
-                                                href={link.href}
-                                                onClick={() => setIsOpen(false)}
-                                                className={cn(
-                                                    "flex items-center gap-4 p-4 rounded-2xl transition-all font-bold",
-                                                    isActive
-                                                        ? "text-emerald-500 bg-emerald-500/10 border border-emerald-500/20"
-                                                        : "text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/5"
-                                                )}
-                                            >
-                                                <Icon className="h-5 w-5" />
-                                                <span>{link.label}</span>
-                                            </Link>
-                                        );
-                                    })}
-                                  </>
+                                    <>
+                                        <div className="h-px bg-border my-2" />
+                                        <p className="px-4 text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Administrative</p>
+                                        {adminLinks.map((link) => {
+                                            const Icon = link.icon;
+                                            const isActive = pathname === link.href;
+                                            return (
+                                                <Link
+                                                    key={link.href}
+                                                    href={link.href}
+                                                    onClick={() => setIsOpen(false)}
+                                                    className={cn(
+                                                        "flex items-center gap-4 p-4 rounded-2xl transition-all font-bold",
+                                                        isActive
+                                                            ? "text-emerald-500 bg-emerald-500/10 border border-emerald-500/20"
+                                                            : "text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/5"
+                                                    )}
+                                                >
+                                                    <Icon className="h-5 w-5" />
+                                                    <span>{link.label}</span>
+                                                </Link>
+                                            );
+                                        })}
+                                    </>
                                 )}
 
                                 <div className="h-px bg-border my-2" />
@@ -238,13 +247,22 @@ export default function Navbar({ user, config }: NavbarProps) {
                                         <span>Sign Out</span>
                                     </button>
                                 ) : (
-                                    <Link
-                                        href="/auth/login"
-                                        onClick={() => setIsOpen(false)}
-                                        className="flex items-center justify-center p-4 rounded-2xl bg-emerald-500 text-black font-black uppercase tracking-widest text-xs transition-all w-full"
-                                    >
-                                        Login to PolyGrade
-                                    </Link>
+                                    <div className="flex flex-col gap-2">
+                                        <Link
+                                            href="/auth/login"
+                                            onClick={() => setIsOpen(false)}
+                                            className="flex items-center justify-center p-4 rounded-2xl border border-emerald-500/20 text-emerald-500 font-black uppercase tracking-widest text-xs transition-all w-full"
+                                        >
+                                            Login
+                                        </Link>
+                                        <Link
+                                            href="/auth/register"
+                                            onClick={() => setIsOpen(false)}
+                                            className="flex items-center justify-center p-4 rounded-2xl bg-emerald-500 text-black font-black uppercase tracking-widest text-xs shadow-lg shadow-emerald-500/10 transition-all w-full"
+                                        >
+                                            Join PolyGrade
+                                        </Link>
+                                    </div>
                                 )}
                             </div>
                         </motion.div>
