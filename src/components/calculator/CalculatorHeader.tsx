@@ -77,8 +77,12 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
         <div className="flex items-center justify-between gap-3">
           {/* Left: Program Identity & CGPA (Mobile Optimized) */}
           <div className="flex items-center gap-2 lg:gap-4 min-w-0">
-            <div className="h-8 w-8 lg:h-12 lg:w-12 rounded-lg lg:rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center font-black text-black shadow-lg shadow-emerald-500/20 shrink-0 border border-white/20">
-              <LayoutDashboard className="h-4 w-4 lg:h-6 lg:w-6" />
+            <div className="h-8 w-8 lg:h-12 lg:w-12 rounded-lg lg:rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center font-black text-black shadow-lg shadow-emerald-500/20 shrink-0 border border-white/20 transition-all duration-500">
+              {activeSessionId ? (
+                <CheckCircle2 className="h-4 w-4 lg:h-6 lg:w-6" />
+              ) : (
+                <Save className="h-4 w-4 lg:h-6 lg:w-6" />
+              )}
             </div>
 
             <div className="flex flex-col min-w-0">
@@ -96,12 +100,15 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                   </div>
                 </div>
               </div>
-              <span className="hidden lg:block text-xs font-black text-primary/60 uppercase tracking-widest mt-1">
-                {activeSessionId ? "Sync Active" : "Local Engine"}
-              </span>
-              <span className="lg:hidden text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-0.5">
-                {activeSessionId ? "Cloud Synced" : "Local Engine"}
-              </span>
+              <div className="flex items-center gap-1.5 mt-1 lg:mt-0.5 group">
+                <div className={cn(
+                  "h-1.5 w-1.5 rounded-full animate-pulse",
+                  activeSessionId ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-primary/40"
+                )} />
+                <span className="text-[9px] lg:text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] truncate max-w-[120px] lg:max-w-[200px]">
+                  {program.name}
+                </span>
+              </div>
             </div>
           </div>
 

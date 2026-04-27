@@ -37,7 +37,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         <div className="px-4 py-3 border-b border-border/50 mb-2">
           <Tooltip content={programName} position="bottom" variant="emerald" className="w-auto">
             <span className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.25em] cursor-help">
-              Semesters of {programCode}
+              Semesters - {programCode}
             </span>
           </Tooltip>
         </div>
