@@ -64,7 +64,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
           <button
             onClick={() => onExclude(currentSub.id, exclusion === 'not-published' ? null : 'not-published')}
             className={cn(
-              "h-8 px-3 rounded-lg text-[8px] font-black uppercase tracking-tighter transition-all border border-border/20 cursor-pointer active:scale-90",
+              "h-8 px-3 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all border border-border/20 cursor-pointer active:scale-90",
               exclusion === 'not-published' ? "bg-amber-500 text-black border-amber-500/50" : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
             )}
           >
@@ -116,11 +116,11 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
         ) : (
           <div>
             <div className="flex items-center justify-between mb-1.5 min-h-[20px]">
-              <span className="text-[10px] lg:text-[10px] font-black text-primary/60 uppercase tracking-[0.2em]">{currentSub.code || 'VAR'}</span>
+              <span className="text-[11px] lg:text-[10px] font-black text-primary/60 uppercase tracking-[0.2em]">{currentSub.code || 'VAR'}</span>
               {currentSub.isCustom && <span className="text-[9px] font-black bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full uppercase tracking-widest">Added</span>}
             </div>
             <h3 className="text-base lg:text-lg font-black text-foreground tracking-tight leading-tight line-clamp-2 md:line-clamp-none min-h-[2.5em] md:min-h-0">{currentSub.name}</h3>
-            <p className="text-xs lg:text-[11px] font-black text-muted-foreground mt-1.5 uppercase tracking-widest">{currentSub.credits} Credits</p>
+            <p className="text-sm lg:text-[11px] font-black text-muted-foreground mt-1.5 uppercase tracking-widest">{currentSub.credits} Credits</p>
           </div>
         )}
 

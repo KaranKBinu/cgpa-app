@@ -56,21 +56,21 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
 
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-[10px] lg:text-xl font-black tracking-tighter text-foreground truncate max-w-[70px] lg:max-w-none uppercase lg:normal-case">
+                <h1 className="text-sm lg:text-xl font-black tracking-tighter text-foreground truncate max-w-[70px] lg:max-w-none uppercase lg:normal-case">
                   {program.code}
                 </h1>
                 <div className="lg:hidden flex items-center whitespace-nowrap font-black">
                   <div className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-1.5">
                     <span className="text-[12px] text-primary leading-none">{results.cgpa.toFixed(2)}</span>
                     <div className="w-px h-2 bg-primary/20" />
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 leading-none">{results.totalPercentage.toFixed(2)}%</span>
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 leading-none">{results.totalPercentage.toFixed(2)}%</span>
                   </div>
                 </div>
               </div>
               <span className="hidden lg:block text-xs font-black text-primary/60 uppercase tracking-widest mt-1">
                 {activeSessionId ? "Sync Active" : "Local Engine"}
               </span>
-              <span className="lg:hidden text-[8px] font-black text-muted-foreground uppercase tracking-widest mt-0.5">
+              <span className="lg:hidden text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-0.5">
                 {activeSessionId ? "Cloud Synced" : "Local Engine"}
               </span>
             </div>

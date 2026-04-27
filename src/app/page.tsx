@@ -76,7 +76,7 @@ export default async function Home() {
           <Sparkles className="h-3 w-3" />
           Made with Love
         </div>
-        <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight mb-4 text-foreground leading-[1.1]">
+        <h1 className="text-5xl sm:text-5xl md:text-7xl font-black tracking-tight mb-4 text-foreground leading-[1.1]">
           GPA Calculator <span className="gradient-text">For Kerala Polytechnic</span>
         </h1>
         <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-semibold">
@@ -92,17 +92,17 @@ export default async function Home() {
         <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3 group hover:border-emerald-500/30 transition-colors">
           <div className="text-primary font-black uppercase text-[10px] tracking-widest">01. The Fast-Track</div>
           <h3 className="text-xl font-black text-foreground">Skip the Typing</h3>
-          <p className="text-sm text-muted-foreground font-medium">Listen, rookie: don't waste time entering subjects. Just drop your PDF transcripts and let our parser scrape every grade and credit automatically. It's built to handle the boring stuff for you.</p>
+          <p className="text-sm text-muted-foreground font-medium leading-relaxed">Listen, rookie: don't waste time entering subjects. Just drop your PDF transcripts and let our parser scrape every grade and credit automatically. It's built to handle the boring stuff for you.</p>
         </div>
         <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3 group hover:border-emerald-500/30 transition-colors">
           <div className="text-primary font-black uppercase text-[10px] tracking-widest">02. The Logic Flip</div>
           <h3 className="text-xl font-black text-foreground">Context is Everything</h3>
-          <p className="text-sm text-muted-foreground font-medium">Lateral Entry student? Just toggle LET Mode and we'll handle the Sem-3 skip. Adding a custom elective? Do it on the fly. We adapt the engine to your specific academic pathway in real-time.</p>
+          <p className="text-sm text-muted-foreground font-medium leading-relaxed">Lateral Entry student? Just toggle LET Mode and we'll handle the Sem-3 skip. Adding a custom elective? Do it on the fly. We adapt the engine to your specific academic pathway in real-time.</p>
         </div>
         <div className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-3 group hover:border-emerald-500/30 transition-colors">
           <div className="text-primary font-black uppercase text-[10px] tracking-widest">03. The Safety Net</div>
           <h3 className="text-xl font-black text-foreground">Zero Data Loss</h3>
-          <p className="text-sm text-muted-foreground font-medium">Close the tab? No stress. Every single grade you enter is instantly locked into a local draft. Log in for cloud sync, or stay local—either way, your progress is exactly where you left it.</p>
+          <p className="text-sm text-muted-foreground font-medium leading-relaxed">Close the tab? No stress. Every single grade you enter is instantly locked into a local draft. Log in for cloud sync, or stay local—either way, your progress is exactly where you left it.</p>
         </div>
       </div>
     </div>
