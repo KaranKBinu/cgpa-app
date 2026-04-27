@@ -8,27 +8,39 @@ export default async function Home() {
   const session = await auth();
   const userId = session?.user ? (session.user as any).id : null;
 
-  const [allPrograms, recentCalculationsRaw, user] = await Promise.all([
-    prisma.program.findMany({
-      orderBy: { name: 'asc' },
-      select: { id: true, name: true, code: true }
-    }),
-    userId ? prisma.calculation.findMany({
-      where: { userId },
-      orderBy: { updatedAt: 'desc' },
-      take: 10,
-      include: {
-        program: true,
-        _count: {
-          select: { semesters: true }
+  let allPrograms: any[] = [];
+  let recentCalculationsRaw: any[] | null = null;
+  let user: any = null;
+
+  try {
+    const results = await Promise.all([
+      prisma.program.findMany({
+        orderBy: { name: 'asc' },
+        select: { id: true, name: true, code: true }
+      }),
+      userId ? prisma.calculation.findMany({
+        where: { userId },
+        orderBy: { updatedAt: 'desc' },
+        take: 10,
+        include: {
+          program: true,
+          _count: {
+            select: { semesters: true }
+          }
         }
-      }
-    }) : Promise.resolve(null),
-    userId ? prisma.user.findUnique({
-      where: { id: userId },
-      select: { department: true }
-    }) : Promise.resolve(null)
-  ]);
+      }) : Promise.resolve(null),
+      userId ? prisma.user.findUnique({
+        where: { id: userId },
+        select: { department: true }
+      }) : Promise.resolve(null)
+    ]);
+    allPrograms = results[0];
+    recentCalculationsRaw = results[1];
+    user = results[2];
+  } catch (error) {
+    console.error("Database connectivity error on Home page:", error);
+    // Keep defaults (empty lists)
+  }
 
   const recentCalculations = (recentCalculationsRaw as any[]) || [];
   const latestCalculation = recentCalculations[0];

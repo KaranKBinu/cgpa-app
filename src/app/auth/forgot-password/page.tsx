@@ -1,46 +1,71 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Mail, Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
+    setError("");
 
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       });
 
-      if (result?.error) {
-        setError("Invalid email or password");
+      if (response.ok) {
+        setSubmitted(true);
       } else {
-        router.push("/");
-        router.refresh();
+        const data = await response.json();
+        setError(data.error || "Something went wrong");
       }
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      setError("Failed to send reset link");
     } finally {
       setLoading(false);
     }
   };
 
-  const isFormValid = email.length > 0 && password.length > 0;
+  const isFormValid = email.length > 0 && email.includes("@");
+
+  if (submitted) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center p-4">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-md bg-card/50 backdrop-blur-xl border border-border/50 p-8 rounded-[2rem] shadow-2xl text-center"
+        >
+          <div className="mb-6 flex justify-center">
+            <div className="h-16 w-16 bg-emerald-500/10 rounded-full flex items-center justify-center">
+              <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+            </div>
+          </div>
+          <h1 className="text-3xl font-black font-outfit text-foreground mb-2">Check Your Email</h1>
+          <p className="text-muted-foreground font-medium mb-8">
+            If an account exists for <span className="text-foreground font-bold">{email}</span>, we've sent instructions to reset your password.
+          </p>
+          <Link 
+            href="/auth/login"
+            className="inline-flex items-center gap-2 text-emerald-500 hover:text-emerald-400 font-bold transition-colors"
+          >
+            Back to Login
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">
@@ -51,8 +76,8 @@ export default function LoginPage() {
       >
         <div className="bg-card/50 backdrop-blur-xl border border-border/50 p-8 rounded-[2rem] shadow-2xl">
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-black font-outfit text-foreground mb-2">Welcome Back</h1>
-            <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Sign in to your account</p>
+            <h1 className="text-3xl font-black font-outfit text-foreground mb-2">Forgot Password</h1>
+            <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Enter your email to reset</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -78,29 +103,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-4">Password</label>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-emerald-500 transition-colors" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 pl-12 pr-12 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
-                  placeholder="••••••••"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-            </div>
-
             <motion.button
               type="submit"
               disabled={loading || !isFormValid}
@@ -118,25 +120,18 @@ export default function LoginPage() {
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <>
-                  Sign In
+                  Send Reset Link
                   <ArrowRight className="h-5 w-5" />
                 </>
               )}
             </motion.button>
           </form>
 
-          <div className="mt-4 text-center">
-            <Link href="/auth/forgot-password" className="text-muted-foreground hover:text-emerald-500 text-sm font-bold transition-colors">
-              Forgot your password?
+          <div className="mt-8 text-center">
+            <Link href="/auth/login" className="text-muted-foreground hover:text-emerald-500 text-sm font-bold transition-colors">
+              Remember your password? Login
             </Link>
           </div>
-
-          <p className="mt-8 text-center text-muted-foreground text-sm font-medium">
-            Don't have an account?{" "}
-            <Link href="/auth/register" className="text-emerald-500 hover:text-emerald-400 font-bold transition-colors">
-              Create one for free
-            </Link>
-          </p>
         </div>
       </motion.div>
     </div>
