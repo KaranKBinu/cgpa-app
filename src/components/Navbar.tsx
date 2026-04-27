@@ -54,8 +54,8 @@ export default function Navbar({ user, config }: NavbarProps) {
                     {/* Brand */}
                     <Tooltip content="Home" position="bottom" className="w-auto">
                         <Link href="/" className="flex items-center gap-2 group transition-all active:scale-95 shrink-0 cursor-pointer">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 font-extrabold text-black shadow-lg shadow-emerald-500/20 group-hover:rotate-6 transition-transform border border-white/20">
-                                G
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 text-black shadow-lg shadow-emerald-500/20 group-hover:rotate-6 transition-transform border border-white/20">
+                                <Sparkles className="h-5 w-5 fill-current" />
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-lg font-black tracking-tight text-foreground leading-none">{config.appName}</span>

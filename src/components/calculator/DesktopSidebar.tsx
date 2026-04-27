@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { History, LogOut, ShieldAlert } from 'lucide-react';
+import { History, LogOut, ShieldAlert, Sparkles } from 'lucide-react';
 import { Tooltip } from '../Tooltip';
 import Link from 'next/link';
 import { Semester, SemResult } from '@/types/calculator';
@@ -29,7 +29,9 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   return (
     <aside className="hidden lg:flex w-64 border-r-2 border-border/50 flex-col bg-card/30 sticky top-0 h-screen z-[70]">
       <div className="p-6 border-b-2 border-border/50 flex items-center justify-start gap-3 bg-card/10">
-        <div className="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center font-black text-black shadow-[0_0_20px_rgba(16,185,129,0.4)]">G</div>
+        <div className="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center text-black shadow-[0_0_20px_rgba(16,185,129,0.4)]">
+          <Sparkles className="h-4 w-4 fill-current" />
+        </div>
         <span className="font-black tracking-tighter text-2xl">Poly<span className="text-primary italic">Grade</span></span>
       </div>
 

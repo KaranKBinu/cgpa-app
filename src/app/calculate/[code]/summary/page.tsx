@@ -178,6 +178,11 @@ export default function SummaryPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="relative z-10 text-center flex flex-col items-center"
             >
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[8px] font-black uppercase tracking-[0.4em] mb-4">
+                    <Trophy className="h-3 w-3" />
+                    Final Scorecard
+                </div>
+
                 <h1 className="relative group leading-[0.8] mb-0">
                     <motion.span 
                         className="text-[10rem] sm:text-[14rem] md:text-[18rem] font-black tracking-tighter block glare-text select-none"
