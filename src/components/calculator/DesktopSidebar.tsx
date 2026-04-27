@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { History, LogOut, ShieldAlert } from 'lucide-react';
+import { Tooltip } from '../Tooltip';
 import Link from 'next/link';
 import { Semester, SemResult } from '@/types/calculator';
 
@@ -11,6 +12,8 @@ interface DesktopSidebarProps {
   semResults: SemResult[];
   session: any;
   signOut: any;
+  programCode: string;
+  programName: string;
 }
 
 export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
@@ -19,7 +22,9 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   setExpandedSem,
   semResults,
   session,
-  signOut
+  signOut,
+  programCode,
+  programName
 }) => {
   return (
     <aside className="hidden lg:flex w-64 border-r-2 border-border/50 flex-col bg-card/30 sticky top-0 h-screen z-[70]">
@@ -29,7 +34,13 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       </div>
 
       <nav className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-        <div className="px-4 py-3 text-[11px] font-black text-muted-foreground uppercase tracking-[0.25em] mb-2 border-b border-border/50">Semesters</div>
+        <div className="px-4 py-3 border-b border-border/50 mb-2">
+          <Tooltip content={programName} position="bottom" variant="emerald" className="w-auto">
+            <span className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.25em] cursor-help">
+              Semesters of {programCode}
+            </span>
+          </Tooltip>
+        </div>
         {(() => {
           const groups: Semester[][] = [];
           displayedSemesters.forEach(sem => {
@@ -91,7 +102,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
           <span className="font-bold text-sm">History</span>
         </Link>
         {session && (
-          <button 
+          <button
             onClick={() => signOut({ callbackUrl: '/' })}
             className="w-full flex items-center justify-start gap-3 p-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-all"
           >

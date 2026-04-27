@@ -240,7 +240,14 @@ export default function Calculator({
 
   return (
     <div className="flex min-h-screen bg-background text-foreground selection:bg-emerald-500/30 transition-colors duration-500">
-      <DesktopSidebar {...core} semResults={core.results.semResults} session={session} signOut={signOut} />
+      <DesktopSidebar 
+        {...core} 
+        semResults={core.results.semResults} 
+        session={session} 
+        signOut={signOut} 
+        programCode={program.code}
+        programName={program.name}
+      />
 
       <main className="flex-1 flex flex-col min-w-0">
         <CalculatorHeader 

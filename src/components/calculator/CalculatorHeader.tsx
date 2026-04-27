@@ -83,9 +83,11 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
 
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-sm lg:text-xl font-black tracking-tighter text-foreground truncate max-w-[70px] lg:max-w-none uppercase lg:normal-case">
-                  {program.code}
-                </h1>
+                <Tooltip content={program.name} position="bottom" variant="emerald">
+                  <h1 className="text-sm lg:text-xl font-black tracking-tighter text-foreground truncate max-w-[70px] lg:max-w-none uppercase lg:normal-case cursor-help">
+                    {program.code}
+                  </h1>
+                </Tooltip>
                 <div className="lg:hidden flex items-center whitespace-nowrap font-black">
                   <div className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-1.5">
                     <span className="text-[12px] text-primary leading-none">{results.cgpa.toFixed(2)}</span>
