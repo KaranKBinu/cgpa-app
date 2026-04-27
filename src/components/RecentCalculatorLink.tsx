@@ -34,6 +34,7 @@ export default function RecentCalculatorLink({
     const [direction, setDirection] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const [isHinting, setIsHinting] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     useEffect(() => {
         const allItems: RecentItem[] = [];
@@ -111,6 +112,22 @@ export default function RecentCalculatorLink({
         }
     }, [programs, recentCalculations, session]);
 
+    useEffect(() => {
+        const handleToggle = (e: any) => {
+            setIsSearchOpen(e.detail.isOpen);
+        };
+        window.addEventListener('searchToggle', handleToggle);
+        
+        // Initial check in case it's already open
+        if (typeof document !== 'undefined' && document.body.getAttribute('data-search-active') === 'true') {
+            setIsSearchOpen(true);
+        }
+
+        return () => window.removeEventListener('searchToggle', handleToggle);
+    }, []);
+
+    if (items.length === 0 || isSearchOpen) return null;
+
     const handleNext = () => {
         setDirection(1);
         setCurrentIndex((prev) => (prev + 1) % items.length);
@@ -132,7 +149,7 @@ export default function RecentCalculatorLink({
                 x: isOpen ? 0 : (isHinting ? 150 : 320)
             }}
             transition={{ type: "spring", stiffness: 200, damping: 25 }}
-            className="fixed top-32 lg:top-40 right-0 z-[100] flex items-start"
+            className="fixed bottom-20 right-0 z-[100] flex items-start"
         >
             {/* Sticky Tab Button */}
             <button

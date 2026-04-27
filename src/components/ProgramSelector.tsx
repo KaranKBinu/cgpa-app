@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, GraduationCap, ChevronRight, X, Command } from 'lucide-react';
+import { Search, GraduationCap, ChevronRight, X, Command, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -27,7 +27,7 @@ export default function ProgramSelector({
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -35,6 +35,14 @@ export default function ProgramSelector({
 
   // Prevent scroll when search is open on mobile
   useEffect(() => {
+    if (isOpen) {
+      document.body.setAttribute('data-search-active', 'true');
+      window.dispatchEvent(new CustomEvent('searchToggle', { detail: { isOpen: true } }));
+    } else {
+      document.body.removeAttribute('data-search-active');
+      window.dispatchEvent(new CustomEvent('searchToggle', { detail: { isOpen: false } }));
+    }
+
     if (isOpen && isMobile) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -42,10 +50,34 @@ export default function ProgramSelector({
     }
   }, [isOpen, isMobile]);
 
-  const filteredPrograms = programs.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.code.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredPrograms = programs
+    .filter(p =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.code.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      const term = search.toLowerCase();
+      if (!term) return 0;
+
+      const aCode = a.code.toLowerCase();
+      const bCode = b.code.toLowerCase();
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+
+      // 1. Exact code match
+      if (aCode === term && bCode !== term) return -1;
+      if (bCode === term && aCode !== term) return 1;
+
+      // 2. Starts with code match
+      if (aCode.startsWith(term) && !bCode.startsWith(term)) return -1;
+      if (bCode.startsWith(term) && !aCode.startsWith(term)) return 1;
+
+      // 3. Starts with name match
+      if (aName.startsWith(term) && !bName.startsWith(term)) return -1;
+      if (bName.startsWith(term) && !aName.startsWith(term)) return 1;
+
+      return 0;
+    });
 
   // Close when clicking outside
   useEffect(() => {
@@ -194,24 +226,32 @@ export default function ProgramSelector({
                     </div>
                     <button 
                       onClick={() => setIsOpen(false)}
-                      className="h-10 w-10 flex items-center justify-center rounded-2xl bg-muted/10 border border-border/50 text-foreground"
+                      className="h-10 w-10 flex items-center justify-center rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 active:scale-95 transition-all"
                     >
                       <X className="h-5 w-5" />
                     </button>
                   </div>
                   
                   {/* Re-render input inside overlay for full screen experience */}
-                  <div className="relative">
-                    <Search className="absolute left-6 inset-y-0 h-5 w-5 my-auto text-emerald-500" />
-                    <input
-                      autoFocus
-                      type="text"
-                      placeholder="Search department..."
-                      className="w-full h-16 bg-card/60 border-2 border-emerald-500/50 pl-16 pr-6 text-lg font-black text-foreground focus:outline-none rounded-[2rem] ring-8 ring-emerald-500/5"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                    />
+                  <div className="flex items-center gap-3 relative">
+                    <button 
+                      onClick={() => setIsOpen(false)}
+                      className="h-14 w-14 flex items-center justify-center rounded-3xl bg-card border-2 border-emerald-500/20 text-emerald-500 active:scale-95 transition-all shrink-0 shadow-lg shadow-emerald-500/5 focus:ring-4 focus:ring-emerald-500/10"
+                    >
+                      <ArrowLeft className="h-6 w-6" />
+                    </button>
+                    <div className="relative flex-1">
+                        <Search className="absolute left-6 inset-y-0 h-5 w-5 my-auto text-emerald-500" />
+                        <input
+                          autoFocus
+                          type="text"
+                          placeholder="Search department..."
+                          className="w-full h-14 bg-card border-2 border-emerald-500/50 pl-16 pr-6 text-base font-black text-foreground focus:outline-none rounded-3xl ring-8 ring-emerald-500/5 shadow-lg shadow-emerald-500/5"
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          onKeyDown={handleKeyDown}
+                        />
+                    </div>
                   </div>
                </div>
             )}
