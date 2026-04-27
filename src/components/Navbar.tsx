@@ -8,6 +8,7 @@ import { Home, History, User as UserIcon, MessageSquare, LogOut, Menu, X, Sparkl
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from './ThemeToggle';
 import { signOut } from 'next-auth/react';
+import { Tooltip } from './Tooltip';
 
 interface NavbarProps {
     user: any;
@@ -51,15 +52,17 @@ export default function Navbar({ user, config }: NavbarProps) {
             <nav className="mx-auto max-w-7xl pointer-events-auto">
                 <div className="h-16 lg:h-20 px-4 lg:px-8 rounded-2xl lg:rounded-[2.5rem] border border-border/50 bg-background/80 backdrop-blur-2xl shadow-2xl flex items-center justify-between transition-all">
                     {/* Brand */}
-                    <Link href="/" className="flex items-center gap-2 group transition-all active:scale-95 shrink-0">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 font-extrabold text-black shadow-lg shadow-emerald-500/20 group-hover:rotate-6 transition-transform">
-                            G
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-lg font-black tracking-tight text-foreground leading-none">{config.appName}</span>
-                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-1 hidden sm:block">{config.revision}</span>
-                        </div>
-                    </Link>
+                    <Tooltip content="Home" position="bottom" className="w-auto">
+                        <Link href="/" className="flex items-center gap-2 group transition-all active:scale-95 shrink-0 cursor-pointer">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 font-extrabold text-black shadow-lg shadow-emerald-500/20 group-hover:rotate-6 transition-transform border border-white/20">
+                                G
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-lg font-black tracking-tight text-foreground leading-none">{config.appName}</span>
+                                <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-1 hidden sm:block">{config.revision}</span>
+                            </div>
+                        </Link>
+                    </Tooltip>
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-1 lg:gap-2">
@@ -86,18 +89,20 @@ export default function Navbar({ user, config }: NavbarProps) {
                         {/* Admin Dropdown */}
                         {isAdmin && (
                             <div className="relative" onMouseEnter={() => setIsAdminOpen(true)} onMouseLeave={() => setIsAdminOpen(false)}>
-                                <button
-                                    className={cn(
-                                        "flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm group mr-1",
-                                        pathname.startsWith('/admin')
-                                            ? "text-emerald-500 bg-emerald-500/10"
-                                            : "text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/5"
-                                    )}
-                                >
-                                    <ShieldAlert className={cn("h-4 w-4 transition-transform group-hover:scale-110", pathname.startsWith('/admin') && "scale-110")} />
-                                    <span>Admin Panel</span>
-                                    <ChevronDown className={cn("h-3 w-3 transition-transform", isAdminOpen && "rotate-180")} />
-                                </button>
+                                <Tooltip content="Admin Panel" position="bottom" className="w-auto">
+                                    <button
+                                        className={cn(
+                                            "flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm group mr-1 cursor-pointer active:scale-95",
+                                            pathname.startsWith('/admin')
+                                                ? "text-emerald-500 bg-emerald-500/10"
+                                                : "text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/5"
+                                        )}
+                                    >
+                                        <ShieldAlert className={cn("h-4 w-4 transition-transform group-hover:scale-110", pathname.startsWith('/admin') && "scale-110")} />
+                                        <span>Admin Panel</span>
+                                        <ChevronDown className={cn("h-3 w-3 transition-transform", isAdminOpen && "rotate-180")} />
+                                    </button>
+                                </Tooltip>
 
                                 <AnimatePresence>
                                     {isAdminOpen && (
@@ -135,7 +140,9 @@ export default function Navbar({ user, config }: NavbarProps) {
                         )}
 
                         <div className="w-px h-6 bg-border mx-2" />
-                        <ThemeToggle />
+                        <Tooltip content="Toggle Theme" position="bottom" className="w-auto">
+                            <ThemeToggle />
+                        </Tooltip>
                         <div className="w-px h-6 bg-border mx-2" />
 
                         {!user && (
@@ -157,7 +164,7 @@ export default function Navbar({ user, config }: NavbarProps) {
                         {user && (
                             <button
                                 onClick={() => signOut()}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all font-bold text-sm group"
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all font-bold text-sm group cursor-pointer active:scale-95"
                             >
                                 <LogOut className="h-4 w-4 group-hover:scale-110 transition-transform" />
                                 <span>Sign Out</span>

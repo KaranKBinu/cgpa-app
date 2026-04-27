@@ -46,6 +46,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
       onMouseLeave={() => setIsVisible(false)}
       onFocus={() => setIsVisible(true)}
       onBlur={() => setIsVisible(false)}
+      onTouchStart={(e) => {
+        // e.preventDefault(); // Prevent ghost clicks
+        setIsVisible(!isVisible);
+      }}
     >
       {children}
       <AnimatePresence>

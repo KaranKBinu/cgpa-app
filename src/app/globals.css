@@ -53,6 +53,9 @@
   * {
     @apply border-border;
   }
+  button {
+    cursor: pointer;
+  }
   body {
     background-color: rgb(var(--background));
     color: rgb(var(--foreground));
