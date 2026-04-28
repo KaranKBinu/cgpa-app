@@ -332,6 +332,7 @@ export default function Calculator({
           selectedOptions={core.selectedOptions}
           isLETMode={core.isLETMode}
           globalOpenElectives={globalOpenElectives}
+          studentName={core.studentName}
         />
       </main>
 

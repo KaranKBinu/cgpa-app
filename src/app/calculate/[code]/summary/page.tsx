@@ -251,29 +251,6 @@ export default function SummaryPage() {
 
       </div>
 
-      <style jsx global>{`
-        .glare-text {
-          background: linear-gradient(
-            to left,
-            #fff 20%,
-            #10b981 40%,
-            #10b981 60%,
-            #fff 80%
-          );
-          background-size: 200% auto;
-          background-clip: text;
-          text-fill-color: transparent;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: glare 3s linear infinite;
-        }
-
-        @keyframes glare {
-          to {
-            background-position: -200% center;
-          }
-        }
-      `}</style>
     </div>
   );
 }

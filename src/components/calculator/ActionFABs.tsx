@@ -27,6 +27,7 @@ interface ActionFABsProps {
   selectedOptions: any;
   isLETMode: boolean;
   globalOpenElectives: any;
+  studentName: string;
 }
 
 export const ActionFABs: React.FC<ActionFABsProps> = ({
@@ -46,7 +47,8 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
   customSubjects,
   selectedOptions,
   isLETMode,
-  globalOpenElectives
+  globalOpenElectives,
+  studentName
 }) => {
   useEffect(() => {
     if (saveStatus === 'success' || triggerConfetti) {
@@ -93,9 +95,8 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
         className="lg:hidden fixed bottom-8 left-3 sm:left-4 z-[90]"
       >
         <Link 
-          href={`/calculate/${programCode}/summary`}
+          href={`/calculate/${programCode}/summary?session=${activeSessionId || 'draft'}`}
           onClick={() => {
-            // Save full state to localStorage so summary page can generate the same PDF
             if (typeof window !== 'undefined') {
               const fullState = {
                 results,
@@ -105,18 +106,29 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
                 customSubjects,
                 selectedOptions,
                 isLETMode,
-                globalOpenElectives
+                globalOpenElectives,
+                studentName
               };
-              localStorage.setItem('summary_context', JSON.stringify(fullState));
+              const sessionId = activeSessionId || 'draft';
+              sessionStorage.setItem(`summary_context_${programCode}_${sessionId}`, JSON.stringify(fullState));
             }
           }}
           className="block active:scale-95 transition-transform"
         >
-          <div className="bg-background/80 backdrop-blur-2xl border-2 border-primary/20 rounded-full py-2 px-6 shadow-2xl flex flex-col items-center gap-0.5 min-w-[100px] cursor-pointer hover:border-primary/50 transition-colors">
-            <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">SGPA</span>
-            <span className="text-xl font-black text-foreground tracking-tighter leading-none">
-              {currentSemRes ? currentSemRes.sgpa.toFixed(2) : "0.00"}
-            </span>
+          <div className="bg-background/80 backdrop-blur-2xl border-2 border-primary/20 rounded-[2rem] py-3 px-6 shadow-2xl flex flex-col items-center gap-1 min-w-[110px] cursor-pointer hover:border-primary/50 transition-colors">
+            {currentSemRes && currentSemRes.sgpa > 0 && (
+              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 mb-0.5">
+                <span className="text-[8px] font-black text-primary uppercase tracking-tighter leading-none whitespace-nowrap">
+                  SEM {currentSemRes.number} SGPA: {currentSemRes.sgpa.toFixed(2)}
+                </span>
+              </div>
+            )}
+            <div className="flex flex-col items-center">
+              <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] leading-none mb-1">CGPA</span>
+              <span className="text-2xl font-black text-foreground tracking-tighter leading-none glare-text">
+                {results.cgpa.toFixed(2)}
+              </span>
+            </div>
           </div>
         </Link>
       </motion.div>
