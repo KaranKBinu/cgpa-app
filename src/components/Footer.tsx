@@ -24,7 +24,7 @@ const Footer = () => {
               Built with <Heart className="h-3 w-3 text-red-500 fill-red-500 animate-pulse" /> by <a href="mailto:karankbinu799@gmail.com" className="text-primary hover:underline">Karan K Binu</a>
             </div>
             <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-[0.2em]">
-              from GPTC Cherthala • © {new Date().getFullYear()} PolyGrade
+              2024 Batch CHE Student • GPTC Cherthala
             </p>
           </div>
 

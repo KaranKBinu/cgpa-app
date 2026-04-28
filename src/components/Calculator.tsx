@@ -32,7 +32,7 @@ export default function Calculator({
   const router = useRouter();
   const groupedSemesters = useMemo(() => groupSemesters(program.semesters), [program.semesters]);
   
-  const core = useCalculatorCore({ program, historicalData, globalOpenElectives, userIsLET, groupedSemesters });
+  const core = useCalculatorCore({ program, historicalData, globalOpenElectives, userIsLET, groupedSemesters, session });
   const actions = useCalculatorActions({
     ...core, program, session, router, groupedSemesters, globalOpenElectives,
     setGrades: core.setGrades, setExclusions: core.setExclusions, setCustomSubjects: core.setCustomSubjects,
@@ -57,7 +57,7 @@ export default function Calculator({
       setIsSaveModalOpen(false);
       addToast("Progress saved to your account!", 'success');
       setTriggerConfetti(true);
-      setTimeout(() => setTriggerConfetti(false), 3000);
+      setTimeout(() => setTriggerConfetti(false), 1500);
       actions.resetSaveStatus();
     } else if (actions.saveStatus === 'error') {
       addToast("Failed to save progress.", 'error');
@@ -90,8 +90,12 @@ export default function Calculator({
         const newSelectedOptions: Record<string, string> = {};
         const newCustomSubjects: Record<string, any[]> = {};
         const newExclusions: Record<string, 'not-published' | 'not-taken' | null> = {};
+        let extractedName = "";
         
         res.results.forEach((fileRes: any) => {
+          if (fileRes.studentName && !extractedName) {
+            extractedName = fileRes.studentName;
+          }
           if (!fileRes.subjects) return;
 
           // Find the target semester(s) in our program that correspond to this PDF file
@@ -217,12 +221,15 @@ export default function Calculator({
           if (Object.keys(newExclusions).length > 0) {
             core.setExclusions(prev => ({ ...prev, ...newExclusions }));
           }
+          if (extractedName && !core.studentName) {
+            core.setStudentName(extractedName);
+          }
           
           actions.setPendingFiles([]); 
           actions.setPdfPassword(""); 
           actions.setIsProcessingPdf(false);
           setTriggerConfetti(true);
-          setTimeout(() => setTriggerConfetti(false), 3000);
+          setTimeout(() => setTriggerConfetti(false), 1500);
         } else {
           // No subjects found and no password error
           actions.setPdfErrorMessage("Could not find any subjects to import. Please check if the PDF is correct.");
@@ -262,6 +269,7 @@ export default function Calculator({
           customSubjects={core.customSubjects}
           selectedOptions={core.selectedOptions}
           globalOpenElectives={globalOpenElectives}
+          studentName={core.studentName}
           handleSave={() => setIsSaveModalOpen(true)}
           onImportClick={() => (document.getElementById('pdf-upload') as any)?.click()}
           resetCalculator={() => {

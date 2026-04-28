@@ -29,12 +29,12 @@ export const ManualEntryView: React.FC<ManualEntryViewProps> = ({
             Manual Override Mode
           </div>
           <h3 className="text-3xl font-black tracking-tighter text-foreground">Semester Results</h3>
-          <p className="text-muted-foreground text-sm font-medium">Input your officially obtained SGPA and credits for this term.</p>
+          <p className="text-muted-foreground text-sm font-medium">Input your officially obtained SGPA for this term.</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 max-w-xs mx-auto">
           <div className="space-y-3">
-            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Total SGPA</label>
+            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest text-center block">Total SGPA</label>
             <input 
               type="number" 
               step="0.01" 
@@ -44,22 +44,9 @@ export const ManualEntryView: React.FC<ManualEntryViewProps> = ({
               value={manualData?.sgpa || ""}
               onChange={(e) => {
                 const val = parseFloat(e.target.value);
-                setManualSgpas(prev => ({ ...prev, [currentSem.id]: { sgpa: val || 0, credits: manualData?.credits || 0 } }));
+                setManualSgpas(prev => ({ ...prev, [currentSem.id]: { sgpa: val || 0, credits: 0 } }));
               }}
-              className="w-full h-16 bg-background rounded-2xl border-2 border-border/50 px-6 text-2xl font-black text-foreground outline-none focus:border-primary/50 transition-all text-center"
-            />
-          </div>
-          <div className="space-y-3">
-            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Total Credits</label>
-            <input 
-              type="number" 
-              placeholder="0"
-              value={manualData?.credits || ""}
-              onChange={(e) => {
-                const val = parseInt(e.target.value);
-                setManualSgpas(prev => ({ ...prev, [currentSem.id]: { sgpa: manualData?.sgpa || 0, credits: val || 0 } }));
-              }}
-              className="w-full h-16 bg-background rounded-2xl border-2 border-border/50 px-6 text-2xl font-black text-foreground outline-none focus:border-primary/50 transition-all text-center"
+              className="w-full h-16 bg-background rounded-2xl border-2 border-border/50 px-6 text-3xl font-black text-foreground outline-none focus:border-primary/50 transition-all text-center"
             />
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -10,6 +10,7 @@ interface TooltipProps {
   position?: 'top' | 'bottom' | 'left' | 'right';
   variant?: 'emerald' | 'standard';
   className?: string;
+  forceShow?: boolean;
 }
 
 export const Tooltip: React.FC<TooltipProps> = ({ 
@@ -17,9 +18,57 @@ export const Tooltip: React.FC<TooltipProps> = ({
   children, 
   position = 'top', 
   variant = 'standard',
-  className 
+  className,
+  forceShow = false
 }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [internalForceShow, setInternalForceShow] = useState(forceShow);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [shift, setShift] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    setInternalForceShow(forceShow);
+    
+    if (forceShow) {
+      const timer = setTimeout(() => {
+        setInternalForceShow(false);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [forceShow]);
+
+  const showTooltip = isVisible || internalForceShow;
+
+  useEffect(() => {
+    if (showTooltip) {
+      const timeoutId = setTimeout(() => {
+        if (tooltipRef.current) {
+          const rect = tooltipRef.current.getBoundingClientRect();
+          let shiftX = 0;
+          let shiftY = 0;
+          const padding = 12;
+          
+          if (rect.right > window.innerWidth) {
+            shiftX = window.innerWidth - rect.right - padding;
+          } else if (rect.left < 0) {
+            shiftX = -rect.left + padding;
+          }
+          
+          if (rect.bottom > window.innerHeight) {
+            shiftY = window.innerHeight - rect.bottom - padding;
+          } else if (rect.top < 0) {
+            shiftY = -rect.top + padding;
+          }
+          
+          setShift({ x: shiftX, y: shiftY });
+        }
+      }, 10);
+      return () => clearTimeout(timeoutId);
+    } else {
+      setShift({ x: 0, y: 0 });
+    }
+  }, [showTooltip, content, position]);
 
   const getPositionClasses = () => {
     switch (position) {
@@ -41,7 +90,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   return (
     <div 
-      className={cn("relative inline-block w-full", className)}
+      className={cn("relative inline-flex w-fit", showTooltip ? "z-[999]" : "z-auto", className)}
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
       onFocus={() => setIsVisible(true)}
@@ -53,14 +102,16 @@ export const Tooltip: React.FC<TooltipProps> = ({
     >
       {children}
       <AnimatePresence>
-        {isVisible && (
+        {showTooltip && (
           <motion.div
+            ref={tooltipRef}
             {...getAnimationProps()}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.15, ease: [0.19, 1, 0.22, 1] }}
+            style={{ marginLeft: shift.x, marginTop: shift.y }}
             className={cn(
-              "absolute z-[100] px-4 py-2 font-black text-[10px] uppercase tracking-[0.15em] whitespace-nowrap rounded-xl shadow-2xl backdrop-blur-xl border border-border/50 pointer-events-none",
-              variant === 'emerald' ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" : "bg-popover text-popover-foreground",
+              "absolute z-[9999] px-4 py-2 font-black text-[10px] uppercase tracking-[0.15em] whitespace-nowrap rounded-xl shadow-2xl backdrop-blur-xl border border-border/50 pointer-events-none transition-[margin] duration-200",
+              "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
               getPositionClasses()
             )}
           >

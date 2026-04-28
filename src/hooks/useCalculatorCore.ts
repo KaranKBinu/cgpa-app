@@ -8,6 +8,7 @@ interface UseCalculatorCoreProps {
   globalOpenElectives: any[];
   userIsLET: boolean;
   groupedSemesters: Semester[];
+  session?: any;
 }
 
 export function useCalculatorCore({
@@ -15,7 +16,8 @@ export function useCalculatorCore({
   historicalData,
   globalOpenElectives,
   userIsLET,
-  groupedSemesters
+  groupedSemesters,
+  session
 }: UseCalculatorCoreProps) {
   const [isLETMode, setIsLETMode] = useState(userIsLET);
   const [grades, setGrades] = useState<Record<string, Grade | "">>( {});
@@ -121,7 +123,12 @@ export function useCalculatorCore({
 
       setGrades(histGrades); setCustomSubjects(histCustom); setExclusions(histExclusions);
       setManualSgpas(histManual); setSelectedOptions(histSelected);
-      setStudentName(historicalData.label || ""); 
+      
+      let loadedName = historicalData.label || "";
+      if (loadedName.startsWith("Results for ") || (session?.user?.name && loadedName === session.user.name)) {
+        loadedName = "";
+      }
+      setStudentName(loadedName); 
       setActiveSessionId(historicalData.id);
       if (historicalData.isLET !== undefined) setIsLETMode(historicalData.isLET);
       return;

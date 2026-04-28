@@ -11,6 +11,7 @@ export interface ParsedTranscriptFile {
   semester?: number;
   semesterName?: string;
   subjects?: { code: string; name: string; grade: string }[];
+  studentName?: string;
   error?: string;
   isPasswordRequired?: boolean;
 }
@@ -56,6 +57,13 @@ function parseTranscriptText(
   };
   const semesterNumber = semMap[semesterLetter] || 0;
 
+  // Extract Student Name
+  let studentName: string | undefined = undefined;
+  const nameMatch = fullText.match(/NAME\s*(?:OF\s*CANDIDATE)?\s*:\s*([A-Z\s\.]+?)\s+(?:REGISTER|MONTH|YEAR|SEMESTER|BRANCH|INSTITUTION)/i);
+  if (nameMatch) {
+    studentName = nameMatch[1].trim();
+  }
+
   // Extract Subjects
   const tableStartIndex = fullText.indexOf('Grade');
   const tableText = tableStartIndex !== -1 ? fullText.substring(tableStartIndex) : fullText;
@@ -73,6 +81,7 @@ function parseTranscriptText(
     branch,
     semester: semesterNumber,
     semesterName: `${semesterLetter} SEMESTER`,
+    studentName,
     subjects,
   };
 }

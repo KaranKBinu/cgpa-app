@@ -16,7 +16,7 @@ export default function SummaryPage() {
 
   useEffect(() => {
     setMounted(true);
-    const saved = localStorage.getItem('summary_context');
+    const saved = sessionStorage.getItem('summary_context');
     if (saved) {
       setContext(JSON.parse(saved));
     } else {
@@ -125,7 +125,7 @@ export default function SummaryPage() {
 
   if (!mounted || !context) return null;
 
-  const { results } = context;
+  const { results, studentName } = context;
   const validSems = results.semResults.filter((s: any) => s.sgpa > 0);
   const hasF = Object.values(context.grades).some(g => g === 'F');
 
@@ -178,14 +178,20 @@ export default function SummaryPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="relative z-10 text-center flex flex-col items-center"
             >
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[8px] font-black uppercase tracking-[0.4em] mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[8px] font-black uppercase tracking-[0.4em] mb-2">
                     <Trophy className="h-3 w-3" />
                     Final Scorecard
                 </div>
 
+                {studentName && (
+                  <p className="text-xs sm:text-sm font-black text-white/80 uppercase tracking-[0.2em] mb-4 text-center px-4">
+                    {studentName}
+                  </p>
+                )}
+
                 <h1 className="relative group leading-[0.8] mb-0">
                     <motion.span 
-                        className="text-[10rem] sm:text-[14rem] md:text-[18rem] font-black tracking-tighter block glare-text select-none"
+                        className="text-[6rem] sm:text-[10rem] md:text-[14rem] font-black tracking-tighter block glare-text select-none"
                     >
                         {results.cgpa.toFixed(2)}
                     </motion.span>
@@ -216,14 +222,14 @@ export default function SummaryPage() {
 
         {/* Semester Journey Grid - Hero SGPAs */}
         <section className="w-full shrink-0 mt-4 pb-4">
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
+            <div className="flex flex-wrap items-center justify-center gap-2">
                 {validSems.map((sem: any, idx: number) => (
                     <motion.div
                         key={sem.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.05 * idx }}
-                        className="bg-white/5 border border-white/10 rounded-2xl py-5 px-2 flex flex-col items-center justify-center hover:bg-white/10 transition-all"
+                        className="bg-white/5 border border-white/10 rounded-2xl py-5 px-6 flex flex-col items-center justify-center hover:bg-white/10 transition-all flex-1 min-w-[100px] max-w-[150px]"
                     >
                         <span className="text-[10px] font-black text-emerald-500 uppercase mb-0.5">Sem {sem.number}</span>
                         <p className="text-3xl font-black tracking-tighter text-white glare-text">{sem.sgpa.toFixed(2)}</p>

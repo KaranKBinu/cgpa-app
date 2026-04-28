@@ -18,9 +18,9 @@ export default function ContactPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setStatus('loading');
-        
+
         const res = await submitFeedback(formData);
-        
+
         if (res.success) {
             setStatus('success');
             setFormData({ name: '', email: '', subject: 'General Feedback', message: '' });
@@ -34,7 +34,7 @@ export default function ContactPage() {
     return (
         <div className="max-w-4xl mx-auto px-6">
             <div className="text-center mb-12">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black tracking-[0.3em] uppercase mb-6"
@@ -73,7 +73,7 @@ export default function ContactPage() {
                                 </div>
                                 <div>
                                     <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Institutional</p>
-                                    <p className="text-sm font-bold text-foreground">GPTC Cherthala</p>
+                                    <p className="text-sm font-bold text-foreground">2024 Batch CHE Student • GPTC Cherthala</p>
                                 </div>
                             </div>
                         </div>
@@ -93,7 +93,7 @@ export default function ContactPage() {
                         <div className="bg-card/80 backdrop-blur-2xl rounded-[1.8rem] p-8 shadow-2xl">
                             <AnimatePresence mode="wait">
                                 {status === 'success' ? (
-                                    <motion.div 
+                                    <motion.div
                                         key="success"
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
@@ -105,7 +105,7 @@ export default function ContactPage() {
                                         </div>
                                         <h2 className="text-2xl font-black text-foreground">Message Sent!</h2>
                                         <p className="text-muted-foreground font-medium">Thanks for reaching out, rookie. I'll get back to you as soon as I can.</p>
-                                        <button 
+                                        <button
                                             onClick={() => setStatus('idle')}
                                             className="mt-6 px-6 py-2 rounded-xl border border-border hover:bg-emerald-500/5 hover:border-emerald-500/50 transition-all font-black uppercase text-[10px] tracking-widest"
                                         >
@@ -113,12 +113,12 @@ export default function ContactPage() {
                                         </button>
                                     </motion.div>
                                 ) : (
-                                    <motion.form 
+                                    <motion.form
                                         key="form"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
-                                        onSubmit={handleSubmit} 
+                                        onSubmit={handleSubmit}
                                         className="space-y-6"
                                     >
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -126,13 +126,13 @@ export default function ContactPage() {
                                                 <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Your Name</label>
                                                 <div className="relative group">
                                                     <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                                                    <input 
+                                                    <input
                                                         required
-                                                        type="text" 
+                                                        type="text"
                                                         placeholder="John Doe"
                                                         className="w-full h-12 bg-background/50 border border-border/50 rounded-xl pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                                         value={formData.name}
-                                                        onChange={e => setFormData({...formData, name: e.target.value})}
+                                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
                                                     />
                                                 </div>
                                             </div>
@@ -140,13 +140,13 @@ export default function ContactPage() {
                                                 <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Email Address</label>
                                                 <div className="relative group">
                                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                                                    <input 
+                                                    <input
                                                         required
-                                                        type="email" 
+                                                        type="email"
                                                         placeholder="john@example.com"
                                                         className="w-full h-12 bg-background/50 border border-border/50 rounded-xl pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                                         value={formData.email}
-                                                        onChange={e => setFormData({...formData, email: e.target.value})}
+                                                        onChange={e => setFormData({ ...formData, email: e.target.value })}
                                                     />
                                                 </div>
                                             </div>
@@ -154,10 +154,10 @@ export default function ContactPage() {
 
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Subject</label>
-                                            <select 
+                                            <select
                                                 className="w-full h-12 bg-background/50 border border-border/50 rounded-xl px-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
                                                 value={formData.subject}
-                                                onChange={e => setFormData({...formData, subject: e.target.value})}
+                                                onChange={e => setFormData({ ...formData, subject: e.target.value })}
                                             >
                                                 <option>General Feedback</option>
                                                 <option>Bug Report</option>
@@ -169,25 +169,25 @@ export default function ContactPage() {
 
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Your Message</label>
-                                            <textarea 
+                                            <textarea
                                                 required
                                                 rows={4}
                                                 placeholder="Tell me what's on your mind..."
                                                 className="w-full bg-background/50 border border-border/50 rounded-xl p-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
                                                 value={formData.message}
-                                                onChange={e => setFormData({...formData, message: e.target.value})}
+                                                onChange={e => setFormData({ ...formData, message: e.target.value })}
                                             />
                                         </div>
 
-                                        <motion.button 
+                                        <motion.button
                                             disabled={status === 'loading' || !isFormValid}
                                             type="submit"
                                             animate={isFormValid ? { scale: [1, 1.02, 1] } : {}}
                                             transition={{ duration: 2, repeat: Infinity }}
                                             className={cn(
                                                 "w-full h-14 font-black uppercase tracking-[0.2em] rounded-2xl transition-all flex items-center justify-center gap-3 group",
-                                                isFormValid 
-                                                    ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-lg shadow-emerald-500/40 active:scale-[0.98] border-t border-white/20" 
+                                                isFormValid
+                                                    ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-lg shadow-emerald-500/40 active:scale-[0.98] border-t border-white/20"
                                                     : "bg-emerald-950/20 text-emerald-900/50 border border-emerald-900/10 cursor-not-allowed"
                                             )}
                                         >

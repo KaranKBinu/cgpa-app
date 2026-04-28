@@ -35,14 +35,15 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         <span className="font-black tracking-tighter text-2xl">Poly<span className="text-primary italic">Grade</span></span>
       </div>
 
+      <div className="px-8 pt-5 pb-3 border-b border-border/50 bg-card/30 z-10">
+        <Tooltip content={programName} position="bottom" className="w-auto">
+          <span className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.25em] cursor-help">
+            Semesters - {programCode}
+          </span>
+        </Tooltip>
+      </div>
+
       <nav className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-        <div className="px-4 py-3 border-b border-border/50 mb-2">
-          <Tooltip content={programName} position="bottom" variant="emerald" className="w-auto">
-            <span className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.25em] cursor-help">
-              Semesters - {programCode}
-            </span>
-          </Tooltip>
-        </div>
         {(() => {
           const groups: Semester[][] = [];
           displayedSemesters.forEach(sem => {

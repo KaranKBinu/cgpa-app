@@ -50,7 +50,7 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
 }) => {
   useEffect(() => {
     if (saveStatus === 'success' || triggerConfetti) {
-      const duration = 3 * 1000;
+      const duration = 1.5 * 1000;
       const animationEnd = Date.now() + duration;
       const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
 
@@ -77,7 +77,7 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
           origin: { x: randomInRange(0.7, 0.9), y: 0.7 },
           colors: ['#10b981', '#3b82f6', '#ffffff'] 
         });
-      }, 250);
+      }, 400);
       
       return () => clearInterval(interval);
     }
