@@ -34,6 +34,7 @@ export async function saveCalculation(data: {
     }[];
   }[];
   isLET: boolean;
+  studentName?: string;
 }) {
   const session = await auth();
   const userId = session?.user ? (session.user as any).id : null;
@@ -64,6 +65,7 @@ export async function saveCalculation(data: {
           cgpa: data.cgpa,
           isLET: data.isLET as any,
           userId,
+          studentName: data.studentName,
           semesters: {
             deleteMany: {},
             create: data.semesters.map(sem => ({
@@ -103,6 +105,7 @@ export async function saveCalculation(data: {
         data: {
           cgpa: data.cgpa,
           isLET: data.isLET as any,
+          studentName: data.studentName,
           semesters: {
             deleteMany: {},
             create: data.semesters.map(sem => ({
@@ -136,6 +139,7 @@ export async function saveCalculation(data: {
         cgpa: data.cgpa,
         isLET: data.isLET as any,
         userId,
+        studentName: data.studentName,
         semesters: {
           create: data.semesters.map(sem => ({
             name: sem.name,

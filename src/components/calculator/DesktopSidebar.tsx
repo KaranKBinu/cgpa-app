@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { History, LogOut, ShieldAlert, Sparkles } from 'lucide-react';
+import { History, LogOut, ShieldAlert, Sparkles, Loader2 } from 'lucide-react';
 import { Tooltip } from '../Tooltip';
 import Link from 'next/link';
 import { Semester, SemResult } from '@/types/calculator';
@@ -26,6 +26,8 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   programCode,
   programName
 }) => {
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  
   return (
     <aside className="hidden lg:flex w-64 border-r-2 border-border/50 flex-col bg-card/30 sticky top-0 h-screen z-[70]">
       <div className="p-6 border-b-2 border-border/50 flex items-center justify-start gap-3 bg-card/10">
@@ -106,10 +108,14 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         </Link>
         {session && (
           <button
-            onClick={() => signOut({ callbackUrl: '/' })}
-            className="w-full flex items-center justify-start gap-3 p-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-all"
+            onClick={async () => {
+              setIsLoggingOut(true);
+              await signOut({ callbackUrl: '/' });
+            }}
+            disabled={isLoggingOut}
+            className="w-full flex items-center justify-start gap-3 p-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-all disabled:opacity-50"
           >
-            <LogOut className="h-5 w-5" />
+            {isLoggingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
             <span className="font-bold text-sm">Logout</span>
           </button>
         )}

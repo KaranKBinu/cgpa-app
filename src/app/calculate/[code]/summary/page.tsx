@@ -16,7 +16,10 @@ export default function SummaryPage() {
 
   useEffect(() => {
     setMounted(true);
-    const saved = sessionStorage.getItem('summary_context');
+    const searchParams = new URLSearchParams(window.location.search);
+    const sessionId = searchParams.get('session') || 'draft';
+    const saved = sessionStorage.getItem(`summary_context_${params.code}_${sessionId}`);
+    
     if (saved) {
       setContext(JSON.parse(saved));
     } else {
@@ -131,6 +134,7 @@ export default function SummaryPage() {
 
   const getClassification = () => {
     if (hasF) return "Not Passed";
+    if (results.cgpa === 0) return "N/A";
     if (results.cgpa >= 8) return "First Class with Distinction";
     if (results.cgpa >= 7) return "First Class";
     return "Second Class";

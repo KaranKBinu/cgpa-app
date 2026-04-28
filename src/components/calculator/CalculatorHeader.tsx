@@ -70,7 +70,8 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
         globalOpenElectives,
         studentName
       };
-      sessionStorage.setItem('summary_context', JSON.stringify(fullState));
+      const sessionId = activeSessionId || 'draft';
+      sessionStorage.setItem(`summary_context_${program.code}_${sessionId}`, JSON.stringify(fullState));
     }
   };
 
@@ -95,13 +96,24 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                     {program.code}
                   </h1>
                 </Tooltip>
-                <div className="lg:hidden flex items-center whitespace-nowrap font-black">
-                  <div className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-1.5">
-                    <span className="text-[12px] text-primary leading-none">{results.cgpa.toFixed(2)}</span>
-                    <div className="w-px h-2 bg-primary/20" />
-                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 leading-none">{results.totalPercentage.toFixed(2)}%</span>
-                  </div>
-                </div>
+                <Tooltip 
+                  content="View Detailed Summary" 
+                  position="bottom" 
+                  className="lg:hidden"
+                  forceShow={results.cgpa > 0}
+                >
+                  <Link 
+                    href={`/calculate/${program.code}/summary?session=${activeSessionId || 'draft'}`}
+                    onClick={saveSummaryContext}
+                    className="flex items-center whitespace-nowrap font-black"
+                  >
+                    <div className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-1.5">
+                      <span className="text-[12px] text-primary leading-none">{results.cgpa.toFixed(2)}</span>
+                      <div className="w-px h-2 bg-primary/20" />
+                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 leading-none">{results.totalPercentage.toFixed(2)}%</span>
+                    </div>
+                  </Link>
+                </Tooltip>
               </div>
               <div className="flex items-center gap-1.5 mt-1 lg:mt-0.5 group">
                 <div className={cn(
@@ -125,7 +137,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
               forceShow={results.cgpa > 0}
             >
               <Link 
-                href={`/calculate/${program.code}/summary`}
+                href={`/calculate/${program.code}/summary?session=${activeSessionId || 'draft'}`}
                 onClick={saveSummaryContext}
                 className="flex items-center bg-card/60 border border-border/50 rounded-2xl overflow-hidden shadow-lg shadow-black/10 backdrop-blur-md hover:border-primary/50 transition-colors group active:scale-95"
               >

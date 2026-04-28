@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, History, User as UserIcon, MessageSquare, LogOut, Menu, X, Sparkles, ShieldAlert, ChevronDown, LayoutDashboard, BookOpen, Users, Settings } from 'lucide-react';
+import { Home, History, User as UserIcon, MessageSquare, LogOut, Menu, X, Sparkles, ShieldAlert, ChevronDown, LayoutDashboard, BookOpen, Users, Settings, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from './ThemeToggle';
 import { signOut } from 'next-auth/react';
@@ -21,6 +21,7 @@ interface NavbarProps {
 export default function Navbar({ user, config }: NavbarProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isAdminOpen, setIsAdminOpen] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const pathname = usePathname();
 
     const navLinks = [
@@ -163,10 +164,14 @@ export default function Navbar({ user, config }: NavbarProps) {
                         )}
                         {user && (
                             <button
-                                onClick={() => signOut()}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all font-bold text-sm group cursor-pointer active:scale-95"
+                                onClick={async () => {
+                                    setIsLoggingOut(true);
+                                    await signOut();
+                                }}
+                                disabled={isLoggingOut}
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all font-bold text-sm group cursor-pointer active:scale-95 disabled:opacity-50"
                             >
-                                <LogOut className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                                {isLoggingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4 group-hover:scale-110 transition-transform" />}
                                 <span>Sign Out</span>
                             </button>
                         )}
@@ -247,10 +252,15 @@ export default function Navbar({ user, config }: NavbarProps) {
 
                                 {user ? (
                                     <button
-                                        onClick={() => { setIsOpen(false); signOut(); }}
-                                        className="flex items-center gap-4 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 transition-all font-bold w-full"
+                                        onClick={async () => {
+                                            setIsLoggingOut(true);
+                                            await signOut();
+                                            setIsOpen(false);
+                                        }}
+                                        disabled={isLoggingOut}
+                                        className="flex items-center gap-4 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 transition-all font-bold w-full disabled:opacity-50"
                                     >
-                                        <LogOut className="h-5 w-5" />
+                                        {isLoggingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
                                         <span>Sign Out</span>
                                     </button>
                                 ) : (

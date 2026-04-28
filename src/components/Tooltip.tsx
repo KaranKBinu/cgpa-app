@@ -4,6 +4,40 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
+type QueueItem = { id: string; content: string };
+let currentForceShow: QueueItem | null = null;
+let forceShowQueue: QueueItem[] = [];
+let listeners: (() => void)[] = [];
+const notifyListeners = () => listeners.forEach(l => l());
+let currentTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function requestForceShow(id: string, content: string) {
+  // Prevent duplicate content from flooding the queue
+  if (currentForceShow?.content === content) return;
+  if (forceShowQueue.some(item => item.content === content)) return;
+
+  if (currentForceShow === null) {
+    currentForceShow = { id, content };
+    notifyListeners();
+    currentTimeout = setTimeout(() => releaseForceShow(id), 3000);
+  } else {
+    forceShowQueue.push({ id, content });
+  }
+}
+
+function releaseForceShow(id: string) {
+  if (currentForceShow?.id === id) {
+    if (currentTimeout) clearTimeout(currentTimeout);
+    currentForceShow = forceShowQueue.shift() || null;
+    notifyListeners();
+    if (currentForceShow) {
+      currentTimeout = setTimeout(() => releaseForceShow(currentForceShow!.id), 3000);
+    }
+  } else {
+    forceShowQueue = forceShowQueue.filter(item => item.id !== id);
+  }
+}
+
 interface TooltipProps {
   content: string;
   children: React.ReactNode;
@@ -22,23 +56,51 @@ export const Tooltip: React.FC<TooltipProps> = ({
   forceShow = false
 }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [internalForceShow, setInternalForceShow] = useState(forceShow);
+  const [tooltipId] = useState(() => Math.random().toString(36).substr(2, 9));
+  const [isGlobalForceShow, setIsGlobalForceShow] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [shift, setShift] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    setInternalForceShow(forceShow);
-    
     if (forceShow) {
-      const timer = setTimeout(() => {
-        setInternalForceShow(false);
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [forceShow]);
+      // Check if the element is actually visible in the current layout (not hidden by CSS)
+      const checkVisibility = () => {
+        if (containerRef.current) {
+          const rect = containerRef.current.getBoundingClientRect();
+          const style = window.getComputedStyle(containerRef.current);
+          const isVisible = rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+          
+          if (isVisible) {
+            requestForceShow(tooltipId, content);
+            return true;
+          }
+        }
+        return false;
+      };
 
-  const showTooltip = isVisible || internalForceShow;
+      // Try immediately
+      if (!checkVisibility()) {
+        // If not visible yet (e.g. mounting/rendering delay), try again after a frame
+        const frame = requestAnimationFrame(checkVisibility);
+        return () => cancelAnimationFrame(frame);
+      }
+    } else {
+      releaseForceShow(tooltipId);
+    }
+  }, [forceShow, tooltipId, content]);
+
+  useEffect(() => {
+    const handleUpdate = () => setIsGlobalForceShow(currentForceShow?.id === tooltipId);
+    listeners.push(handleUpdate);
+    handleUpdate();
+    return () => {
+      listeners = listeners.filter(l => l !== handleUpdate);
+      releaseForceShow(tooltipId);
+    };
+  }, [tooltipId]);
+
+  const showTooltip = isVisible || isGlobalForceShow;
 
   useEffect(() => {
     if (showTooltip) {
@@ -90,6 +152,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   return (
     <div 
+      ref={containerRef}
       className={cn("relative inline-flex w-fit", showTooltip ? "z-[999]" : "z-auto", className)}
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}

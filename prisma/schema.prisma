@@ -80,6 +80,7 @@ model Calculation {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   semesters   UserSemester[]
+  studentName String?
 }
 
 model UserSemester {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { deleteCalculation } from "../actions";
 import { auth } from "@/lib/auth";
 import { Tooltip } from "@/components/Tooltip";
+import DeleteCalculationButton from "@/components/history/DeleteCalculationButton";
 
 export default async function HistoryPage() {
   const session = await auth();
@@ -108,16 +109,7 @@ export default async function HistoryPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <Tooltip content="Delete Record" position="top">
-                        <form action={async () => {
-                          "use server";
-                          await deleteCalculation(calc.id);
-                        }}>
-                          <button type="submit" className="btn-danger cursor-pointer">
-                            <Trash2 className="h-5 w-5" />
-                          </button>
-                        </form>
-                      </Tooltip>
+                      <DeleteCalculationButton id={calc.id} />
                       <Tooltip content="Resume & Edit" position="top" variant="emerald">
                         <Link href={`/calculate/${calc.program?.code}?session=${calc.id}`} className="h-12 w-12 bg-emerald-500 text-black rounded-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg shadow-emerald-500/20 border border-white/20 cursor-pointer">
                           <Edit2 size={20} strokeWidth={2.5} />

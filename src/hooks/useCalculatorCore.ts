@@ -124,10 +124,7 @@ export function useCalculatorCore({
       setGrades(histGrades); setCustomSubjects(histCustom); setExclusions(histExclusions);
       setManualSgpas(histManual); setSelectedOptions(histSelected);
       
-      let loadedName = historicalData.label || "";
-      if (loadedName.startsWith("Results for ") || (session?.user?.name && loadedName === session.user.name)) {
-        loadedName = "";
-      }
+      let loadedName = historicalData.studentName || "";
       setStudentName(loadedName); 
       setActiveSessionId(historicalData.id);
       if (historicalData.isLET !== undefined) setIsLETMode(historicalData.isLET);
