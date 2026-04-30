@@ -36,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: `${config.appName} - Polytechnic GPA Engine`,
       description: `The definitive GPA calculation engine for Kerala Polytechnic students. Track your progress with precision.`,
-      url: 'https://poly-cgpa.vercel.app',
+      url: 'https://polygpacalculator.vercel.app',
       siteName: config.appName,
       images: [
         {

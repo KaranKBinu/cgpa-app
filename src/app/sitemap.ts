@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://poly-cgpa.vercel.app'
+  const baseUrl = 'https://polygpacalculator.vercel.app'
   
   return [
     {
