@@ -4,22 +4,23 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-type QueueItem = { id: string; content: string };
+type QueueItem = { id: string; content: React.ReactNode };
 let currentForceShow: QueueItem | null = null;
 let forceShowQueue: QueueItem[] = [];
 let listeners: (() => void)[] = [];
 const notifyListeners = () => listeners.forEach(l => l());
 let currentTimeout: ReturnType<typeof setTimeout> | null = null;
 
-function requestForceShow(id: string, content: string) {
+function requestForceShow(id: string, content: React.ReactNode) {
   // Prevent duplicate content from flooding the queue
-  if (currentForceShow?.content === content) return;
-  if (forceShowQueue.some(item => item.content === content)) return;
+  const contentString = typeof content === 'string' ? content : '';
+  if (currentForceShow?.id === id) return;
+  if (forceShowQueue.some(item => item.id === id)) return;
 
   if (currentForceShow === null) {
     currentForceShow = { id, content };
     notifyListeners();
-    currentTimeout = setTimeout(() => releaseForceShow(id), 3000);
+    currentTimeout = setTimeout(() => releaseForceShow(id), 5000); // Increased to 5s for tutorial
   } else {
     forceShowQueue.push({ id, content });
   }
@@ -31,7 +32,7 @@ function releaseForceShow(id: string) {
     currentForceShow = forceShowQueue.shift() || null;
     notifyListeners();
     if (currentForceShow) {
-      currentTimeout = setTimeout(() => releaseForceShow(currentForceShow!.id), 3000);
+      currentTimeout = setTimeout(() => releaseForceShow(currentForceShow!.id), 5000);
     }
   } else {
     forceShowQueue = forceShowQueue.filter(item => item.id !== id);
@@ -39,12 +40,13 @@ function releaseForceShow(id: string) {
 }
 
 interface TooltipProps {
-  content: string;
+  content: React.ReactNode;
   children: React.ReactNode;
   position?: 'top' | 'bottom' | 'left' | 'right';
-  variant?: 'emerald' | 'standard';
+  variant?: 'emerald' | 'standard' | 'tutorial';
   className?: string;
   forceShow?: boolean;
+  delay?: number;
 }
 
 export const Tooltip: React.FC<TooltipProps> = ({ 
@@ -53,7 +55,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
   position = 'top', 
   variant = 'standard',
   className,
-  forceShow = false
+  forceShow = false,
+  delay = 0
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [tooltipId] = useState(() => Math.random().toString(36).substr(2, 9));
@@ -63,8 +66,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const [shift, setShift] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    
     if (forceShow) {
-      // Check if the element is actually visible in the current layout (not hidden by CSS)
       const checkVisibility = () => {
         if (containerRef.current) {
           const rect = containerRef.current.getBoundingClientRect();
@@ -72,23 +76,27 @@ export const Tooltip: React.FC<TooltipProps> = ({
           const isVisible = rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
           
           if (isVisible) {
-            requestForceShow(tooltipId, content);
+            timeoutId = setTimeout(() => {
+              requestForceShow(tooltipId, content);
+            }, delay);
             return true;
           }
         }
         return false;
       };
 
-      // Try immediately
       if (!checkVisibility()) {
-        // If not visible yet (e.g. mounting/rendering delay), try again after a frame
         const frame = requestAnimationFrame(checkVisibility);
         return () => cancelAnimationFrame(frame);
       }
     } else {
       releaseForceShow(tooltipId);
     }
-  }, [forceShow, tooltipId, content]);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [forceShow, tooltipId, content, delay]);
 
   useEffect(() => {
     const handleUpdate = () => setIsGlobalForceShow(currentForceShow?.id === tooltipId);
@@ -96,7 +104,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
     handleUpdate();
     return () => {
       listeners = listeners.filter(l => l !== handleUpdate);
-      releaseForceShow(tooltipId);
+      // Only release if we're unmounting, not just re-rendering
+      // releaseForceShow(tooltipId); // Handled by the other useEffect cleanup or dependency
     };
   }, [tooltipId]);
 
@@ -134,10 +143,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   const getPositionClasses = () => {
     switch (position) {
-      case 'bottom': return 'top-[125%] left-1/2 -translate-x-1/2';
-      case 'left': return 'right-[115%] top-1/2 -translate-y-1/2';
-      case 'right': return 'left-[115%] top-1/2 -translate-y-1/2';
-      default: return 'bottom-[125%] left-1/2 -translate-x-1/2';
+      case 'bottom': return 'top-[calc(100%+12px)] left-1/2 -translate-x-1/2';
+      case 'left': return 'right-[calc(100%+12px)] top-1/2 -translate-y-1/2';
+      case 'right': return 'left-[calc(100%+12px)] top-1/2 -translate-y-1/2';
+      default: return 'bottom-[calc(100%+12px)] left-1/2 -translate-x-1/2';
     }
   };
 
@@ -150,6 +159,17 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
+  const getVariantClasses = () => {
+    switch (variant) {
+      case 'tutorial':
+        return "bg-background/95 text-foreground border-primary/30 shadow-2xl shadow-primary/20 p-0 overflow-hidden min-w-[280px] pointer-events-auto";
+      case 'emerald':
+      case 'standard':
+      default:
+        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+    }
+  };
+
   return (
     <div 
       ref={containerRef}
@@ -158,10 +178,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
       onMouseLeave={() => setIsVisible(false)}
       onFocus={() => setIsVisible(true)}
       onBlur={() => setIsVisible(false)}
-      onTouchStart={(e) => {
-        // e.preventDefault(); // Prevent ghost clicks
-        setIsVisible(!isVisible);
-      }}
+      onTouchStart={() => setIsVisible(!isVisible)}
     >
       {children}
       <AnimatePresence>
@@ -173,9 +190,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
             transition={{ duration: 0.15, ease: [0.19, 1, 0.22, 1] }}
             style={{ marginLeft: shift.x, marginTop: shift.y }}
             className={cn(
-              "absolute z-[9999] px-4 py-2 font-black text-[10px] uppercase tracking-[0.15em] whitespace-nowrap rounded-xl shadow-2xl backdrop-blur-xl border border-border/50 pointer-events-none transition-[margin] duration-200",
-              "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-              getPositionClasses()
+              "absolute z-[9999] rounded-xl shadow-2xl backdrop-blur-xl border transition-[margin] duration-200",
+              variant !== 'tutorial' ? "px-4 py-2 font-black text-[10px] uppercase tracking-[0.15em] whitespace-nowrap pointer-events-none" : "pointer-events-auto",
+              getPositionClasses(),
+              getVariantClasses()
             )}
           >
             {content}

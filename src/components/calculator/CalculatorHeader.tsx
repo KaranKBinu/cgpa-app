@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, FileUp, Download, Loader2, CheckCircle2, Save, Check, RotateCcw, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, FileUp, Download, Loader2, CheckCircle2, Save, Check, RotateCcw, ShieldAlert, Info, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { Tooltip } from '../Tooltip';
 import { Program, CalculatorResults } from '@/types/calculator';
@@ -31,6 +31,49 @@ interface CalculatorHeaderProps {
   globalOpenElectives: any;
   studentName: string;
 }
+
+const ImportGuideTooltip = () => (
+  <div className="flex flex-col w-[280px] overflow-hidden">
+    <div className="bg-primary/10 px-4 py-3 border-b border-border/50 flex items-center gap-3">
+      <div className="h-6 w-6 rounded-lg bg-primary/20 flex items-center justify-center">
+        <FileUp className="h-3.5 w-3.5 text-primary" />
+      </div>
+      <div className="flex flex-col">
+        <span className="text-[10px] font-black uppercase tracking-widest text-primary leading-none">Import Guide</span>
+        <span className="text-[8px] font-bold text-primary/60 uppercase tracking-tight mt-1">SBTE Grade Reports</span>
+      </div>
+    </div>
+    <div className="p-4 space-y-4 bg-background/50">
+      <div className="space-y-3">
+        {[
+          { text: "Login to SBTE Portal", icon: "1" },
+          { text: "Go to 'My Profile' section", icon: "2" },
+          { text: "Select your Semester", icon: "3" },
+          { text: "Download Grade Statement", icon: "4" },
+        ].map((step, i) => (
+          <div key={i} className="flex items-start gap-3 group">
+            <div className="h-5 w-5 rounded-md bg-muted/50 border border-border/50 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-primary/20 group-hover:border-primary/30 transition-all duration-300">
+              <span className="text-[9px] font-black text-muted-foreground group-hover:text-primary">{step.icon}</span>
+            </div>
+            <p className="text-[10px] font-black text-foreground/70 leading-tight pt-1.5 uppercase tracking-wide group-hover:text-foreground transition-colors">
+              {step.text}
+            </p>
+          </div>
+        ))}
+      </div>
+      
+      <div className="pt-2 border-t border-border/50">
+        <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+          <div className="flex items-center gap-2">
+            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[8px] font-black uppercase tracking-widest text-emerald-500/80">PDF Format Only</span>
+          </div>
+          <ExternalLink className="h-2.5 w-2.5 text-emerald-500/40" />
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
   program,
@@ -96,13 +139,13 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                     {program.code}
                   </h1>
                 </Tooltip>
-                <Tooltip 
-                  content="View Detailed Summary" 
-                  position="bottom" 
+                <Tooltip
+                  content="View Detailed Summary"
+                  position="bottom"
                   className="lg:hidden"
                   forceShow={results.cgpa > 0}
                 >
-                  <Link 
+                  <Link
                     href={`/calculate/${program.code}/summary?session=${activeSessionId || 'draft'}`}
                     onClick={saveSummaryContext}
                     className="flex items-center whitespace-nowrap font-black"
@@ -130,13 +173,13 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
           {/* Right: Actions & Stats */}
           <div className="flex items-center gap-2 lg:gap-3 flex-1 justify-end">
             {/* Desktop CGPA Pill */}
-            <Tooltip 
-              content="View Detailed Summary" 
-              position="bottom" 
+            <Tooltip
+              content="View Detailed Summary"
+              position="bottom"
               className="hidden lg:inline-flex"
               forceShow={results.cgpa > 0}
             >
-              <Link 
+              <Link
                 href={`/calculate/${program.code}/summary?session=${activeSessionId || 'draft'}`}
                 onClick={saveSummaryContext}
                 className="flex items-center bg-card/60 border border-border/50 rounded-2xl overflow-hidden shadow-lg shadow-black/10 backdrop-blur-md hover:border-primary/50 transition-colors group active:scale-95"
@@ -271,16 +314,27 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 </div>
               </Tooltip>
 
-              <Tooltip content="Auto-fill from PDF" position="bottom" variant="emerald" forceShow={true}>
-                <button
-                  onClick={onImportClick}
-                  disabled={isProcessingPdf}
-                  className="h-10 px-5 rounded-xl bg-surface border border-border/50 text-foreground hover:border-primary transition-all flex items-center gap-2 text-[9px] font-black uppercase tracking-widest active:scale-95 cursor-pointer"
-                >
-                  {isProcessingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4 text-primary" />}
-                  <span>Import PDF</span>
-                </button>
-              </Tooltip>
+              {(() => {
+                const tooltipContent = React.useMemo(() => <ImportGuideTooltip />, []);
+                return (
+                  <Tooltip 
+                    content={tooltipContent} 
+                    position="bottom" 
+                    variant="tutorial" 
+                    forceShow={results.cgpa === 0}
+                    delay={1500}
+                  >
+                    <button
+                      onClick={onImportClick}
+                      disabled={isProcessingPdf}
+                      className="h-10 px-5 rounded-xl bg-surface border border-border/50 text-foreground hover:border-primary transition-all flex items-center gap-2 text-[9px] font-black uppercase tracking-widest active:scale-95 cursor-pointer"
+                    >
+                      {isProcessingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4 text-primary" />}
+                      <span>Import PDF</span>
+                    </button>
+                  </Tooltip>
+                );
+              })()}
 
               {results.semResults.filter(s => s.sgpa > 0).length > 1 && (
                 <Tooltip content="Download Full Report" variant="emerald">
