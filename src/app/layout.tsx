@@ -35,6 +35,9 @@ export async function generateMetadata(): Promise<Metadata> {
       shortcut: '/favicon.svg',
       apple: '/favicon.svg',
     },
+    verification: {
+      google: "6796DrM-ZsYMKdK9-O6AgM7uC6s8Q6S61JNqw0b3IEA",
+    },
   };
 }
 
