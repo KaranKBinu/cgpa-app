@@ -100,6 +100,8 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
   globalOpenElectives,
   studentName
 }) => {
+  const importGuideContent = React.useMemo(() => <ImportGuideTooltip />, []);
+  
   const saveSummaryContext = () => {
     if (typeof window !== 'undefined') {
       const fullState = {
@@ -139,24 +141,17 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                     {program.code}
                   </h1>
                 </Tooltip>
-                <Tooltip
-                  content="View Detailed Summary"
-                  position="bottom"
-                  className="lg:hidden"
-                  forceShow={results.cgpa > 0}
+                <Link
+                  href={`/calculate/${program.code}/summary?session=${activeSessionId || 'draft'}`}
+                  onClick={saveSummaryContext}
+                  className="flex items-center whitespace-nowrap font-black"
                 >
-                  <Link
-                    href={`/calculate/${program.code}/summary?session=${activeSessionId || 'draft'}`}
-                    onClick={saveSummaryContext}
-                    className="flex items-center whitespace-nowrap font-black"
-                  >
-                    <div className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-1.5">
-                      <span className="text-[12px] text-primary leading-none">{results.cgpa.toFixed(2)}</span>
-                      <div className="w-px h-2 bg-primary/20" />
-                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 leading-none">{results.totalPercentage.toFixed(2)}%</span>
-                    </div>
-                  </Link>
-                </Tooltip>
+                  <div className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-1.5">
+                    <span className="text-[12px] text-primary leading-none">{results.cgpa.toFixed(2)}</span>
+                    <div className="w-px h-2 bg-primary/20" />
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 leading-none">{results.totalPercentage.toFixed(2)}%</span>
+                  </div>
+                </Link>
               </div>
               <div className="flex items-center gap-1.5 mt-1 lg:mt-0.5 group">
                 <div className={cn(
@@ -197,7 +192,14 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
 
             {/* Mobile Actions Block */}
             <div className="lg:hidden flex items-center gap-1 px-1 py-1 rounded-xl bg-card/40 border border-border/40 backdrop-blur-md">
-              <Tooltip content="Auto-fill grades" position="bottom" className="w-auto" forceShow={true} variant="emerald">
+              <Tooltip 
+                content={importGuideContent} 
+                position="bottom" 
+                variant="tutorial" 
+                forceShow={results.cgpa === 0}
+                delay={1500}
+                className="w-auto"
+              >
                 <button
                   onClick={onImportClick}
                   disabled={isProcessingPdf}
@@ -314,27 +316,22 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 </div>
               </Tooltip>
 
-              {(() => {
-                const tooltipContent = React.useMemo(() => <ImportGuideTooltip />, []);
-                return (
-                  <Tooltip 
-                    content={tooltipContent} 
-                    position="bottom" 
-                    variant="tutorial" 
-                    forceShow={results.cgpa === 0}
-                    delay={1500}
-                  >
-                    <button
-                      onClick={onImportClick}
-                      disabled={isProcessingPdf}
-                      className="h-10 px-5 rounded-xl bg-surface border border-border/50 text-foreground hover:border-primary transition-all flex items-center gap-2 text-[9px] font-black uppercase tracking-widest active:scale-95 cursor-pointer"
-                    >
-                      {isProcessingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4 text-primary" />}
-                      <span>Import PDF</span>
-                    </button>
-                  </Tooltip>
-                );
-              })()}
+              <Tooltip 
+                content={importGuideContent} 
+                position="bottom" 
+                variant="tutorial" 
+                forceShow={results.cgpa === 0}
+                delay={1500}
+              >
+                <button
+                  onClick={onImportClick}
+                  disabled={isProcessingPdf}
+                  className="h-10 px-5 rounded-xl bg-surface border border-border/50 text-foreground hover:border-primary transition-all flex items-center gap-2 text-[9px] font-black uppercase tracking-widest active:scale-95 cursor-pointer"
+                >
+                  {isProcessingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4 text-primary" />}
+                  <span>Import PDF</span>
+                </button>
+              </Tooltip>
 
               {results.semResults.filter(s => s.sgpa > 0).length > 1 && (
                 <Tooltip content="Download Full Report" variant="emerald">

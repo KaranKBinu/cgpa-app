@@ -94,43 +94,50 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
         exit={{ opacity: 0, x: -50, scale: 0.8 }}
         className="lg:hidden fixed bottom-8 left-3 sm:left-4 z-[90]"
       >
-        <Link 
-          href={`/calculate/${programCode}/summary?session=${activeSessionId || 'draft'}`}
-          onClick={() => {
-            if (typeof window !== 'undefined') {
-              const fullState = {
-                results,
-                program,
-                grades,
-                exclusions,
-                customSubjects,
-                selectedOptions,
-                isLETMode,
-                globalOpenElectives,
-                studentName
-              };
-              const sessionId = activeSessionId || 'draft';
-              sessionStorage.setItem(`summary_context_${programCode}_${sessionId}`, JSON.stringify(fullState));
-            }
-          }}
-          className="block active:scale-95 transition-transform"
+        <Tooltip 
+          content="View Detailed Summary" 
+          position="top" 
+          variant="emerald" 
+          forceShow={results.cgpa > 0}
         >
-          <div className="bg-background/80 backdrop-blur-2xl border-2 border-primary/20 rounded-[2rem] py-3 px-6 shadow-2xl flex flex-col items-center gap-1 min-w-[110px] cursor-pointer hover:border-primary/50 transition-colors">
-            {currentSemRes && currentSemRes.sgpa > 0 && (
-              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 mb-0.5">
-                <span className="text-[8px] font-black text-primary uppercase tracking-tighter leading-none whitespace-nowrap">
-                  SEM {currentSemRes.number} SGPA: {currentSemRes.sgpa.toFixed(2)}
+          <Link 
+            href={`/calculate/${programCode}/summary?session=${activeSessionId || 'draft'}`}
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                const fullState = {
+                  results,
+                  program,
+                  grades,
+                  exclusions,
+                  customSubjects,
+                  selectedOptions,
+                  isLETMode,
+                  globalOpenElectives,
+                  studentName
+                };
+                const sessionId = activeSessionId || 'draft';
+                sessionStorage.setItem(`summary_context_${programCode}_${sessionId}`, JSON.stringify(fullState));
+              }
+            }}
+            className="block active:scale-95 transition-transform"
+          >
+            <div className="bg-background/80 backdrop-blur-2xl border-2 border-primary/20 rounded-[2rem] py-3 px-6 shadow-2xl flex flex-col items-center gap-1 min-w-[110px] cursor-pointer hover:border-primary/50 transition-colors">
+              {currentSemRes && currentSemRes.sgpa > 0 && (
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 mb-0.5">
+                  <span className="text-[8px] font-black text-primary uppercase tracking-tighter leading-none whitespace-nowrap">
+                    SEM {currentSemRes.number} SGPA: {currentSemRes.sgpa.toFixed(2)}
+                  </span>
+                </div>
+              )}
+              <div className="flex flex-col items-center">
+                <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] leading-none mb-1">CGPA</span>
+                <span className="text-2xl font-black text-foreground tracking-tighter leading-none glare-text">
+                  {results.cgpa.toFixed(2)}
                 </span>
               </div>
-            )}
-            <div className="flex flex-col items-center">
-              <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] leading-none mb-1">CGPA</span>
-              <span className="text-2xl font-black text-foreground tracking-tighter leading-none glare-text">
-                {results.cgpa.toFixed(2)}
-              </span>
             </div>
-          </div>
-        </Link>
+          </Link>
+        </Tooltip>
       </motion.div>
       <motion.div
         key="action-pills"
