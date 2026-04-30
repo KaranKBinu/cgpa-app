@@ -33,6 +33,28 @@ export async function generateMetadata(): Promise<Metadata> {
     verification: {
       google: "8SJoGMMdd3XdLruA-G40XClvchRq0VUKF3_712sMwyg",
     },
+    openGraph: {
+      title: `${config.appName} - Polytechnic GPA Engine`,
+      description: `The definitive GPA calculation engine for Kerala Polytechnic students. Track your progress with precision.`,
+      url: 'https://poly-cgpa.vercel.app',
+      siteName: config.appName,
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: `${config.appName} Preview`,
+        },
+      ],
+      locale: 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${config.appName} - Kerala Polytechnic GPA`,
+      description: 'Calculate and track your Kerala Polytechnic GPA with ease.',
+      images: ['/og-image.png'],
+    },
     icons: {
       icon: '/favicon.svg',
       shortcut: '/favicon.svg',

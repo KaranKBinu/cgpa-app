@@ -1,13 +1,13 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
-export default auth((req) => {
+export const proxy = auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
   const userRole = (req.auth?.user as any)?.role;
 
   const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
-  const isPublicRoute = ["/", "/auth/login", "/auth/register"].includes(nextUrl.pathname);
+  const isPublicRoute = ["/", "/auth/login", "/auth/register", "/sitemap.xml", "/robots.txt"].includes(nextUrl.pathname);
   const isAuthRoute = nextUrl.pathname.startsWith("/auth");
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");
   const isSuperUserRoute = nextUrl.pathname.startsWith("/admin/users") || nextUrl.pathname.startsWith("/admin/settings");
