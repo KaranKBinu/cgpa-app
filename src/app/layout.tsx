@@ -30,13 +30,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: `${config.appName} - Polytechnic GPA Engine`,
     description: `The definitive GPA calculation engine for Kerala Polytechnic students. Track your progress with precision using the latest ${config.revision} syllabus.`,
+    verification: {
+      google: "google9589bf99fc878d1e",
+    },
     icons: {
       icon: '/favicon.svg',
       shortcut: '/favicon.svg',
       apple: '/favicon.svg',
-    },
-    verification: {
-      google: "6796DrM-ZsYMKdK9-O6AgM7uC6s8Q6S61JNqw0b3IEA",
     },
   };
 }
