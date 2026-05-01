@@ -144,7 +144,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 <Link
                   href={`/calculate/${program.code}/summary?session=${activeSessionId || 'draft'}`}
                   onClick={saveSummaryContext}
-                  className="flex items-center whitespace-nowrap font-black"
+                  className="flex lg:hidden items-center whitespace-nowrap font-black"
                 >
                   <div className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-1.5">
                     <span className="text-[12px] text-primary leading-none">{results.cgpa.toFixed(2)}</span>

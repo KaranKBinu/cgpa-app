@@ -102,10 +102,12 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
             <span className="font-bold text-sm">Admin Panel</span>
           </Link>
         )}
-        <Link href="/history" className="flex items-center justify-start gap-3 p-3 rounded-xl text-muted-foreground hover:bg-card/50 hover:text-foreground transition-all">
-          <History className="h-5 w-5" />
-          <span className="font-bold text-sm">History</span>
-        </Link>
+        {session && (
+          <Link href="/history" className="flex items-center justify-start gap-3 p-3 rounded-xl text-muted-foreground hover:bg-card/50 hover:text-foreground transition-all">
+            <History className="h-5 w-5" />
+            <span className="font-bold text-sm">History</span>
+          </Link>
+        )}
         {session && (
           <button
             onClick={async () => {

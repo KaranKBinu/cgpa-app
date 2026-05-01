@@ -26,7 +26,7 @@ export default function Navbar({ user, config }: NavbarProps) {
 
     const navLinks = [
         { href: '/', label: 'Home', icon: Home },
-        { href: '/history', label: 'History', icon: History },
+        ...(user ? [{ href: '/history', label: 'History', icon: History }] : []),
         { href: '/contact', label: 'Feedback', icon: MessageSquare },
         ...(user ? [{ href: '/profile', label: 'Profile', icon: UserIcon }] : []),
     ];
