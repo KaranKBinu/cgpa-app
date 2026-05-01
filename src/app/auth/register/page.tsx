@@ -292,7 +292,7 @@ export default function RegisterPage() {
 
             {/* LET Toggle */}
             <div className="flex items-center gap-3 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl cursor-pointer group hover:border-emerald-500/30 transition-all" onClick={() => setIsLET(!isLET)}>
-              <div className={`h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-all ${isLET ? 'bg-emerald-500 border-emerald-500' : 'border-border/50 group-hover:border-emerald-500/50'}`}>
+              <div className={`h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-all ${isLET ? 'bg-emerald-500 border-emerald-500' : 'border-emerald-500/30 group-hover:border-emerald-500/50 bg-background/50'}`}>
                 {isLET && <Check className="h-4 w-4 text-black" strokeWidth={4} />}
               </div>
               <div>

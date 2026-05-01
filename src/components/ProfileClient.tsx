@@ -188,7 +188,7 @@ export default function ProfileClient({ user, programs }: { user: any, programs:
           >
             <div className={cn(
               "h-8 w-8 rounded-xl border-2 flex items-center justify-center transition-all",
-              isLET ? "bg-emerald-500 border-emerald-500 shadow-lg shadow-emerald-500/40" : "border-border/50 group-hover:border-emerald-500/50"
+              isLET ? "bg-emerald-500 border-emerald-500 shadow-lg shadow-emerald-500/40" : "border-emerald-500/30 group-hover:border-emerald-500/50 bg-background/50"
             )}>
               {isLET && <Check className="h-5 w-5 text-black" strokeWidth={4} />}
             </div>
