@@ -87,12 +87,12 @@ export default function RegisterPage() {
 
       if (result?.error) {
         setError(result.error);
+        setLoading(false);
       } else {
         router.push("/auth/login?registered=true");
       }
     } catch (err) {
       setError("Something went wrong. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
@@ -315,10 +315,13 @@ export default function RegisterPage() {
               `}
             >
               {loading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>Creating account...</span>
+                </>
               ) : (
                 <>
-                  Register
+                  <span>Register</span>
                   <ArrowRight className="h-5 w-5" />
                 </>
               )}

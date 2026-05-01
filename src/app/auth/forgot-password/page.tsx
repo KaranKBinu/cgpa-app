@@ -28,10 +28,10 @@ export default function ForgotPasswordPage() {
       } else {
         const data = await response.json();
         setError(data.error || "Something went wrong");
+        setLoading(false);
       }
     } catch (err) {
       setError("Failed to send reset link");
-    } finally {
       setLoading(false);
     }
   };
@@ -117,10 +117,13 @@ export default function ForgotPasswordPage() {
               `}
             >
               {loading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>Sending link...</span>
+                </>
               ) : (
                 <>
-                  Send Reset Link
+                  <span>Send Reset Link</span>
                   <ArrowRight className="h-5 w-5" />
                 </>
               )}

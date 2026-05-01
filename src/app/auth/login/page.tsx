@@ -29,13 +29,13 @@ export default function LoginPage() {
 
       if (result?.error) {
         setError("Invalid email or password");
+        setLoading(false);
       } else {
         router.push("/");
         router.refresh();
       }
     } catch (err) {
       setError("Something went wrong. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
@@ -115,10 +115,13 @@ export default function LoginPage() {
               `}
             >
               {loading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>Signing in...</span>
+                </>
               ) : (
                 <>
-                  Sign In
+                  <span>Sign In</span>
                   <ArrowRight className="h-5 w-5" />
                 </>
               )}
