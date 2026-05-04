@@ -184,3 +184,21 @@
   }
 }
 
+@keyframes navbar-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-navbar-gradient {
+  background: linear-gradient(
+    -45deg,
+    rgba(16, 185, 129, 0.05),
+    rgba(59, 130, 246, 0.05),
+    rgba(16, 185, 129, 0.05),
+    rgba(255, 255, 255, 0.02)
+  );
+  background-size: 400% 400%;
+  animation: navbar-gradient 15s ease infinite;
+}
+

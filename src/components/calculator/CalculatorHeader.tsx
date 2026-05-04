@@ -61,7 +61,7 @@ const ImportGuideTooltip = () => (
           </div>
         ))}
       </div>
-      
+
       <div className="pt-2 border-t border-border/50">
         <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
           <div className="flex items-center gap-2">
@@ -101,7 +101,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
   studentName
 }) => {
   const importGuideContent = React.useMemo(() => <ImportGuideTooltip />, []);
-  
+
   const saveSummaryContext = () => {
     if (typeof window !== 'undefined') {
       const fullState = {
@@ -122,7 +122,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-[60] bg-background/80 backdrop-blur-3xl border-b border-border/50 py-2 lg:py-5 px-3 sm:px-4 lg:px-12 shadow-sm">
-      <div className="max-w-4xl mx-auto w-full flex flex-col gap-2 lg:gap-4">
+      <div className="max-w-4xl mx-auto w-full flex flex-col gap-1.5 lg:gap-4">
         <div className="flex items-center justify-between gap-3">
           {/* Left: Program Identity & CGPA (Mobile Optimized) */}
           <div className="flex items-center gap-2 lg:gap-4 min-w-0">
@@ -182,10 +182,10 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
 
             {/* Mobile Actions Block */}
             <div className="lg:hidden flex items-center gap-1 px-1 py-1 rounded-xl bg-card/40 border border-border/40 backdrop-blur-md">
-              <Tooltip 
-                content={importGuideContent} 
-                position="bottom" 
-                variant="tutorial" 
+              <Tooltip
+                content={importGuideContent}
+                position="bottom"
+                variant="tutorial"
                 forceShow={results.cgpa === 0}
                 delay={1500}
                 className="w-auto"
@@ -308,10 +308,10 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 </div>
               </Tooltip>
 
-              <Tooltip 
-                content={importGuideContent} 
-                position="bottom" 
-                variant="tutorial" 
+              <Tooltip
+                content={importGuideContent}
+                position="bottom"
+                variant="tutorial"
                 forceShow={results.cgpa === 0}
                 delay={1500}
               >
@@ -356,8 +356,8 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
         </div>
 
         {/* Bottom Row: Mobile Semester Tab Bar */}
-        <div className="lg:hidden w-full border-t border-border/30 pt-3">
-          <div className="flex items-end gap-2 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
+        <div className="lg:hidden w-full border-t border-border/30 pt-0.5">
+          <div className="flex items-end gap-2 overflow-x-auto pb-1 no-scrollbar scroll-smooth">
             <div className="flex items-end gap-2 min-w-max px-3 sm:px-4">
               {(() => {
                 const groups: any[][] = [];

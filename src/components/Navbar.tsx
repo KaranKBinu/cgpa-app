@@ -53,7 +53,7 @@ export default function Navbar({ user, config }: NavbarProps) {
             isCalculatorPage ? "absolute" : "fixed top-0"
         )}>
             <nav className="mx-auto max-w-7xl pointer-events-auto">
-                <div className="h-16 lg:h-20 px-4 lg:px-8 rounded-2xl lg:rounded-[2.5rem] border border-border/50 bg-background/80 backdrop-blur-2xl shadow-2xl flex items-center justify-between transition-all">
+                <div className="h-16 lg:h-20 px-4 lg:px-8 rounded-2xl lg:rounded-[2.5rem] border border-border/50 bg-background/80 backdrop-blur-2xl shadow-2xl flex items-center justify-between transition-all animate-navbar-gradient">
                     {/* Brand */}
                     <Tooltip content="Home" position="bottom" className="w-auto">
                         <Link href="/" className="flex items-center gap-2 group transition-all active:scale-95 shrink-0 cursor-pointer">
