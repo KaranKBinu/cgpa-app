@@ -27,16 +27,42 @@ export const viewport = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getSettings();
+  const keywords = [
+    "polygpa",
+    "polytechnic gpa calculator",
+    "cgpa calculator",
+    "cgpa calculator for polytechnic",
+    "kerala polytechnic gpa calculator",
+    "polytechnic cgpa calculator",
+    "diploma gpa calculator",
+    "gpa calculator kerala",
+    "revision 2021 gpa calculator",
+    "sitalk gpa calculator",
+    "polygrade"
+  ];
+
   return {
     metadataBase: new URL('https://polygpacalculator.vercel.app'),
-    title: `${config.appName} - Polytechnic GPA Calculator`,
-    description: `The most accurate GPA calculator for Kerala Polytechnic students. Track your marks easily using the latest ${config.revision} syllabus.`,
+    title: {
+      default: `${config.appName} - Kerala Polytechnic GPA & CGPA Calculator`,
+      template: `%s | ${config.appName}`
+    },
+    description: `The most accurate GPA and CGPA calculator for Kerala Polytechnic students. Calculate your marks easily using the latest ${config.revision} syllabus. Support for Lateral Entry (LET) and PDF transcripts.`,
+    keywords: keywords.join(", "),
+    authors: [{ name: "PolyGrade Team" }],
+    creator: "PolyGrade",
+    publisher: "PolyGrade",
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
     verification: {
       google: "8SJoGMMdd3XdLruA-G40XClvchRq0VUKF3_712sMwyg",
     },
     openGraph: {
-      title: `${config.appName} - Polytechnic GPA Calculator`,
-      description: `The most accurate GPA calculator for Kerala Polytechnic students. Track your marks easily.`,
+      title: `${config.appName} - Kerala Polytechnic GPA & CGPA Calculator`,
+      description: `The most accurate GPA and CGPA calculator for Kerala Polytechnic students. Track your marks easily with ${config.revision} syllabus support.`,
       url: 'https://polygpacalculator.vercel.app',
       siteName: config.appName,
       images: [
@@ -44,7 +70,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: '/og-image.png',
           width: 1200,
           height: 630,
-          alt: `${config.appName} Preview`,
+          alt: `${config.appName} - Polytechnic GPA Calculator Preview`,
         },
       ],
       locale: 'en_US',
@@ -52,14 +78,17 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${config.appName} - Kerala Polytechnic GPA`,
-      description: 'Calculate and track your Kerala Polytechnic GPA easily.',
+      title: `${config.appName} - Kerala Polytechnic GPA & CGPA Calculator`,
+      description: 'Calculate and track your Kerala Polytechnic GPA/CGPA easily with PDF support.',
       images: ['/og-image.png'],
     },
     icons: {
       icon: '/favicon.svg',
       shortcut: '/favicon.svg',
       apple: '/favicon.svg',
+    },
+    alternates: {
+      canonical: 'https://polygpacalculator.vercel.app',
     },
   };
 }

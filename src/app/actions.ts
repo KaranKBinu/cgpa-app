@@ -396,14 +396,14 @@ export async function getSettings() {
     if (!config) {
       logConfig.warn("No config found – seeding defaults");
       config = await prisma.configuration.create({
-        data: { id: "global", appName: "PolyGrade", revision: "Revision 2021" },
+        data: { id: "global", appName: "PolyGPA", revision: "Revision 2021" },
       });
     }
 
     return config;
   } catch (error: any) {
     logConfig.error("Failed to load settings – returning defaults", { error: error.message });
-    return { appName: "PolyGrade", revision: "Revision 2021" };
+    return { appName: "PolyGPA", revision: "Revision 2021" };
   }
 }
 

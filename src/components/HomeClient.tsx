@@ -64,13 +64,13 @@ export default function HomeClient({
       >
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-primary text-[10px] font-black tracking-[0.3em] uppercase mb-4 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
           <Sparkles className="h-3 w-3" />
-          The Best Way to Calculate GPA
+          The Best Kerala Polytechnic GPA Calculator
         </div>
         <h1 className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight mb-6 text-foreground leading-[1.05] selection:bg-emerald-500 selection:text-black">
-          GPA Calculator <span className="glare-text">for Kerala Polytechnic</span>
+          PolyGPA <span className="glare-text">for Polytechnic</span>
         </h1>
         <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed font-medium max-w-2xl mx-auto">
-          The most accurate calculator for Revision 2021 students. Easily track your marks, upload PDFs, and save your progress.
+          The most accurate <strong>cgpa calculator for polytechnic</strong> students. Track your marks, upload PDFs, and manage your academic progress with Revision 2021 support.
         </p>
       </motion.div>
 
@@ -88,20 +88,20 @@ export default function HomeClient({
         {[
           {
             num: "01",
-            title: "Quick PDF Upload",
-            desc: "No need to type everything. Just upload your result PDF and the calculator will find your marks automatically. It's fast and easy.",
+            title: "PDF GPA Calculator",
+            desc: "No need to type everything. Our polytechnic gpa calculator scans your result PDF and finds your marks automatically. It's fast and easy.",
             icon: <CheckCircle2 className="h-5 w-5 text-emerald-500" />
           },
           {
             num: "02",
-            title: "LET Student Support",
-            desc: "If you are a Lateral Entry student, we handle the calculation for you. The tool adjusts to your path, including elective subjects.",
+            title: "Polytechnic CGPA",
+            desc: "Full support for Kerala Polytechnic CGPA calculation. We handle Lateral Entry (LET) and all elective subjects from the Revision 2021 syllabus.",
             icon: <CheckCircle2 className="h-5 w-5 text-emerald-500" />
           },
           {
             num: "03",
             title: "Save Your Progress",
-            desc: "Start on your phone and finish on your computer. Your marks are saved automatically so you never lose your data.",
+            desc: "Your data is saved automatically. Access your polytechnic gpa results from any device at any time. Stay organized throughout your diploma.",
             icon: <CheckCircle2 className="h-5 w-5 text-emerald-500" />
           }
         ].map((feature, i) => (
@@ -125,8 +125,8 @@ export default function HomeClient({
 
       <div className="mt-40 w-full max-w-3xl space-y-12">
         <div className="text-center space-y-4">
-          <h2 className="text-4xl font-black tracking-tight">Common Questions</h2>
-          <p className="text-muted-foreground font-medium">Everything you need to know about this calculator.</p>
+          <h2 className="text-4xl font-black tracking-tight">Polytechnic GPA FAQ</h2>
+          <p className="text-muted-foreground font-medium">Everything you need to know about calculating your diploma marks.</p>
         </div>
 
         <div className="space-y-4">
@@ -158,6 +158,31 @@ export default function HomeClient({
               </AnimatePresence>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* SEO Footer Content */}
+      <div className="mt-40 w-full max-w-4xl border-t border-border/30 pt-20 pb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 opacity-60 hover:opacity-100 transition-opacity">
+          <div className="space-y-4">
+            <h4 className="text-sm font-black uppercase tracking-widest text-primary">About PolyGPA</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              PolyGPA (formerly PolyGrade) is the leading <strong>polytechnic gpa calculator</strong> designed specifically for Kerala Polytechnic students. We support the latest Revision 2021 syllabus and provide the most accurate <strong>cgpa calculator for polytechnic</strong> diploma courses.
+            </p>
+          </div>
+          <div className="space-y-4">
+            <h4 className="text-sm font-black uppercase tracking-widest text-primary">Key Features</h4>
+            <ul className="text-sm text-muted-foreground space-y-2">
+              <li>• Automated PDF result scanning</li>
+              <li>• Revision 2021 syllabus support</li>
+              <li>• Lateral Entry (LET) CGPA mode</li>
+              <li>• Accurate SGPA and CGPA math</li>
+            </ul>
+          </div>
+        </div>
+        {/* Hidden keywords for SEO crawler */}
+        <div className="sr-only">
+          polygpa, polytechnic gpa calculator, cgpa calculator, cgpa calculator for polytechnic, kerala polytechnic, sitalk, diploma gpa, sgpa calculator, revision 2021
         </div>
       </div>
     </div>
