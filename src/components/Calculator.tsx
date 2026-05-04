@@ -18,6 +18,8 @@ import { SaveSessionModal } from './calculator/SaveSessionModal';
 import { PDFImportModal } from './calculator/PDFImportModal';
 import { LoadingOverlay } from './calculator/LoadingOverlay';
 import { ToastContainer, ToastData } from './calculator/Toast';
+import { ConfirmLeaveModal } from './calculator/ConfirmLeaveModal';
+
 
 // Hooks
 import { useCalculatorCore } from '@/hooks/useCalculatorCore';
@@ -40,6 +42,9 @@ export default function Calculator({
   });
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   const addToast = (message: string, variant: 'success' | 'error' | 'info' = 'success') => {
@@ -51,6 +56,8 @@ export default function Calculator({
     setToasts(prev => prev.filter(t => t.id !== id));
   };
 
+  const hasPushedState = React.useRef(false);
+
   // Sync save status to modal closure and toasts
   React.useEffect(() => {
     if (actions.saveStatus === 'success') {
@@ -59,11 +66,54 @@ export default function Calculator({
       setTriggerConfetti(true);
       setTimeout(() => setTriggerConfetti(false), 1500);
       actions.resetSaveStatus();
+      
+      // If we were in the process of leaving, complete the navigation
+      if (isLeaving) {
+        window.history.go(-2);
+      }
+
     } else if (actions.saveStatus === 'error') {
       addToast("Failed to save progress.", 'error');
       actions.resetSaveStatus();
+      setIsLeaving(false);
     }
-  }, [actions.saveStatus, actions]);
+  }, [actions.saveStatus, actions, isLeaving]);
+
+  // Intercept navigation
+  React.useEffect(() => {
+    if (core.results.cgpa > 0 && !hasPushedState.current && !isLeaving) {
+      window.history.pushState(null, '', window.location.pathname);
+      hasPushedState.current = true;
+    }
+
+    const handlePopState = (e: PopStateEvent) => {
+      if (core.results.cgpa > 0 && !isLeaving) {
+        // Push state back to prevent navigation
+        window.history.pushState(null, '', window.location.pathname);
+        hasPushedState.current = true;
+        setIsLeaveModalOpen(true);
+      } else {
+        hasPushedState.current = false;
+      }
+    };
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (core.results.cgpa > 0) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [core.results.cgpa, isLeaving]);
+
+
 
   const currentSem = core.displayedSemesters.find(s => s.id === core.expandedSem);
   const currentSemRes = core.results.semResults.find(r => r.id === core.expandedSem);
@@ -367,6 +417,30 @@ export default function Calculator({
       />
 
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
+
+      <ConfirmLeaveModal 
+        isOpen={isLeaveModalOpen} 
+        onClose={() => setIsLeaveModalOpen(false)}
+        onConfirm={() => {
+          setIsLeaving(true);
+          setIsLeaveModalOpen(false);
+          // Go back twice: once for the state we pushed to intercept, 
+          // and once for the actual navigation the user intended.
+          window.history.go(-2);
+        }}
+        onSave={() => {
+          setIsLeaveModalOpen(false);
+          if (!session) {
+            // If not logged in, we can't save to cloud, but it's in localStorage.
+            // Still, redirecting to login is the standard behavior of handleSave.
+            actions.handleSave();
+          } else {
+            setIsLeaving(true);
+            actions.handleSave();
+          }
+        }}
+      />
     </div>
+
   );
 }
