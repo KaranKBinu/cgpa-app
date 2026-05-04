@@ -52,7 +52,7 @@ export function useCalculatorActions({
     if (targets.length === 0) return;
     doc.setFontSize(22); doc.setTextColor(16, 185, 129); doc.text(isSingleSem ? "Semester Performance Report" : "PolyGrade Cumulative Report", 14, 22);
     doc.text(isSingleSem ? `Academic Result Summary` : `PolyGrade Final Transcript`, (pageWidth / 2) - 30, 60);
-    doc.setFontSize(10); doc.setTextColor(100); doc.text(`Program: ${program.name} (${program.code})`, 14, 30); doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 35); doc.text(`Schema: Kerala Polytechnic REV2021 Engine`, 14, 40);
+    doc.setFontSize(10); doc.setTextColor(100); doc.text(`Program: ${program.name} (${program.code})`, 14, 30); doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 35); doc.text(`Schema: Kerala Polytechnic REV2021 Calculator`, 14, 40);
     doc.setDrawColor(240, 240, 240); doc.setFillColor(252, 252, 252); doc.roundedRect(14, 45, pageWidth - 28, 25, 2, 2, 'FD');
     doc.setFontSize(16); doc.setTextColor(0);
     if (isSingleSem) { const sem = targets[0]; doc.text(`SGPA: ${sem.sgpa.toFixed(2)}`, 20, 62); doc.text(`EQUIVALENT PERCENTAGE: ${sem.percentage.toFixed(1)}%`, pageWidth / 2, 62); }

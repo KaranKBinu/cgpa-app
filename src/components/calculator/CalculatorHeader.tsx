@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, FileUp, Download, Loader2, CheckCircle2, Save, Check, RotateCcw, ShieldAlert, Info, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, FileUp, Download, Loader2, CheckCircle2, Save, Check, RotateCcw, ShieldAlert, Info, ExternalLink, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { Tooltip } from '../Tooltip';
 import { Program, CalculatorResults } from '@/types/calculator';
@@ -146,10 +146,9 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                   onClick={saveSummaryContext}
                   className="flex lg:hidden items-center whitespace-nowrap font-black"
                 >
-                  <div className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-1.5">
-                    <span className="text-[12px] text-primary leading-none">{results.cgpa.toFixed(2)}</span>
-                    <div className="w-px h-2 bg-primary/20" />
-                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 leading-none">{results.totalPercentage.toFixed(2)}%</span>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-primary text-[10px] font-black tracking-[0.3em] uppercase">
+                    <Sparkles className="h-3 w-3" />
+                    GPA Calculator
                   </div>
                 </Link>
               </div>

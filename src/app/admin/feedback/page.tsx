@@ -8,7 +8,8 @@ import FeedbackSearch from "@/components/admin/FeedbackSearch";
 
 export default async function FeedbackManagement({ searchParams }: { searchParams: Promise<{ status?: string, q?: string }> }) {
   const session = await auth();
-  if ((session?.user as any)?.role !== "SUPERUSER") {
+  const userRole = (session?.user as any)?.role;
+  if (userRole !== "SUPERUSER" && userRole !== "TEACHER") {
     redirect("/admin");
   }
 

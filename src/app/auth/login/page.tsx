@@ -44,7 +44,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
@@ -108,8 +108,8 @@ export default function LoginPage() {
               transition={{ duration: 2, repeat: Infinity }}
               className={`
                 w-full font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 mt-6 uppercase tracking-widest
-                ${isFormValid 
-                  ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-xl shadow-emerald-500/40 hover:scale-[1.02] active:scale-95 border-t border-white/20" 
+                ${isFormValid
+                  ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-xl shadow-emerald-500/40 hover:scale-[1.02] active:scale-95 border-t border-white/20"
                   : "bg-emerald-950/20 text-emerald-900/50 border border-emerald-900/10 cursor-not-allowed"
                 }
               `}
@@ -137,7 +137,7 @@ export default function LoginPage() {
           <p className="mt-8 text-center text-muted-foreground text-sm font-medium">
             Don't have an account?{" "}
             <Link href="/auth/register" className="text-emerald-500 hover:text-emerald-400 font-bold transition-colors">
-              Create one for free
+              Create one now
             </Link>
           </p>
         </div>

@@ -68,7 +68,7 @@ export default async function SettingsPage() {
               </div>
               <div>
                  <p className="text-foreground font-black text-lg">Mobile Optimization</p>
-                 <p className="text-muted-foreground text-sm font-medium">Responsive scaling is currently handled by the adaptive grid engine.</p>
+                 <p className="text-muted-foreground text-sm font-medium">Layout automatically adjusts for mobile and desktop screens.</p>
               </div>
            </div>
            <div className="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />

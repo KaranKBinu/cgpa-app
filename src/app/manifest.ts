@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'PolyCGPA - Kerala Polytechnic GPA Calculator',
     short_name: 'PolyCGPA',
-    description: 'The definitive GPA calculation engine for Kerala Polytechnic students.',
+    description: 'The best GPA calculator for Kerala Polytechnic students.',
     start_url: '/',
     display: 'standalone',
     background_color: '#064e3b',

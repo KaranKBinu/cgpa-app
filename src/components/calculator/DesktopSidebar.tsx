@@ -4,6 +4,7 @@ import { History, LogOut, ShieldAlert, Sparkles, Loader2 } from 'lucide-react';
 import { Tooltip } from '../Tooltip';
 import Link from 'next/link';
 import { Semester, SemResult } from '@/types/calculator';
+import { CGPATrend } from './CGPATrend';
 
 interface DesktopSidebarProps {
   displayedSemesters: Semester[];
@@ -96,6 +97,9 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       </nav>
 
       <div className="p-4 border-t border-border bg-card/50 space-y-2">
+        <div className="mb-2">
+          <CGPATrend semResults={semResults} />
+        </div>
         {session?.user && (session.user.role === 'TEACHER' || session.user.role === 'SUPERUSER') && (
           <Link href="/admin" className="flex items-center justify-start gap-3 p-3 rounded-xl text-emerald-500 hover:bg-emerald-500/10 transition-all">
             <ShieldAlert className="h-5 w-5" />

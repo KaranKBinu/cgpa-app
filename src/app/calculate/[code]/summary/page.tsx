@@ -56,7 +56,7 @@ export default function SummaryPage() {
         doc.setTextColor(100); 
         doc.text(`Program: ${program.name} (${program.code})`, 14, 30); 
         doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 35); 
-        doc.text(`Schema: Kerala Polytechnic REV2021 Engine`, 14, 40);
+        doc.text(`System: Kerala Polytechnic REV2021 Calculator`, 14, 40);
         
         doc.setDrawColor(240, 240, 240); 
         doc.setFillColor(252, 252, 252); 
@@ -157,7 +157,7 @@ export default function SummaryPage() {
             className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-emerald-400 transition-colors group"
           >
             <ChevronLeft className="h-3.5 w-3.5 group-hover:-translate-x-1 transition-transform" />
-            Engine
+            Calculator
           </Link>
           <div className="flex items-center gap-4">
              <button 
@@ -245,7 +245,7 @@ export default function SummaryPage() {
         {/* Verification Footer - Minimal */}
         <footer className="shrink-0 flex flex-col items-center gap-2 opacity-30 pb-2">
             <p className="text-[7px] font-black uppercase tracking-[0.5em] text-center">
-                Verified Analysis • Polycgpa Engine
+                Verified Analysis • PolyCGPA Calculator
             </p>
         </footer>
 

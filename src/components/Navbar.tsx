@@ -27,16 +27,18 @@ export default function Navbar({ user, config }: NavbarProps) {
     const navLinks = [
         { href: '/', label: 'Home', icon: Home },
         ...(user ? [{ href: '/history', label: 'History', icon: History }] : []),
-        { href: '/contact', label: 'Feedback', icon: MessageSquare },
+        { href: '/feedback', label: 'Feedback', icon: MessageSquare },
         ...(user ? [{ href: '/profile', label: 'Profile', icon: UserIcon }] : []),
     ];
 
     const adminLinks = [
         { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/admin/programs', label: 'Programs', icon: BookOpen },
+        ...(user?.role === 'SUPERUSER' || user?.role === 'TEACHER' ? [
+            { href: '/admin/feedback', label: 'Feedback', icon: MessageSquare },
+        ] : []),
         ...(user?.role === 'SUPERUSER' ? [
             { href: '/admin/users', label: 'Users', icon: Users },
-            { href: '/admin/feedback', label: 'Feedback', icon: MessageSquare },
             { href: '/admin/settings', label: 'Settings', icon: Settings },
         ] : []),
     ];

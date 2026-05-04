@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, MessageSquare, Mail, User, CheckCircle2 } from 'lucide-react';
+import { Send, MessageSquare, Mail, User, CheckCircle2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { submitFeedback } from '@/app/actions';
+import { useSession } from 'next-auth/react';
 
-export default function ContactPage() {
+export default function FeedbackPage() {
+    const { data: session } = useSession();
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [formData, setFormData] = useState({
         name: '',
@@ -14,6 +16,17 @@ export default function ContactPage() {
         subject: 'General Feedback',
         message: ''
     });
+
+    // Pre-fill user data if logged in
+    useEffect(() => {
+        if (session?.user) {
+            setFormData(prev => ({
+                ...prev,
+                name: session.user?.name || prev.name,
+                email: session.user?.email || prev.email
+            }));
+        }
+    }, [session]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -23,7 +36,11 @@ export default function ContactPage() {
 
         if (res.success) {
             setStatus('success');
-            setFormData({ name: '', email: '', subject: 'General Feedback', message: '' });
+            setFormData(prev => ({ 
+                ...prev, 
+                subject: 'General Feedback', 
+                message: '' 
+            }));
         } else {
             setStatus('error');
         }
@@ -40,13 +57,13 @@ export default function ContactPage() {
                     className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black tracking-[0.3em] uppercase mb-6"
                 >
                     <MessageSquare className="h-3.5 w-3.5" />
-                    Get in Touch
+                    Share Your Thoughts
                 </motion.div>
                 <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-4">
-                    Feedback & <span className="gradient-text">Contact.</span>
+                    Send <span className="gradient-text">Feedback.</span>
                 </h1>
-                <p className="text-muted-foreground font-medium text-lg max-w-xl mx-auto">
-                    Spotted a bug? Have a feature request? Or just want to say hi? I'm all ears.
+                <p className="text-muted-foreground font-medium text-lg max-w-xl mx-auto text-pretty">
+                    Have an idea or found a bug? We'd love to hear from you. This page is open to everyone.
                 </p>
             </div>
 
@@ -54,14 +71,14 @@ export default function ContactPage() {
                 {/* Left: Info Cards */}
                 <div className="lg:col-span-2 space-y-4">
                     <div className="p-6 rounded-3xl bg-card/40 border border-border/50 backdrop-blur-xl">
-                        <h3 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-4">Support Channels</h3>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-4">Quick Links</h3>
                         <div className="space-y-6">
                             <div className="flex gap-4">
                                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
                                     <Mail className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Email Me</p>
+                                    <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Direct Contact</p>
                                     <a href="mailto:karankbinu799@gmail.com" className="text-sm font-bold text-foreground hover:text-primary transition-colors">
                                         karankbinu799@gmail.com
                                     </a>
@@ -72,8 +89,8 @@ export default function ContactPage() {
                                     <MessageSquare className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Institutional</p>
-                                    <p className="text-sm font-bold text-foreground">2024 Batch CHE Student • GPTC Cherthala</p>
+                                    <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Developer</p>
+                                    <p className="text-sm font-bold text-foreground">Karan K Binu • GPTC Cherthala</p>
                                 </div>
                             </div>
                         </div>
@@ -81,13 +98,12 @@ export default function ContactPage() {
 
                     <div className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 backdrop-blur-xl">
                         <p className="text-xs font-medium text-emerald-500/80 leading-relaxed italic">
-                            "This project was built to help my fellow students. Your feedback helps make it more accurate and helpful for everyone."
+                            "Your feedback helps us make PolyGrade better for all Kerala Polytechnic students."
                         </p>
-                        <p className="mt-3 text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">— Karan K Binu</p>
                     </div>
                 </div>
 
-                {/* Right: Contact Form */}
+                {/* Right: Feedback Form */}
                 <div className="lg:col-span-3">
                     <div className="relative p-1 rounded-[2rem] bg-gradient-to-br from-emerald-500/20 via-border to-emerald-500/10">
                         <div className="bg-card/80 backdrop-blur-2xl rounded-[1.8rem] p-8 shadow-2xl">
@@ -103,8 +119,8 @@ export default function ContactPage() {
                                         <div className="h-20 w-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-500">
                                             <CheckCircle2 className="h-10 w-10" />
                                         </div>
-                                        <h2 className="text-2xl font-black text-foreground">Message Sent!</h2>
-                                        <p className="text-muted-foreground font-medium">Thanks for reaching out, rookie. I'll get back to you as soon as I can.</p>
+                                        <h2 className="text-2xl font-black text-foreground">Feedback Received!</h2>
+                                        <p className="text-muted-foreground font-medium">Thank you for your message. We'll look into it right away.</p>
                                         <button
                                             onClick={() => setStatus('idle')}
                                             className="mt-6 px-6 py-2 rounded-xl border border-border hover:bg-emerald-500/5 hover:border-emerald-500/50 transition-all font-black uppercase text-[10px] tracking-widest"
@@ -123,13 +139,13 @@ export default function ContactPage() {
                                     >
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Your Name</label>
+                                                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Name</label>
                                                 <div className="relative group">
                                                     <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                                                     <input
                                                         required
                                                         type="text"
-                                                        placeholder="John Doe"
+                                                        placeholder="Your Name"
                                                         className="w-full h-12 bg-background/50 border border-border/50 rounded-xl pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                                         value={formData.name}
                                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -137,13 +153,13 @@ export default function ContactPage() {
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Email Address</label>
+                                                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Email</label>
                                                 <div className="relative group">
                                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                                                     <input
                                                         required
                                                         type="email"
-                                                        placeholder="john@example.com"
+                                                        placeholder="email@example.com"
                                                         className="w-full h-12 bg-background/50 border border-border/50 rounded-xl pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                                         value={formData.email}
                                                         onChange={e => setFormData({ ...formData, email: e.target.value })}
@@ -153,9 +169,9 @@ export default function ContactPage() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Subject</label>
+                                            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Topic</label>
                                             <select
-                                                className="w-full h-12 bg-background/50 border border-border/50 rounded-xl px-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+                                                className="w-full h-12 bg-background/50 border border-border/50 rounded-xl px-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer"
                                                 value={formData.subject}
                                                 onChange={e => setFormData({ ...formData, subject: e.target.value })}
                                             >
@@ -168,11 +184,11 @@ export default function ContactPage() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Your Message</label>
+                                            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Message</label>
                                             <textarea
                                                 required
                                                 rows={4}
-                                                placeholder="Tell me what's on your mind..."
+                                                placeholder="Tell us more..."
                                                 className="w-full bg-background/50 border border-border/50 rounded-xl p-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
                                                 value={formData.message}
                                                 onChange={e => setFormData({ ...formData, message: e.target.value })}
@@ -182,7 +198,7 @@ export default function ContactPage() {
                                         <motion.button
                                             disabled={status === 'loading' || !isFormValid}
                                             type="submit"
-                                            animate={isFormValid ? { scale: [1, 1.02, 1] } : {}}
+                                            animate={isFormValid ? { scale: [1, 1.01, 1] } : {}}
                                             transition={{ duration: 2, repeat: Infinity }}
                                             className={cn(
                                                 "w-full h-14 font-black uppercase tracking-[0.2em] rounded-2xl transition-all flex items-center justify-center gap-3 group",
@@ -192,10 +208,10 @@ export default function ContactPage() {
                                             )}
                                         >
                                             {status === 'loading' ? (
-                                                <div className="h-5 w-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                                <Loader2 className="h-5 w-5 animate-spin" />
                                             ) : (
                                                 <>
-                                                    Submit Feedback
+                                                    Send Feedback
                                                     <Send className="h-4 w-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                                                 </>
                                             )}

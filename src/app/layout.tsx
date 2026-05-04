@@ -28,14 +28,15 @@ export const viewport = {
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getSettings();
   return {
-    title: `${config.appName} - Polytechnic GPA Engine`,
-    description: `The definitive GPA calculation engine for Kerala Polytechnic students. Track your progress with precision using the latest ${config.revision} syllabus.`,
+    metadataBase: new URL('https://polygpacalculator.vercel.app'),
+    title: `${config.appName} - Polytechnic GPA Calculator`,
+    description: `The most accurate GPA calculator for Kerala Polytechnic students. Track your marks easily using the latest ${config.revision} syllabus.`,
     verification: {
       google: "8SJoGMMdd3XdLruA-G40XClvchRq0VUKF3_712sMwyg",
     },
     openGraph: {
-      title: `${config.appName} - Polytechnic GPA Engine`,
-      description: `The definitive GPA calculation engine for Kerala Polytechnic students. Track your progress with precision.`,
+      title: `${config.appName} - Polytechnic GPA Calculator`,
+      description: `The most accurate GPA calculator for Kerala Polytechnic students. Track your marks easily.`,
       url: 'https://polygpacalculator.vercel.app',
       siteName: config.appName,
       images: [
@@ -52,7 +53,7 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       title: `${config.appName} - Kerala Polytechnic GPA`,
-      description: 'Calculate and track your Kerala Polytechnic GPA with ease.',
+      description: 'Calculate and track your Kerala Polytechnic GPA easily.',
       images: ['/og-image.png'],
     },
     icons: {
@@ -93,6 +94,32 @@ export default async function RootLayout({
           </main>
 
           <Footer />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebApplication",
+                "name": config.appName,
+                "description": `The most accurate GPA calculator for Kerala Polytechnic students. Track your marks easily using the latest ${config.revision} syllabus.`,
+                "url": "https://polygpacalculator.vercel.app",
+                "applicationCategory": "EducationalApplication",
+                "operatingSystem": "All",
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0",
+                  "priceCurrency": "INR"
+                },
+                "featureList": [
+                  "Upload PDF to calculate",
+                  "Revision 2021 Syllabus",
+                  "Lateral Entry (LET) support",
+                  "Save your data",
+                  "Select Electives"
+                ]
+              })
+            }}
+          />
           </SessionProvider>
         </ThemeProvider>
       </body>
