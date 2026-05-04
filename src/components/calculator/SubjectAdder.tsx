@@ -45,7 +45,7 @@ export const SubjectAdder: React.FC<SubjectAdderProps> = ({
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="group relative overflow-hidden rounded-[2.5rem] border-2 border-dashed border-border/50 bg-card/10 p-8 lg:p-12 hover:bg-card/20 hover:border-primary/50 transition-all duration-500 flex flex-col items-center justify-center gap-4 w-full h-full min-h-[160px]"
+        className="group relative overflow-hidden rounded-[2.5rem] border-2 border-dashed border-border bg-card/10 p-8 lg:p-12 hover:bg-card/20 hover:border-primary transition-all duration-500 flex flex-col items-center justify-center gap-4 w-full h-full min-h-[160px] shadow-lg shadow-black/5"
       >
         <div className="h-16 w-16 rounded-full bg-surface border-2 border-border/50 flex items-center justify-center group-hover:bg-primary group-hover:border-primary transition-all duration-500 shadow-xl shadow-black/20">
           <Plus className={cn("h-6 w-6 text-muted-foreground group-hover:text-black transition-all", isOpen && "rotate-45")} />
@@ -114,7 +114,7 @@ export const SubjectAdder: React.FC<SubjectAdderProps> = ({
                   <div className="p-2 bg-muted/20 border-t border-border/50">
                     <button
                       onClick={() => setShowCustomForm(true)}
-                      className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all group"
+                      className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-black transition-all group shadow-sm"
                     >
                       <Sparkles className="h-4 w-4 group-hover:animate-spin-slow" />
                       <span className="text-[10px] font-black uppercase tracking-widest">Add Custom Subject Instead</span>
@@ -153,7 +153,7 @@ export const SubjectAdder: React.FC<SubjectAdderProps> = ({
                     </div>
                     <button
                       type="submit"
-                      className="w-full py-4 bg-primary text-black font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                      className="w-full py-4 bg-primary text-black font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all border border-emerald-400"
                     >
                       Add to Semester
                     </button>

@@ -153,7 +153,7 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
             <button
               onClick={() => expandedSem && downloadAsPDF(expandedSem)}
               disabled={!currentSemRes || currentSemRes.sgpa === 0}
-              className="h-12 w-12 rounded-full bg-surface/80 backdrop-blur-xl border border-border/50 shadow-xl flex items-center justify-center text-foreground active:scale-90 transition-all hover:border-emerald-500 disabled:opacity-50 cursor-pointer"
+              className="h-12 w-12 rounded-full bg-surface/80 backdrop-blur-xl border border-border shadow-xl flex items-center justify-center text-foreground active:scale-90 transition-all hover:border-emerald-500 disabled:opacity-70 cursor-pointer"
             >
               <Download className="h-5 w-5" />
             </button>
@@ -164,7 +164,7 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
             onClick={() => setIsSaveModalOpen(true)}
             disabled={isSaving}
             className={cn(
-              "h-14 w-14 rounded-full flex items-center justify-center shadow-[0_15px_40px_-10px_rgba(16,185,129,0.5)] transition-all active:scale-90 border border-white/20 cursor-pointer",
+              "h-14 w-14 rounded-full flex items-center justify-center shadow-[0_15px_40px_-10px_rgba(16,185,129,0.5)] transition-all active:scale-90 border border-white/20 cursor-pointer disabled:opacity-70",
               saveStatus === 'success'
                 ? "bg-emerald-500 text-black"
                 : "bg-emerald-500 text-black"

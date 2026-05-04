@@ -123,7 +123,7 @@ export default function FeedbackPage() {
                                         <p className="text-muted-foreground font-medium">Thank you for your message. We'll look into it right away.</p>
                                         <button
                                             onClick={() => setStatus('idle')}
-                                            className="mt-6 px-6 py-2 rounded-xl border border-border hover:bg-emerald-500/5 hover:border-emerald-500/50 transition-all font-black uppercase text-[10px] tracking-widest"
+                                            className="mt-6 px-6 py-2 rounded-xl border border-border shadow-sm hover:bg-emerald-500/5 hover:border-emerald-500/50 transition-all font-black uppercase text-[10px] tracking-widest active:scale-95"
                                         >
                                             Send Another
                                         </button>
@@ -203,8 +203,8 @@ export default function FeedbackPage() {
                                             className={cn(
                                                 "w-full h-14 font-black uppercase tracking-[0.2em] rounded-2xl transition-all flex items-center justify-center gap-3 group",
                                                 isFormValid
-                                                    ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-lg shadow-emerald-500/40 active:scale-[0.98] border-t border-white/20"
-                                                    : "bg-emerald-950/20 text-emerald-900/50 border border-emerald-900/10 cursor-not-allowed"
+                                                    ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-xl shadow-emerald-500/40 active:scale-[0.98] border-t border-white/20"
+                                                    : "bg-emerald-500/10 text-emerald-500/40 border border-emerald-500/20 cursor-not-allowed opacity-70 shadow-inner shadow-black/10"
                                             )}
                                         >
                                             {status === 'loading' ? (

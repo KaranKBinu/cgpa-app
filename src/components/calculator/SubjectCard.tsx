@@ -64,8 +64,8 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
           <button
             onClick={() => onExclude(currentSub.id, exclusion === 'not-published' ? null : 'not-published')}
             className={cn(
-              "h-8 px-3 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all border border-border/20 cursor-pointer active:scale-90",
-              exclusion === 'not-published' ? "bg-amber-500 text-black border-amber-500/50" : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
+              "h-8 px-3 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all border border-border/50 shadow-sm cursor-pointer active:scale-90",
+              exclusion === 'not-published' ? "bg-amber-500 text-black border-amber-600 shadow-amber-500/20" : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
             )}
           >
             NP
@@ -82,8 +82,8 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
               }
             }}
             className={cn(
-              "h-8 w-8 rounded-lg flex items-center justify-center transition-all border border-border/20 cursor-pointer active:scale-90",
-              exclusion === 'not-taken' ? "bg-red-500 text-white border-red-500/50" : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
+              "h-8 w-8 rounded-lg flex items-center justify-center transition-all border border-border/50 shadow-sm cursor-pointer active:scale-90",
+              exclusion === 'not-taken' ? "bg-red-500 text-white border-red-600 shadow-red-500/20" : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
             )}
           >
             <Trash2 className="h-4 w-4" />
@@ -140,10 +140,10 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
                   disabled={isExcluded}
                   onClick={() => onGradeChange(currentSub.id, g)}
                   className={cn(
-                    "h-10 w-10 lg:h-11 lg:w-11 rounded-xl lg:rounded-xl text-sm lg:text-sm font-black transition-all flex items-center justify-center border-2 cursor-pointer",
+                    "h-10 w-10 lg:h-11 lg:w-11 rounded-xl lg:rounded-xl text-sm lg:text-sm font-black transition-all flex items-center justify-center border-2 cursor-pointer shadow-sm disabled:opacity-70",
                     grade === g
                       ? "bg-primary border-primary text-black shadow-lg shadow-primary/20 scale-110"
-                      : "bg-surface border-border/50 text-muted-foreground hover:text-foreground hover:border-border active:scale-90"
+                      : "bg-surface border-border text-muted-foreground hover:text-foreground hover:border-emerald-500/50 active:scale-90"
                   )}
                 >
                   {g}

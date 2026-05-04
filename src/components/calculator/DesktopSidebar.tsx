@@ -147,7 +147,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
                 await signOut({ callbackUrl: '/' });
               }}
               disabled={isLoggingOut}
-              className="w-full flex items-center justify-start gap-3 p-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-all disabled:opacity-50"
+              className="w-full flex items-center justify-start gap-3 p-3 rounded-xl text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all disabled:opacity-70"
             >
               {isLoggingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
               <span className="font-bold text-sm">Logout</span>

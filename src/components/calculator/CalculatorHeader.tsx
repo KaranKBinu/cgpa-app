@@ -193,7 +193,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 <button
                   onClick={onImportClick}
                   disabled={isProcessingPdf}
-                  className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-primary/10 text-primary transition-all active:scale-90 border border-border/20 cursor-pointer"
+                  className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-primary/10 text-primary transition-all active:scale-90 border border-primary/30 shadow-sm disabled:opacity-70 cursor-pointer"
                 >
                   {isProcessingPdf ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : <FileUp className="h-[18px] w-[18px]" />}
                 </button>
@@ -202,7 +202,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
               <Tooltip content="Reset All" position="bottom" className="w-auto">
                 <button
                   onClick={resetCalculator}
-                  className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-primary/10 text-primary transition-all active:scale-90 border border-border/20 cursor-pointer"
+                  className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-primary/10 text-primary transition-all active:scale-90 border border-primary/30 shadow-sm cursor-pointer"
                 >
                   <RotateCcw className="h-[18px] w-[18px]" />
                 </button>
@@ -212,7 +212,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 <Tooltip content="Admin" position="bottom" className="w-auto">
                   <Link
                     href="/admin"
-                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-emerald-500/10 text-emerald-500 transition-all active:scale-90 border border-border/20 cursor-pointer"
+                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-emerald-500/10 text-emerald-500 transition-all active:scale-90 border border-emerald-500/30 shadow-sm cursor-pointer"
                   >
                     <ShieldAlert className="h-[18px] w-[18px]" />
                   </Link>
@@ -226,7 +226,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                   <button
                     onClick={downloadAsPDF}
                     disabled={results.cgpa === 0}
-                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted/10 text-foreground transition-all active:scale-90 disabled:opacity-30 border border-border/20 cursor-pointer"
+                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted/10 text-foreground transition-all active:scale-90 disabled:opacity-70 border border-border shadow-sm cursor-pointer"
                   >
                     <Download className="h-[18px] w-[18px]" />
                   </button>
@@ -264,7 +264,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
               <Tooltip content="Reset Marks" variant="emerald">
                 <button
                   onClick={resetCalculator}
-                  className="h-10 w-10 lg:h-12 lg:w-12 rounded-2xl bg-surface border border-border/50 text-foreground hover:border-primary hover:text-primary transition-all flex items-center justify-center active:scale-95 cursor-pointer"
+                  className="h-10 w-10 lg:h-12 lg:w-12 rounded-2xl bg-surface border border-border shadow-md text-foreground hover:border-primary hover:text-primary transition-all flex items-center justify-center active:scale-95 cursor-pointer"
                 >
                   <RotateCcw className="h-4 w-4 lg:h-5 lg:w-5" />
                 </button>
@@ -274,7 +274,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 <Tooltip content="Admin Dashboard" variant="emerald">
                   <Link
                     href="/admin"
-                    className="h-10 w-10 lg:h-12 lg:w-12 rounded-2xl bg-surface border border-border/50 text-emerald-500 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all flex items-center justify-center active:scale-95 cursor-pointer"
+                    className="h-10 w-10 lg:h-12 lg:w-12 rounded-2xl bg-surface border border-border shadow-md text-emerald-500 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all flex items-center justify-center active:scale-95 cursor-pointer"
                   >
                     <ShieldAlert className="h-4 w-4 lg:h-5 lg:w-5" />
                   </Link>
@@ -318,7 +318,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 <button
                   onClick={onImportClick}
                   disabled={isProcessingPdf}
-                  className="h-10 px-5 rounded-xl bg-surface border border-border/50 text-foreground hover:border-primary transition-all flex items-center gap-2 text-[9px] font-black uppercase tracking-widest active:scale-95 cursor-pointer"
+                  className="h-10 px-5 rounded-xl bg-surface border border-border shadow-md text-foreground hover:border-primary transition-all flex items-center gap-2 text-[9px] font-black uppercase tracking-widest active:scale-95 disabled:opacity-70 cursor-pointer"
                 >
                   {isProcessingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4 text-primary" />}
                   <span>Import PDF</span>
@@ -329,7 +329,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 <Tooltip content="Download Full Report" variant="emerald">
                   <button
                     onClick={downloadAsPDF}
-                    className="h-10 w-10 rounded-xl bg-surface border border-border/50 text-foreground hover:border-emerald-500 transition-all flex items-center justify-center active:scale-95 cursor-pointer"
+                    className="h-10 w-10 rounded-xl bg-surface border border-border shadow-md text-foreground hover:border-emerald-500 transition-all flex items-center justify-center active:scale-95 cursor-pointer"
                   >
                     <Download className="h-4 w-4 lg:h-5 lg:w-5" />
                   </button>
@@ -341,10 +341,10 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
               onClick={handleSave}
               disabled={isSaving || results.cgpa === 0}
               className={cn(
-                "hidden lg:flex h-12 px-8 rounded-2xl transition-all items-center gap-2 text-[10px] font-black uppercase tracking-widest active:scale-95 cursor-pointer",
+                "hidden lg:flex h-12 px-8 rounded-2xl transition-all items-center gap-2 text-[10px] font-black uppercase tracking-widest active:scale-95 cursor-pointer disabled:opacity-70",
                 saveStatus === 'success'
                   ? "bg-emerald-500/20 text-emerald-500 border border-emerald-500/30"
-                  : "bg-emerald-500 text-black shadow-xl shadow-emerald-500/30"
+                  : "bg-emerald-500 text-black border border-emerald-400 shadow-xl shadow-emerald-500/30"
               )}
             >
               <div className="flex items-center gap-2">

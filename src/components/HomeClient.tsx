@@ -161,9 +161,9 @@ export default function HomeClient({
         </div>
       </div>
 
-      {/* SEO Footer Content */}
-      <div className="mt-40 w-full max-w-4xl border-t border-border/30 pt-20 pb-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 opacity-60 hover:opacity-100 transition-opacity">
+      {/* SEO Footer Content (Screen Reader Only) */}
+      <div className="sr-only">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="space-y-4">
             <h4 className="text-sm font-black uppercase tracking-widest text-primary">About PolyGPA</h4>
             <p className="text-sm text-muted-foreground leading-relaxed">
