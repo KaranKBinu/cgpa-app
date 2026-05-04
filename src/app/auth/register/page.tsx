@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, Mail, Lock, Loader2, ArrowRight, Check, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,6 +24,8 @@ export default function RegisterPage() {
   const [departments, setDepartments] = useState<{name: string, code: string}[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
 
   useEffect(() => {
     async function loadDepts() {
@@ -89,7 +91,7 @@ export default function RegisterPage() {
         setError(result.error);
         setLoading(false);
       } else {
-        router.push("/auth/login?registered=true");
+        router.push(`/auth/login?registered=true${callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`);
       }
     } catch (err) {
       setError("Something went wrong. Please try again.");
@@ -330,7 +332,7 @@ export default function RegisterPage() {
 
           <p className="mt-8 text-center text-muted-foreground text-sm font-medium">
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-emerald-500 hover:text-emerald-400 font-bold transition-colors">
+            <Link href={`/auth/login${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`} className="text-emerald-500 hover:text-emerald-400 font-bold transition-colors">
               Login Here
             </Link>
           </p>

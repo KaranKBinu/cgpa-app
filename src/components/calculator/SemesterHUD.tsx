@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Settings, CheckCircle2 } from 'lucide-react';
+import { SlidersHorizontal, CheckCircle2 } from 'lucide-react';
 import { Tooltip } from '../Tooltip';
 import { Semester, SemResult } from '@/types/calculator';
 
@@ -51,7 +51,7 @@ export const SemesterHUD: React.FC<SemesterHUDProps> = ({
                 : "bg-surface border-border/50 text-muted-foreground hover:text-foreground hover:border-border"
             )}
           >
-            {manualSgpas[expandedSem!] ? <CheckCircle2 className="h-5 w-5" /> : <Settings className="h-5 w-5" />}
+            {manualSgpas[expandedSem!] ? <CheckCircle2 className="h-5 w-5" /> : <SlidersHorizontal className="h-5 w-5" />}
           </button>
         </Tooltip>
 

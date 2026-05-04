@@ -333,6 +333,7 @@ export default function Calculator({
           isLETMode={core.isLETMode}
           globalOpenElectives={globalOpenElectives}
           studentName={core.studentName}
+          session={session}
         />
       </main>
 

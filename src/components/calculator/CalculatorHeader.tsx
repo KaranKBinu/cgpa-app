@@ -141,16 +141,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                     {program.code}
                   </h1>
                 </Tooltip>
-                <Link
-                  href={`/calculate/${program.code}/summary?session=${activeSessionId || 'draft'}`}
-                  onClick={saveSummaryContext}
-                  className="flex lg:hidden items-center whitespace-nowrap font-black"
-                >
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-primary text-[10px] font-black tracking-[0.3em] uppercase">
-                    <Sparkles className="h-3 w-3" />
-                    GPA Calculator
-                  </div>
-                </Link>
+
               </div>
               <div className="flex items-center gap-1.5 mt-1 lg:mt-0.5 group">
                 <div className={cn(
@@ -204,7 +195,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                   disabled={isProcessingPdf}
                   className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-primary/10 text-primary transition-all active:scale-90 border border-border/20 cursor-pointer"
                 >
-                  {isProcessingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4" />}
+                  {isProcessingPdf ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : <FileUp className="h-[18px] w-[18px]" />}
                 </button>
               </Tooltip>
 
@@ -213,7 +204,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                   onClick={resetCalculator}
                   className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-primary/10 text-primary transition-all active:scale-90 border border-border/20 cursor-pointer"
                 >
-                  <RotateCcw className="h-4 w-4" />
+                  <RotateCcw className="h-[18px] w-[18px]" />
                 </button>
               </Tooltip>
 
@@ -223,22 +214,24 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                     href="/admin"
                     className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-emerald-500/10 text-emerald-500 transition-all active:scale-90 border border-border/20 cursor-pointer"
                   >
-                    <ShieldAlert className="h-4 w-4" />
+                    <ShieldAlert className="h-[18px] w-[18px]" />
                   </Link>
                 </Tooltip>
               )}
 
-              <div className="w-[1px] h-4 bg-border/40 mx-0.5" />
+              {session?.user && <div className="w-[1px] h-4 bg-border/40 mx-0.5" />}
 
-              <Tooltip content="Download PDF" position="bottom" className="w-auto">
-                <button
-                  onClick={downloadAsPDF}
-                  disabled={results.cgpa === 0}
-                  className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted/10 text-foreground transition-all active:scale-90 disabled:opacity-30 border border-border/20 cursor-pointer"
-                >
-                  <Download className="h-4 w-4" />
-                </button>
-              </Tooltip>
+              {session?.user && (
+                <Tooltip content="Download PDF" position="bottom" className="w-auto">
+                  <button
+                    onClick={downloadAsPDF}
+                    disabled={results.cgpa === 0}
+                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted/10 text-foreground transition-all active:scale-90 disabled:opacity-30 border border-border/20 cursor-pointer"
+                  >
+                    <Download className="h-[18px] w-[18px]" />
+                  </button>
+                </Tooltip>
+              )}
             </div>
 
             {/* Desktop & Additional Actions */}
@@ -332,7 +325,7 @@ export const CalculatorHeader: React.FC<CalculatorHeaderProps> = ({
                 </button>
               </Tooltip>
 
-              {results.semResults.filter(s => s.sgpa > 0).length > 1 && (
+              {session?.user && results.semResults.filter(s => s.sgpa > 0).length > 1 && (
                 <Tooltip content="Download Full Report" variant="emerald">
                   <button
                     onClick={downloadAsPDF}

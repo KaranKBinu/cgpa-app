@@ -74,7 +74,11 @@ export function useCalculatorActions({
   };
 
   const handleSave = async () => {
-    if (!session) { router.push('/auth/login'); return; }
+    if (!session) { 
+      const currentPath = window.location.pathname + window.location.search;
+      router.push(`/auth/login?callbackUrl=${encodeURIComponent(currentPath)}`); 
+      return; 
+    }
     setIsSaving(true); setSaveStatus('idle');
     const label = studentName.trim() || (session?.user?.name || `Results for ${program.code}`);
     const semestersToSave = groupedSemesters.map(sem => {

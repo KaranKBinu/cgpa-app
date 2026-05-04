@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
@@ -14,6 +14,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +33,7 @@ export default function LoginPage() {
         setError("Invalid email or password");
         setLoading(false);
       } else {
-        router.push("/");
+        router.push(callbackUrl || "/");
         router.refresh();
       }
     } catch (err) {
@@ -136,7 +138,7 @@ export default function LoginPage() {
 
           <p className="mt-8 text-center text-muted-foreground text-sm font-medium">
             Don't have an account?{" "}
-            <Link href="/auth/register" className="text-emerald-500 hover:text-emerald-400 font-bold transition-colors">
+            <Link href={`/auth/register${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`} className="text-emerald-500 hover:text-emerald-400 font-bold transition-colors">
               Create one now
             </Link>
           </p>

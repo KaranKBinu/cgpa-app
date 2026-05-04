@@ -28,6 +28,7 @@ interface ActionFABsProps {
   isLETMode: boolean;
   globalOpenElectives: any;
   studentName: string;
+  session: any;
 }
 
 export const ActionFABs: React.FC<ActionFABsProps> = ({
@@ -48,7 +49,8 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
   selectedOptions,
   isLETMode,
   globalOpenElectives,
-  studentName
+  studentName,
+  session
 }) => {
   useEffect(() => {
     if (saveStatus === 'success' || triggerConfetti) {
@@ -146,15 +148,17 @@ export const ActionFABs: React.FC<ActionFABsProps> = ({
         exit={{ opacity: 0, x: 50, scale: 0.8 }}
         className="lg:hidden fixed bottom-8 right-3 sm:right-4 z-[90] flex flex-col items-end gap-3"
       >
-        <Tooltip content="Semester Transcript" position="left" variant="emerald">
-          <button
-            onClick={() => expandedSem && downloadAsPDF(expandedSem)}
-            disabled={!currentSemRes || currentSemRes.sgpa === 0}
-            className="h-12 w-12 rounded-full bg-surface/80 backdrop-blur-xl border border-border/50 shadow-xl flex items-center justify-center text-foreground active:scale-90 transition-all hover:border-emerald-500 disabled:opacity-50 cursor-pointer"
-          >
-            <Download className="h-5 w-5" />
-          </button>
-        </Tooltip>
+        {session?.user && (
+          <Tooltip content="Semester Transcript" position="left" variant="emerald">
+            <button
+              onClick={() => expandedSem && downloadAsPDF(expandedSem)}
+              disabled={!currentSemRes || currentSemRes.sgpa === 0}
+              className="h-12 w-12 rounded-full bg-surface/80 backdrop-blur-xl border border-border/50 shadow-xl flex items-center justify-center text-foreground active:scale-90 transition-all hover:border-emerald-500 disabled:opacity-50 cursor-pointer"
+            >
+              <Download className="h-5 w-5" />
+            </button>
+          </Tooltip>
+        )}
         <Tooltip content={activeSessionId ? "Update History" : "Save Session"} position="left" variant="emerald">
           <button
             onClick={() => setIsSaveModalOpen(true)}

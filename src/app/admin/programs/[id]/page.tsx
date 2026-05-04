@@ -7,7 +7,7 @@ import { addSemester, deleteSemester, addSubject } from "@/app/actions";
 import { groupSemesters } from "@/lib/calculator";
 import SubjectRow from "@/components/admin/SubjectRow";
 
-export default async function ProgramDetailPage({ params }: { params: { id: string } }) {
+export default async function ProgramDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const rawProgram = await prisma.program.findUnique({
     where: { id },

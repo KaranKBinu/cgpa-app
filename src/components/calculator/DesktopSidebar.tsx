@@ -94,38 +94,38 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
             return <React.Fragment key={group[0].id}>{content}</React.Fragment>;
           });
         })()}
-      </nav>
 
-      <div className="p-4 border-t border-border bg-card/50 space-y-2">
-        <div className="mb-2">
-          <CGPATrend semResults={semResults} />
+        <div className="pt-4 border-t border-border/50 space-y-2 mt-4">
+          {session?.user && (session.user.role === 'TEACHER' || session.user.role === 'SUPERUSER') && (
+            <Link href="/admin" className="flex items-center justify-start gap-3 p-3 rounded-xl text-emerald-500 hover:bg-emerald-500/10 transition-all">
+              <ShieldAlert className="h-5 w-5" />
+              <span className="font-bold text-sm">Admin Panel</span>
+            </Link>
+          )}
+          {session && (
+            <Link href="/history" className="flex items-center justify-start gap-3 p-3 rounded-xl text-muted-foreground hover:bg-card/50 hover:text-foreground transition-all">
+              <History className="h-5 w-5" />
+              <span className="font-bold text-sm">History</span>
+            </Link>
+          )}
+          {session && (
+            <button
+              onClick={async () => {
+                setIsLoggingOut(true);
+                await signOut({ callbackUrl: '/' });
+              }}
+              disabled={isLoggingOut}
+              className="w-full flex items-center justify-start gap-3 p-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-all disabled:opacity-50"
+            >
+              {isLoggingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
+              <span className="font-bold text-sm">Logout</span>
+            </button>
+          )}
+          <div className="pt-2">
+            <CGPATrend semResults={semResults} />
+          </div>
         </div>
-        {session?.user && (session.user.role === 'TEACHER' || session.user.role === 'SUPERUSER') && (
-          <Link href="/admin" className="flex items-center justify-start gap-3 p-3 rounded-xl text-emerald-500 hover:bg-emerald-500/10 transition-all">
-            <ShieldAlert className="h-5 w-5" />
-            <span className="font-bold text-sm">Admin Panel</span>
-          </Link>
-        )}
-        {session && (
-          <Link href="/history" className="flex items-center justify-start gap-3 p-3 rounded-xl text-muted-foreground hover:bg-card/50 hover:text-foreground transition-all">
-            <History className="h-5 w-5" />
-            <span className="font-bold text-sm">History</span>
-          </Link>
-        )}
-        {session && (
-          <button
-            onClick={async () => {
-              setIsLoggingOut(true);
-              await signOut({ callbackUrl: '/' });
-            }}
-            disabled={isLoggingOut}
-            className="w-full flex items-center justify-start gap-3 p-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-all disabled:opacity-50"
-          >
-            {isLoggingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
-            <span className="font-bold text-sm">Logout</span>
-          </button>
-        )}
-      </div>
+      </nav>
     </aside>
   );
 };

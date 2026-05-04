@@ -151,13 +151,13 @@ export default function Navbar({ user, config }: NavbarProps) {
                         {!user && (
                             <div className="flex items-center gap-2.5">
                                 <Link
-                                    href="/auth/login"
+                                    href={`/auth/login${pathname !== '/' ? `?callbackUrl=${encodeURIComponent(pathname)}` : ''}`}
                                     className="px-5 py-2 rounded-xl border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/5 transition-all font-black uppercase tracking-widest text-[10px]"
                                 >
                                     Login
                                 </Link>
                                 <Link
-                                    href="/auth/register"
+                                    href={`/auth/register${pathname !== '/' ? `?callbackUrl=${encodeURIComponent(pathname)}` : ''}`}
                                     className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-black font-black uppercase tracking-widest text-[10px] shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all border-t border-white/20"
                                 >
                                     Register
@@ -268,14 +268,14 @@ export default function Navbar({ user, config }: NavbarProps) {
                                 ) : (
                                     <div className="flex flex-col gap-2">
                                         <Link
-                                            href="/auth/login"
+                                            href={`/auth/login${pathname !== '/' ? `?callbackUrl=${encodeURIComponent(pathname)}` : ''}`}
                                             onClick={() => setIsOpen(false)}
                                             className="flex items-center justify-center p-4 rounded-2xl border border-emerald-500/20 text-emerald-500 font-black uppercase tracking-widest text-xs transition-all w-full"
                                         >
                                             Login
                                         </Link>
                                         <Link
-                                            href="/auth/register"
+                                            href={`/auth/register${pathname !== '/' ? `?callbackUrl=${encodeURIComponent(pathname)}` : ''}`}
                                             onClick={() => setIsOpen(false)}
                                             className="flex items-center justify-center p-4 rounded-2xl bg-emerald-500 text-black font-black uppercase tracking-widest text-xs shadow-lg shadow-emerald-500/10 transition-all w-full"
                                         >
