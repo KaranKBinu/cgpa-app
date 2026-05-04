@@ -3,12 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-interface SemResult {
-  id: string;
-  number: number;
-  sgpa: number;
-  credits: number;
-}
+import { SemResult } from '@/types/calculator';
 
 export function CGPATrend({ semResults }: { semResults: SemResult[] }) {
   const validResults = semResults.filter(r => r.sgpa > 0).sort((a, b) => a.number - b.number);
