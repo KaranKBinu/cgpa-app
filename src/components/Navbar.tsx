@@ -92,7 +92,6 @@ export default function Navbar({ user, config }: NavbarProps) {
                         {/* Admin Dropdown */}
                         {isAdmin && (
                             <div className="relative" onMouseEnter={() => setIsAdminOpen(true)} onMouseLeave={() => setIsAdminOpen(false)}>
-                                <Tooltip content="Admin Panel" position="bottom" className="w-auto">
                                     <button
                                         className={cn(
                                             "flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm group mr-1 cursor-pointer active:scale-95",
@@ -105,7 +104,6 @@ export default function Navbar({ user, config }: NavbarProps) {
                                         <span>Admin Panel</span>
                                         <ChevronDown className={cn("h-3 w-3 transition-transform", isAdminOpen && "rotate-180")} />
                                     </button>
-                                </Tooltip>
 
                                 <AnimatePresence>
                                     {isAdminOpen && (
