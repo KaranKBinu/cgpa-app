@@ -4,7 +4,7 @@ import { History, LogOut, ShieldAlert, Sparkles, Loader2 } from 'lucide-react';
 import { Tooltip } from '../Tooltip';
 import Link from 'next/link';
 import { Semester, SemResult } from '@/types/calculator';
-import { CGPATrend } from './CGPATrend';
+
 
 interface DesktopSidebarProps {
   displayedSemesters: Semester[];
@@ -121,11 +121,9 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
               <span className="font-bold text-sm">Logout</span>
             </button>
           )}
-          <div className="pt-2">
-            <CGPATrend semResults={semResults} />
-          </div>
         </div>
       </nav>
     </aside>
+
   );
 };

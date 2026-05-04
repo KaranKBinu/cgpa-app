@@ -2,30 +2,46 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Trophy, BarChart3, TrendingUp, Star, Download, Share2, ArrowUpRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { CGPATrend } from '@/components/calculator/CGPATrend';
+
 
 export default function SummaryPage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [context, setContext] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
+
   useEffect(() => {
     setMounted(true);
-    const searchParams = new URLSearchParams(window.location.search);
-    const sessionId = searchParams.get('session') || 'draft';
-    const saved = sessionStorage.getItem(`summary_context_${params.code}_${sessionId}`);
     
-    if (saved) {
-      setContext(JSON.parse(saved));
-    } else {
-      router.replace(`/calculate/${params.code}`);
+    if (status === 'unauthenticated') {
+      const currentPath = window.location.pathname + window.location.search;
+      router.replace(`/auth/login?callbackUrl=${encodeURIComponent(currentPath)}`);
+      return;
     }
-  }, [params.code, router]);
+
+    if (status === 'authenticated') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const sessionId = searchParams.get('session') || 'draft';
+      const saved = sessionStorage.getItem(`summary_context_${params.code}_${sessionId}`);
+      
+      if (saved) {
+        setContext(JSON.parse(saved));
+      } else {
+        router.replace(`/calculate/${params.code}`);
+      }
+    }
+  }, [params.code, router, status]);
+
 
   const downloadAsPDF = async () => {
     if (!context) return;
@@ -126,7 +142,14 @@ export default function SummaryPage() {
     }
   };
 
-  if (!mounted || !context) return null;
+  if (!mounted || status === 'loading' || !session || !context) {
+    return (
+      <div className="h-screen bg-black flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-emerald-500 animate-spin" />
+      </div>
+    );
+  }
+
 
   const { results, studentName } = context;
   const validSems = results.semResults.filter((s: any) => s.sgpa > 0);
@@ -141,7 +164,8 @@ export default function SummaryPage() {
   };
 
   return (
-    <div className="h-screen bg-black text-white selection:bg-emerald-500/30 font-sans overflow-hidden flex flex-col relative">
+    <div className="min-h-screen bg-black text-white selection:bg-emerald-500/30 font-sans flex flex-col relative">
+
       {/* Cinematic Background */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-500/20 rounded-full blur-[150px] animate-pulse" />
@@ -173,7 +197,8 @@ export default function SummaryPage() {
       </nav>
 
       {/* Main Container - Maximum Density Layout - With slight breathing room */}
-      <div className="flex-1 flex flex-col items-center justify-start px-4 pt-6 pb-2 max-w-4xl mx-auto w-full gap-2 overflow-hidden">
+      <div className="flex-1 flex flex-col items-center justify-start px-4 pt-6 pb-12 max-w-4xl mx-auto w-full gap-2 overflow-y-auto custom-scrollbar">
+
         
         {/* Main Hero Result - Zero Gap */}
         <section className="relative flex flex-col items-center justify-center py-0">
@@ -225,7 +250,7 @@ export default function SummaryPage() {
         </section>
 
         {/* Semester Journey Grid - Hero SGPAs */}
-        <section className="w-full shrink-0 mt-4 pb-4">
+        <section className="w-full shrink-0 mt-4">
             <div className="flex flex-wrap items-center justify-center gap-2">
                 {validSems.map((sem: any, idx: number) => (
                     <motion.div
@@ -241,6 +266,12 @@ export default function SummaryPage() {
                 ))}
             </div>
         </section>
+
+        {/* Marks Over Time Chart */}
+        <section className="w-full shrink-0 mt-4 mb-4 max-w-2xl mx-auto">
+            <CGPATrend semResults={results.semResults} />
+        </section>
+
 
         {/* Verification Footer - Minimal */}
         <footer className="shrink-0 flex flex-col items-center gap-2 opacity-30 pb-2">
