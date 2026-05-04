@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { History, LogOut, ShieldAlert, Sparkles, Loader2 } from 'lucide-react';
+import { History, LogOut, ShieldAlert, Sparkles, Loader2, Download } from 'lucide-react';
+
 import { Tooltip } from '../Tooltip';
 import Link from 'next/link';
 import { Semester, SemResult } from '@/types/calculator';
@@ -15,7 +16,9 @@ interface DesktopSidebarProps {
   signOut: any;
   programCode: string;
   programName: string;
+  downloadAsPDF: (id: string) => void;
 }
+
 
 export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   displayedSemesters,
@@ -25,8 +28,10 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   session,
   signOut,
   programCode,
-  programName
+  programName,
+  downloadAsPDF
 }) => {
+
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   
   return (
@@ -64,11 +69,19 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
               const res = semResults.find(r => r.id === sem.id);
               const isActive = sem.id === expandedSem;
               return (
-                <button
+                <div
                   key={sem.id}
                   onClick={() => setExpandedSem(sem.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setExpandedSem(sem.id);
+                    }
+                  }}
                   className={cn(
-                    "w-full flex items-center justify-between p-4 rounded-3xl transition-all group border-2 outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 active:scale-95",
+                    "w-full flex items-center justify-between p-4 rounded-3xl transition-all group border-2 outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 active:scale-95 cursor-pointer",
                     isActive
                       ? "bg-emerald-500 border-emerald-500 text-black shadow-[0_15px_40px_-10px_rgba(16,185,129,0.5)]"
                       : "bg-card/50 border-border/50 text-muted-foreground hover:border-border hover:text-foreground"
@@ -78,8 +91,27 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
                     <div className={cn("h-2.5 w-2.5 rounded-full transition-all", isActive ? "bg-primary-foreground" : "bg-card/80 group-hover:bg-primary")} />
                     <span className="font-black text-sm uppercase tracking-tighter">{(sem as any).displayName}</span>
                   </div>
-                  {res && res.sgpa > 0 && <span className={cn("text-xs font-black px-2 py-0.5 rounded-md", isActive ? "bg-primary-foreground/10 text-primary-foreground" : "bg-primary/10 text-primary")}>{res.sgpa.toFixed(2)}</span>}
-                </button>
+                  {res && res.sgpa > 0 && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          downloadAsPDF(sem.id);
+                        }}
+                        className={cn(
+                          "h-6 w-6 rounded-md flex items-center justify-center transition-all hover:bg-white/20 active:scale-90",
+                          isActive ? "text-primary-foreground/60 hover:text-primary-foreground" : "text-primary/60 hover:text-primary"
+                        )}
+                      >
+                        <Download className="h-3 w-3" />
+                      </button>
+                      <span className={cn("text-xs font-black px-2 py-0.5 rounded-md", isActive ? "bg-primary-foreground/10 text-primary-foreground" : "bg-primary/10 text-primary")}>
+                        {res.sgpa.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+
+                </div>
               );
             });
 

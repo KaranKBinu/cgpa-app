@@ -304,7 +304,9 @@ export default function Calculator({
         signOut={signOut} 
         programCode={program.code}
         programName={program.name}
+        downloadAsPDF={actions.downloadAsPDF}
       />
+
 
       <main className="flex-1 flex flex-col min-w-0">
         <CalculatorHeader 
