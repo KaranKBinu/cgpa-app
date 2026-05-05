@@ -81,7 +81,15 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-4">Password</label>
+              <div className="flex items-center justify-between px-4">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Password</label>
+                <Link 
+                  href="/auth/forgot-password" 
+                  className="text-[10px] font-black uppercase tracking-widest text-emerald-500 hover:text-emerald-400 transition-colors"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-emerald-500 transition-colors" />
                 <input
@@ -89,7 +97,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 pl-12 pr-12 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   required
                 />
                 <button
@@ -130,18 +138,17 @@ export default function LoginPage() {
             </motion.button>
           </form>
 
-          <div className="mt-4 text-center">
-            <Link href="/auth/forgot-password" className="text-muted-foreground hover:text-emerald-500 text-sm font-bold transition-colors">
-              Forgot your password?
-            </Link>
+          <div className="mt-8 pt-8 border-t border-border/30 text-center">
+            <p className="text-muted-foreground text-sm font-medium">
+              Don't have an account?{" "}
+              <Link 
+                href={`/auth/register${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`} 
+                className="text-emerald-500 hover:text-emerald-400 font-black transition-all hover:underline decoration-2 underline-offset-4"
+              >
+                Create account
+              </Link>
+            </p>
           </div>
-
-          <p className="mt-8 text-center text-muted-foreground text-sm font-medium">
-            Don't have an account?{" "}
-            <Link href={`/auth/register${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`} className="text-emerald-500 hover:text-emerald-400 font-bold transition-colors">
-              Create one now
-            </Link>
-          </p>
         </div>
       </motion.div>
     </div>

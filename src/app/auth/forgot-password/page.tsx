@@ -112,7 +112,7 @@ export default function ForgotPasswordPage() {
                 w-full font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 mt-6 uppercase tracking-widest
                 ${isFormValid 
                   ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-xl shadow-emerald-500/40 hover:scale-[1.02] active:scale-95 border-t border-white/20" 
-                  : "bg-emerald-950/20 text-emerald-900/50 border border-emerald-900/10 cursor-not-allowed"
+                  : "bg-emerald-500/10 text-emerald-500/40 border border-emerald-500/20 cursor-not-allowed opacity-70 shadow-inner shadow-black/10"
                 }
               `}
             >
@@ -130,10 +130,16 @@ export default function ForgotPasswordPage() {
             </motion.button>
           </form>
 
-          <div className="mt-8 text-center">
-            <Link href="/auth/login" className="text-muted-foreground hover:text-emerald-500 text-sm font-bold transition-colors">
-              Remember your password? Login
-            </Link>
+          <div className="mt-8 pt-8 border-t border-border/30 text-center">
+            <p className="text-muted-foreground text-sm font-medium">
+              Remember your password?{" "}
+              <Link 
+                href="/auth/login" 
+                className="text-emerald-500 hover:text-emerald-400 font-black transition-all hover:underline decoration-2 underline-offset-4"
+              >
+                Login instead
+              </Link>
+            </p>
           </div>
         </div>
       </motion.div>

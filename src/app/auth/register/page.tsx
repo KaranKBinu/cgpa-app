@@ -169,7 +169,7 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 pl-12 pr-12 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
-                  placeholder="••••••••"
+                  placeholder="Create a password"
                   required
                 />
                 <button
@@ -200,7 +200,7 @@ export default function RegisterPage() {
                         ? "border-emerald-500/50 focus:border-emerald-500/50 focus:ring-emerald-500/10"
                         : "border-border/50 focus:border-emerald-500/50 focus:ring-emerald-500/10"
                   )}
-                  placeholder="••••••••"
+                  placeholder="Confirm your password"
                   required
                 />
                 <button
@@ -330,12 +330,17 @@ export default function RegisterPage() {
             </motion.button>
           </form>
 
-          <p className="mt-8 text-center text-muted-foreground text-sm font-medium">
-            Already have an account?{" "}
-            <Link href={`/auth/login${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`} className="text-emerald-500 hover:text-emerald-400 font-bold transition-colors">
-              Login Here
-            </Link>
-          </p>
+          <div className="mt-8 pt-8 border-t border-border/30 text-center">
+            <p className="text-muted-foreground text-sm font-medium">
+              Already have an account?{" "}
+              <Link 
+                href={`/auth/login${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`} 
+                className="text-emerald-500 hover:text-emerald-400 font-black transition-all hover:underline decoration-2 underline-offset-4"
+              >
+                Login instead
+              </Link>
+            </p>
+          </div>
         </div>
       </motion.div>
     </div>
