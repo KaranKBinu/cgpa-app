@@ -206,17 +206,6 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
-  const getVariantClasses = () => {
-    switch (variant) {
-      case 'tutorial':
-        return "bg-background/95 text-foreground border-primary/30 shadow-2xl shadow-primary/20 p-0 overflow-hidden min-w-[280px] pointer-events-auto";
-      case 'emerald':
-      case 'standard':
-      default:
-        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
-    }
-  };
-
   return (
     <div 
       ref={containerRef}
@@ -245,10 +234,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
             transition={{ duration: 0.15, ease: [0.19, 1, 0.22, 1] }}
             style={{ marginLeft: shift.x, marginTop: shift.y }}
             className={cn(
-              "absolute z-[9999] rounded-xl shadow-2xl backdrop-blur-xl border transition-[margin] duration-200",
+              "absolute z-[9999] rounded-xl shadow-2xl border transition-[margin] duration-200",
               variant !== 'tutorial' ? "px-4 py-2 font-black text-[10px] uppercase tracking-[0.15em] whitespace-nowrap pointer-events-none" : "pointer-events-auto",
               getPositionClasses(),
-              getVariantClasses()
+              variant === 'tutorial' ? "bg-background text-foreground border-primary/30" : "bg-card text-emerald-400 border-emerald-500/30"
             )}
           >
             {content}

@@ -48,7 +48,7 @@ function ToastItem({ toast, onDismiss }: { toast: ToastData; onDismiss: (id: str
       exit={{ opacity: 0, y: 20, scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       className={cn(
-        'flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl shadow-black/30 backdrop-blur-xl min-w-[260px] max-w-[360px]',
+        'flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl shadow-black/30 min-w-[260px] max-w-[360px]',
         BORDER[variant]
       )}
     >
