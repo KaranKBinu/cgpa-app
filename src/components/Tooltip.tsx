@@ -63,7 +63,43 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const [isGlobalForceShow, setIsGlobalForceShow] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const touchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isTouchingRef = useRef(false);
   const [shift, setShift] = useState({ x: 0, y: 0 });
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    isTouchingRef.current = true;
+    // Start long press timer
+    touchTimeoutRef.current = setTimeout(() => {
+      if (isTouchingRef.current) {
+        setIsVisible(true);
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+          try { navigator.vibrate(10); } catch (e) {}
+        }
+      }
+    }, 500); // Standard Android long press duration
+  };
+
+  const handleTouchEnd = () => {
+    isTouchingRef.current = false;
+    if (touchTimeoutRef.current) {
+      clearTimeout(touchTimeoutRef.current);
+      touchTimeoutRef.current = null;
+    }
+    // Only hide if it's not a tutorial (those might need to stay or have their own logic)
+    if (variant !== 'tutorial') {
+      setIsVisible(false);
+    }
+  };
+
+  const handleTouchMove = () => {
+    // If the user scrolls or moves significantly, cancel the long press
+    if (!isVisible && touchTimeoutRef.current) {
+      isTouchingRef.current = false;
+      clearTimeout(touchTimeoutRef.current);
+      touchTimeoutRef.current = null;
+    }
+  };
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -152,10 +188,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   const getAnimationProps = () => {
     switch (position) {
-      case 'bottom': return { initial: { opacity: 0, y: -8 }, animate: { opacity: 1, y: 0 } };
-      case 'left': return { initial: { opacity: 0, x: 8 }, animate: { opacity: 1, x: 0 } };
-      case 'right': return { initial: { opacity: 0, x: -8 }, animate: { opacity: 1, x: 0 } };
-      default: return { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 } };
+      case 'bottom': return { initial: { opacity: 0, y: -8, scale: 0.95 }, animate: { opacity: 1, y: 0, scale: 1 } };
+      case 'left': return { initial: { opacity: 0, x: 8, scale: 0.95 }, animate: { opacity: 1, x: 0, scale: 1 } };
+      case 'right': return { initial: { opacity: 0, x: -8, scale: 0.95 }, animate: { opacity: 1, x: 0, scale: 1 } };
+      default: return { initial: { opacity: 0, y: 8, scale: 0.95 }, animate: { opacity: 1, y: 0, scale: 1 } };
     }
   };
 
@@ -173,12 +209,20 @@ export const Tooltip: React.FC<TooltipProps> = ({
   return (
     <div 
       ref={containerRef}
-      className={cn("relative inline-flex w-fit", showTooltip ? "z-[999]" : "z-auto", className)}
+      className={cn("relative inline-flex w-fit select-none", showTooltip ? "z-[999]" : "z-auto", className)}
+      style={{ WebkitTouchCallout: 'none' }}
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
       onFocus={() => setIsVisible(true)}
       onBlur={() => setIsVisible(false)}
-      onTouchStart={() => setIsVisible(!isVisible)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchMove={handleTouchMove}
+      onContextMenu={(e) => {
+        if (window.matchMedia('(pointer: coarse)').matches) {
+          e.preventDefault();
+        }
+      }}
     >
       {children}
       <AnimatePresence>
