@@ -64,11 +64,16 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const touchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isTouchingRef = useRef(false);
   const [shift, setShift] = useState({ x: 0, y: 0 });
 
   const handleTouchStart = (e: React.TouchEvent) => {
     isTouchingRef.current = true;
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
     // Start long press timer
     touchTimeoutRef.current = setTimeout(() => {
       if (isTouchingRef.current) {
@@ -86,8 +91,13 @@ export const Tooltip: React.FC<TooltipProps> = ({
       clearTimeout(touchTimeoutRef.current);
       touchTimeoutRef.current = null;
     }
-    // Only hide if it's not a tutorial (those might need to stay or have their own logic)
-    if (variant !== 'tutorial') {
+    // Only hide after 2s if it's not a tutorial
+    if (variant !== 'tutorial' && isVisible) {
+      hideTimeoutRef.current = setTimeout(() => {
+        setIsVisible(false);
+        hideTimeoutRef.current = null;
+      }, 2000);
+    } else if (variant !== 'tutorial') {
       setIsVisible(false);
     }
   };
@@ -131,6 +141,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
     };
   }, [forceShow, tooltipId, content, delay]);
 
