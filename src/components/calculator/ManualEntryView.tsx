@@ -54,7 +54,7 @@ export const ManualEntryView: React.FC<ManualEntryViewProps> = ({
         <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-2xl p-6 text-center">
             <p className="text-primary font-black text-xs uppercase tracking-widest mb-1">Resulting Equivalent %</p>
             <p className="text-4xl font-black text-foreground tracking-tighter">
-              {manualData && manualData.sgpa > 0 ? ((manualData.sgpa - 0.5) * 10).toFixed(1) : "0.0"}%
+              {manualData && manualData.sgpa > 0 ? (manualData.sgpa * 9.5).toFixed(1) : "0.0"}%
             </p>
         </div>
       </div>
