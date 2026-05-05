@@ -134,7 +134,7 @@ export const ElectiveSelector: React.FC<ElectiveSelectorProps> = ({
                       placeholder="Search department or course..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      className="w-full bg-background border border-border/50 rounded-xl py-2 pl-9 pr-4 text-xs font-bold focus:outline-none focus:border-primary transition-all"
+                      className="w-full bg-background border border-border rounded-xl py-2 pl-9 pr-4 text-xs font-bold focus:outline-none focus:border-primary transition-all"
                     />
                   </div>
                 </div>

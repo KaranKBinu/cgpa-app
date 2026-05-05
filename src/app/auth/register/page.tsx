@@ -136,7 +136,7 @@ export default function RegisterPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 pl-12 pr-4 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
+                  className="w-full bg-background/80 border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
                   placeholder="John Doe"
                   required
                 />
@@ -152,7 +152,7 @@ export default function RegisterPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 pl-12 pr-4 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
+                  className="w-full bg-background/80 border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
                   placeholder="name@example.com"
                   required
                 />
@@ -168,7 +168,7 @@ export default function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 pl-12 pr-12 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
+                  className="w-full bg-background/80 border border-border rounded-2xl py-4 pl-12 pr-12 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
                   placeholder="Create a password"
                   required
                 />
@@ -198,7 +198,7 @@ export default function RegisterPage() {
                       ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/10"
                       : confirmPassword && confirmPassword === password
                         ? "border-emerald-500/50 focus:border-emerald-500/50 focus:ring-emerald-500/10"
-                        : "border-border/50 focus:border-emerald-500/50 focus:ring-emerald-500/10"
+                        : "border-border focus:border-emerald-500/50 focus:ring-emerald-500/10"
                   )}
                   placeholder="Confirm your password"
                   required
@@ -224,7 +224,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setOpenDept(!openDept)}
-                  className="w-full bg-background/80 border border-border/50 rounded-2xl py-4 px-6 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-left flex justify-between items-center"
+                  className="w-full bg-background/80 border border-border rounded-2xl py-4 px-6 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-left flex justify-between items-center"
                 >
                   <span className={department ? "text-foreground" : "text-muted-foreground"}>
                     {department.length > 30 ? department.substring(0, 30) + "..." : (department || "Select Department")}
@@ -254,7 +254,7 @@ export default function RegisterPage() {
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           autoFocus
-                          className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-2 text-xs font-bold focus:outline-none focus:border-emerald-500/50 transition-all font-outfit"
+                          className="w-full bg-background/50 border border-border rounded-xl px-4 py-2 text-xs font-bold focus:outline-none focus:border-emerald-500/50 transition-all font-outfit"
                         />
                       </div>
                       <div className="max-h-[200px] overflow-y-auto custom-scrollbar p-1">

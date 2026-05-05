@@ -8,14 +8,14 @@ import RecentCalculatorLink from "@/components/RecentCalculatorLink";
 import { Sparkles, ChevronDown, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function HomeClient({ 
-  programs, 
-  userProgramId, 
+export default function HomeClient({
+  programs,
+  userProgramId,
   recentCalculations,
   appName = "PolyGrade"
-}: { 
-  programs: any[], 
-  userProgramId?: string, 
+}: {
+  programs: any[],
+  userProgramId?: string,
   recentCalculations: any[],
   appName?: string
 }) {
@@ -43,20 +43,20 @@ export default function HomeClient({
   return (
     <div className="min-h-[calc(100vh-64px)] flex flex-col items-center px-6 py-20 relative overflow-hidden">
       {/* Decorative blobs */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
         className="absolute top-1/4 -left-20 w-72 h-72 bg-emerald-600/10 rounded-full blur-[120px] -z-10"
       ></motion.div>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 2, delay: 0.5, repeat: Infinity, repeatType: "reverse" }}
         className="absolute bottom-1/4 -right-20 w-96 h-96 bg-emerald-400/10 rounded-full blur-[150px] -z-10"
       ></motion.div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
@@ -67,7 +67,7 @@ export default function HomeClient({
           The Best Kerala Polytechnic GPA Calculator
         </div>
         <h1 className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight mb-6 text-foreground leading-[1.05] selection:bg-emerald-500 selection:text-black">
-          PolyGPA <span className="glare-text">for Polytechnic</span>
+          <span className="glare-text">CGPA Calculator for Polytechnic</span>
         </h1>
         <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed font-medium max-w-2xl mx-auto">
           The most accurate <strong>cgpa calculator for polytechnic</strong> students. Track your marks, upload PDFs, and manage your academic progress with Revision 2021 support.
@@ -105,7 +105,7 @@ export default function HomeClient({
             icon: <CheckCircle2 className="h-5 w-5 text-emerald-500" />
           }
         ].map((feature, i) => (
-          <motion.div 
+          <motion.div
             key={i}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -131,11 +131,11 @@ export default function HomeClient({
 
         <div className="space-y-4">
           {faqs.map((faq, i) => (
-            <div 
+            <div
               key={i}
               className="bg-card/30 border border-border/50 rounded-3xl overflow-hidden transition-all hover:border-emerald-500/20"
             >
-              <button 
+              <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 className="w-full px-8 py-6 flex items-center justify-between text-left group"
               >
@@ -144,7 +144,7 @@ export default function HomeClient({
               </button>
               <AnimatePresence>
                 {openFaq === i && (
-                  <motion.div 
+                  <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
@@ -165,9 +165,9 @@ export default function HomeClient({
       <div className="sr-only">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="space-y-4">
-            <h4 className="text-sm font-black uppercase tracking-widest text-primary">About PolyGPA</h4>
+            <h4 className="text-sm font-black uppercase tracking-widest text-primary">About PolyGrade</h4>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              PolyGPA (formerly PolyGrade) is the leading <strong>polytechnic gpa calculator</strong> designed specifically for Kerala Polytechnic students. We support the latest Revision 2021 syllabus and provide the most accurate <strong>cgpa calculator for polytechnic</strong> diploma courses.
+              PolyGrade (also known as PolyGPA) is the leading <strong>polytechnic gpa calculator</strong> designed specifically for Kerala Polytechnic students. We support the latest Revision 2021 syllabus and provide the most accurate <strong>cgpa calculator for polytechnic</strong> diploma courses.
             </p>
           </div>
           <div className="space-y-4">
@@ -182,7 +182,7 @@ export default function HomeClient({
         </div>
         {/* Hidden keywords for SEO crawler */}
         <div className="sr-only">
-          polygpa, polytechnic gpa calculator, cgpa calculator, cgpa calculator for polytechnic, kerala polytechnic, sitalk, diploma gpa, sgpa calculator, revision 2021
+          polygpa, poly gpa, polygrade, polytechnic gpa calculator, cgpa calculator, cgpa calculator for polytechnic, kerala polytechnic, sitalk, diploma gpa, sgpa calculator, revision 2021, poly gpa calculator kerala
         </div>
       </div>
     </div>

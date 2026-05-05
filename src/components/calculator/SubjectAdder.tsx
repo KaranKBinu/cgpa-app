@@ -79,7 +79,7 @@ export const SubjectAdder: React.FC<SubjectAdderProps> = ({
                         placeholder="Search missing subjects..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full bg-background border border-border/50 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold focus:outline-none focus:border-primary transition-all shadow-inner"
+                        className="w-full bg-background border border-border rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold focus:outline-none focus:border-primary transition-all shadow-inner"
                       />
                     </div>
                   </div>
@@ -136,7 +136,7 @@ export const SubjectAdder: React.FC<SubjectAdderProps> = ({
                         value={customName}
                         onChange={(e) => setCustomName(e.target.value)}
                         placeholder="e.g. Advanced Workshop"
-                        className="w-full bg-background border border-border/50 rounded-xl py-3 px-4 text-sm font-bold focus:outline-none focus:border-primary transition-all"
+                        className="w-full bg-background border border-border rounded-xl py-3 px-4 text-sm font-bold focus:outline-none focus:border-primary transition-all"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -148,7 +148,7 @@ export const SubjectAdder: React.FC<SubjectAdderProps> = ({
                         step="0.5"
                         value={customCredits}
                         onChange={(e) => setCustomCredits(Number(e.target.value))}
-                        className="w-full bg-background border border-border/50 rounded-xl py-3 px-4 text-sm font-bold focus:outline-none focus:border-primary transition-all"
+                        className="w-full bg-background border border-border rounded-xl py-3 px-4 text-sm font-bold focus:outline-none focus:border-primary transition-all"
                       />
                     </div>
                     <button

@@ -46,7 +46,7 @@ export const ManualEntryView: React.FC<ManualEntryViewProps> = ({
                 const val = parseFloat(e.target.value);
                 setManualSgpas(prev => ({ ...prev, [currentSem.id]: { sgpa: val || 0, credits: 0 } }));
               }}
-              className="w-full h-16 bg-background rounded-2xl border-2 border-border/50 px-6 text-3xl font-black text-foreground outline-none focus:border-primary/50 transition-all text-center"
+              className="w-full h-16 bg-background rounded-2xl border-2 border-border px-6 text-3xl font-black text-foreground outline-none focus:border-primary/50 transition-all text-center"
             />
           </div>
         </div>

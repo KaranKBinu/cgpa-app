@@ -165,7 +165,7 @@ export default function ProgramSelector({
               "w-full h-14 sm:h-20 bg-card/60 backdrop-blur-3xl border-2 pl-14 sm:pl-16 pr-14 sm:pr-16 text-base sm:text-xl font-black text-foreground focus:outline-none transition-all duration-500 rounded-3xl sm:rounded-[2rem] relative z-10",
               isOpen 
                 ? "border-emerald-500/50 ring-8 ring-emerald-500/5 bg-card/80" 
-                : "border-emerald-500/20 hover:border-emerald-500/40 hover:bg-card/80 shadow-none"
+                : "border-emerald-500/40 hover:border-emerald-500/60 hover:bg-card/80 shadow-none"
             )}
             value={search}
             onFocus={() => setIsOpen(true)}

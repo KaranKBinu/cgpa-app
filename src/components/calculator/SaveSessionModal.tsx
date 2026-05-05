@@ -71,7 +71,7 @@ export const SaveSessionModal: React.FC<SaveSessionModalProps> = ({
                     placeholder="Enter semester or student identity..."
                     value={studentName}
                     onChange={(e) => setStudentName(e.target.value)}
-                    className="w-full h-14 bg-background border-2 border-border/50 rounded-2xl pl-12 pr-6 text-sm font-bold placeholder:text-muted-foreground/30 focus:border-emerald-500/50 outline-none transition-all"
+                    className="w-full h-14 bg-background border-2 border-border rounded-2xl pl-12 pr-6 text-sm font-bold placeholder:text-muted-foreground/30 focus:border-emerald-500/50 outline-none transition-all"
                   />
                 </div>
               </div>

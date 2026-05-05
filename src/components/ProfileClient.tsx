@@ -79,7 +79,7 @@ export default function ProfileClient({ user, programs }: { user: any, programs:
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-card/50 border border-border/50 rounded-2xl py-4 pl-12 pr-4 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
+                  className="w-full bg-card/50 border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
                   placeholder="John Doe"
                   required
                 />
@@ -94,7 +94,7 @@ export default function ProfileClient({ user, programs }: { user: any, programs:
                   type="email"
                   value={user.email}
                   disabled
-                  className="w-full bg-background border border-border/50 rounded-2xl py-4 pl-12 pr-4 text-muted-foreground font-medium italic"
+                  className="w-full bg-background border border-border rounded-2xl py-4 pl-12 pr-4 text-muted-foreground font-medium italic"
                 />
               </div>
             </div>
@@ -106,7 +106,7 @@ export default function ProfileClient({ user, programs }: { user: any, programs:
               <button
                 type="button"
                 onClick={() => setOpenDept(!openDept)}
-                className="w-full bg-card/50 border border-border/50 rounded-2xl py-4 px-6 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-left flex justify-between items-center group"
+                className="w-full bg-card/50 border border-border rounded-2xl py-4 px-6 text-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-left flex justify-between items-center group"
               >
                 <div className="flex items-center gap-3">
                   <GraduationCap className="h-5 w-5 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
@@ -139,7 +139,7 @@ export default function ProfileClient({ user, programs }: { user: any, programs:
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         autoFocus
-                        className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-2 text-xs font-bold focus:outline-none focus:border-emerald-500/50 transition-all"
+                        className="w-full bg-background/50 border border-border rounded-xl px-4 py-2 text-xs font-bold focus:outline-none focus:border-emerald-500/50 transition-all"
                       />
                     </div>
                     <div className="max-h-[250px] overflow-y-auto custom-scrollbar p-1">
