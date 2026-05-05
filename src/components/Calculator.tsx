@@ -87,7 +87,7 @@ export default function Calculator({
     }
 
     const handlePopState = (e: PopStateEvent) => {
-      if (core.results.cgpa > 0 && !isLeaving) {
+      if (session && core.results.cgpa > 0 && !isLeaving) {
         // Push state back to prevent navigation
         window.history.pushState(null, '', window.location.pathname);
         hasPushedState.current = true;
@@ -98,7 +98,9 @@ export default function Calculator({
     };
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (core.results.cgpa > 0) {
+      // Only warn if user is logged in and has unsaved changes
+      // If not logged in, data is persisted in localStorage anyway
+      if (session && core.results.cgpa > 0 && !isLeaving) {
         e.preventDefault();
         e.returnValue = '';
       }
