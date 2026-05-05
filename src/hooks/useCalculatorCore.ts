@@ -76,11 +76,25 @@ export function useCalculatorCore({
 
           activeSem.subjects.forEach(s => {
             if (s.isGroup) {
-              const opt = s.options?.find(o => 
+              // 1. Check local options
+              let opt = s.options?.find(o => 
                 (o.code && o.code.trim() === subCodeTrimmed) || 
                 (o.name.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === subNameNormalized)
               );
-              if (opt) { foundSubjectId = opt.id; parentGroupId = s.id; histSelected[s.id] = opt.id; }
+              
+              // 2. Check global open electives if not found in local options
+              if (!opt && s.category === 'Open Elective course') {
+                opt = globalOpenElectives?.find(o => 
+                  (o.code && o.code.trim() === subCodeTrimmed) || 
+                  (o.name.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === subNameNormalized)
+                );
+              }
+
+              if (opt) { 
+                foundSubjectId = opt.id; 
+                parentGroupId = s.id; 
+                histSelected[s.id] = opt.id; 
+              }
             } else if ((s.code && s.code.trim() === subCodeTrimmed) || (s.name.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === subNameNormalized)) {
               foundSubjectId = s.id;
             }
